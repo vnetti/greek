@@ -110,6 +110,8 @@ h2{font:600 24px/1 var(--serif);margin:0;flex:1}
 .forms{font-size:14px;color:var(--acc);margin-top:8px}
 button.say.sm{float:right;width:34px;height:34px;margin:0 0 4px 10px}
 button.say.sm svg{width:16px;height:16px}
+.forms button.say.sm{float:none;width:28px;height:28px;margin:0 0 0 6px}
+.forms button.say.sm svg{width:14px;height:14px}
 button.say.big{width:96px;height:96px;margin:0}
 button.say.big svg{width:40px;height:40px}
 .add{align-items:flex-end}
@@ -262,10 +264,12 @@ function play(audio, text) {
   speechSynthesis.speak(u);
 }
 const say = c => play(c.audio, c.gr);
-function sayEx(c) {
-  play(c.exAudio, c.ex);
-  // cards made before example audio existed: speak with iOS now, fetch Google audio for next time
-  if (!c.exAudio && c.ex) tts(c.ex).then(a => { c.exAudio = a; save(c); }).catch(() => {});
+// Greek words only from the grammar line: "аор.: έφαγα · буд.: θα φάω" → "έφαγα, θα φάω"
+const formsText = c => c.forms?.match(/[\p{Script=Greek}\p{M}]+(?:\s+[\p{Script=Greek}\p{M}]+)*/gu)?.join(', ') || '';
+function sayPart(c, k, text) {
+  play(c[k], text);
+  // older cards lack this recording: speak with iOS now, fetch Google audio for next time
+  if (!c[k] && text) tts(text).then(a => { c[k] = a; save(c); }).catch(() => {});
 }
 
 // Full card content from a word: Gemini text, then both recordings in parallel.
@@ -274,8 +278,8 @@ async function build(text, step = () => {}) {
   const c = await ask(text);
   step('Записываю произношение…');
   const t0 = performance.now();
-  const [a, ea] = await Promise.allSettled([tts(c.gr), tts(c.ex)]);
-  c.audio = a.value; c.exAudio = ea.value; // undefined on failure: iOS voice plays instead
+  const [a, ea, fa] = await Promise.allSettled([tts(c.gr), tts(c.ex), formsText(c) && tts(formsText(c))]);
+  c.audio = a.value; c.exAudio = ea.value; c.formsAudio = fa.value || undefined; // undefined: iOS voice plays instead
   const timing = `${ask.took} · озвучка ${sec(t0)}`; // shown under the preview to see where time goes
   return { c, note: a.reason ? `Озвучка голосом iOS (Cloud TTS: ${a.reason.message}) · ${timing}` : timing };
 }
@@ -368,12 +372,13 @@ const cardHtml = (c, verdict = '') => `<div class="card">${verdict}
   <div class="emoji">${esc(c.emoji)}</div>
   <div class="word">${esc(c.gr)}${SAY}</div>
   <div class="tr">${esc(c.tr)}</div>
-  ${c.forms ? `<div class="forms">${esc(c.forms)}</div>` : ''}
+  ${c.forms ? `<div class="forms">${esc(c.forms)}${formsText(c) ? sayBtn('sayForms', 'sm') : ''}</div>` : ''}
   <div class="ru">${esc(c.ru)}</div>
   ${c.ex ? `<div class="ex">${sayBtn('sayEx', 'sm')}${esc(c.ex)}<div>${esc(c.exRu)}</div></div>` : ''}</div>`;
 const wire = c => {
   if ($('#say')) $('#say').onclick = () => say(c);
-  if ($('#sayEx')) $('#sayEx').onclick = () => sayEx(c);
+  if ($('#sayEx')) $('#sayEx').onclick = () => sayPart(c, 'exAudio', c.ex);
+  if ($('#sayForms')) $('#sayForms').onclick = () => sayPart(c, 'formsAudio', formsText(c));
 };
 
 // learning level = weakest direction, as filled dots out of INTERVALS.length
@@ -421,6 +426,7 @@ function edit(c) {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target)), newGr = d.gr.trim() !== c.gr, newEx = d.ex !== c.ex;
     if (!d.gr.trim()) return alert('Греческое слово не может быть пустым');
+    if (d.forms !== c.forms) delete c.formsAudio; // re-recorded on next play
     Object.assign(c, d, { gr: d.gr.trim() });
     if (newGr || newEx) { // old audio says the old text
       $('#sv').disabled = true; $('#sv').textContent = 'Озвучиваю…';
