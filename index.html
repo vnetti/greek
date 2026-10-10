@@ -6,26 +6,79 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Λέξεις">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1420" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon.png">
 <title>Λέξεις</title>
 <style>
-:root{--bg:#fafaf7;--fg:#1d1d1f;--mut:#86868b;--card:#fff;--line:#e5e5e0;--acc:#0d5eaf;--ok:#1f8a3b;--bad:#c62828;--warn:#b26a00}
-@media (prefers-color-scheme:dark){:root{--bg:#111;--fg:#f2f2f2;--mut:#999;--card:#1c1c1e;--line:#333;--acc:#5ea3ef;--ok:#4cc26a;--bad:#ff6b6b;--warn:#f0a020}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.4 -apple-system,system-ui,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
-main{max-width:480px;margin:0 auto}
-button{font:inherit;border:0;border-radius:12px;padding:14px 16px;background:var(--acc);color:#fff;width:100%;cursor:pointer}
-button.sec{background:var(--line);color:var(--fg)} button.bad{background:var(--bad)} button.ok{background:var(--ok)}
-button:disabled{opacity:.5}
-button.say{background:none;color:var(--acc);width:auto;padding:4px 8px;font-size:24px}
-input{font:inherit;width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--fg)}
-.row{display:flex;gap:8px;margin-top:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 16px;text-align:center;margin:16px 0}
-.big{font-size:30px;font-weight:600}
-.emoji{font-size:56px}
-.mut{color:var(--mut)} .small{font-size:14px}
-.ex{margin-top:12px;font-style:italic}
-.links{display:flex;justify-content:space-around;margin-top:32px}
-a{color:var(--mut);font-size:14px}
+:root{
+  --bg:#f5f2ea;--surface:#fffdf8;--ink:#14213d;--mut:#7a7f8c;--line:#e6e0d2;
+  --acc:#1f4e8c;--acc-bg:#e4ecf7;--ok:#2e7d4f;--ok-bg:#e1f0e6;--bad:#b4442f;--bad-bg:#f8e3dd;--warn:#9a6200;--warn-bg:#fbefd6;
+  --shadow:0 1px 2px rgba(20,33,61,.05),0 10px 30px rgba(20,33,61,.08);
+  --serif:ui-serif,"New York","Iowan Old Style",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1420;--surface:#182030;--ink:#eef1f7;--mut:#8b93a5;--line:#273045;
+  --acc:#7fb2f5;--acc-bg:#1d2d47;--ok:#6fd096;--ok-bg:#163024;--bad:#f08a75;--bad-bg:#3a1f19;--warn:#f0b14a;--warn-bg:#3a2c10;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system,system-ui,sans-serif;
+  padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));min-height:100dvh}
+main{max-width:440px;margin:0 auto}
+h1{font:600 40px/1 var(--serif);margin:8px 0 4px;letter-spacing:-.01em}
+button{font:600 17px/1 -apple-system,system-ui,sans-serif;border:0;border-radius:16px;padding:17px 18px;background:var(--acc);color:#fff;
+  width:100%;cursor:pointer;transition:transform .12s,opacity .2s}
+@media (prefers-color-scheme:dark){button{color:#0f1420}}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.45}
+button.sec{background:var(--line);color:var(--ink)}
+button.ok{background:var(--ok-bg);color:var(--ok)} button.bad{background:var(--bad-bg);color:var(--bad)}
+button.say{width:44px;height:44px;padding:0;border-radius:50%;background:var(--acc-bg);color:var(--acc);vertical-align:middle;margin-left:8px;display:inline-grid;place-items:center}
+button.x{width:auto;background:none;color:var(--mut);padding:8px;font-size:22px;font-weight:400}
+input{font:inherit;width:100%;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);outline:none}
+input:focus{border-color:var(--acc)}
+.row{display:flex;gap:10px;margin-top:14px}
+.mut{color:var(--mut)} .small{font-size:14px} .center{text-align:center}
+
+/* home */
+.sub{color:var(--mut);font-size:15px;margin-bottom:22px}
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:24px 22px 34px;color:#fff;
+  background:linear-gradient(140deg,#2b62a8,#14365f);box-shadow:var(--shadow)}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:12px;height:10px;opacity:.35;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='10'%3E%3Cpath d='M0 9.4H12M10 9.4V1H2V7H8V3.5H5' fill='none' stroke='white' stroke-width='1.2'/%3E%3C/svg%3E") repeat-x}
+.hero .label{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.hero .n{font:600 68px/1 var(--serif);margin:6px 0 18px}
+.hero button{background:#fff;color:#1f4e8c}
+.add{display:flex;gap:6px;margin-top:16px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.add input{border:0;background:none;padding:12px 10px}
+.add button{width:48px;height:48px;padding:0;border-radius:14px;font-size:26px;font-weight:400;flex:none}
+.msg{min-height:20px;margin:14px 4px 0;font-size:14px;color:var(--mut)}
+.links{display:flex;justify-content:center;gap:24px;margin-top:40px}
+a{color:var(--mut);font-size:14px;text-decoration:none}
+
+/* cards */
+.card{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:30px 22px;text-align:center;margin:16px 0;
+  animation:pop .28s ease-out}
+.card.front{min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.chip{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:18px}
+.verdict{display:inline-block;font-size:14px;font-weight:600;padding:8px 14px;border-radius:14px;margin-bottom:18px}
+.verdict.ok{background:var(--ok-bg);color:var(--ok)} .verdict.bad{background:var(--bad-bg);color:var(--bad)} .verdict.warn{background:var(--warn-bg);color:var(--warn)}
+.emoji{font-size:60px;line-height:1;margin-bottom:14px}
+.word{font:600 34px/1.2 var(--serif);letter-spacing:-.01em}
+.tr{color:var(--mut);font-size:15px;margin-top:8px;letter-spacing:.02em}
+.ru{font-size:21px;font-weight:500;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+.ex{margin-top:20px;text-align:left;background:var(--bg);border-radius:16px;padding:14px 16px;font:italic 17px/1.4 var(--serif)}
+.ex div{font:14px/1.4 -apple-system,system-ui,sans-serif;color:var(--mut);margin-top:4px}
+.top{display:flex;align-items:center;gap:10px}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:3px;transition:width .3s}
+.spin{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;margin:35vh auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login{min-height:80dvh;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.login h1{font-size:64px}
+.login button{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);margin-top:32px}
 </style>
 </head>
 <body><main id="app"></main>
@@ -169,17 +222,25 @@ function queue() {
 }
 
 // --- screens ---
+let total = 0; // cards in the current review session, for the progress bar
+const plural = (n, one, few, many) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? one
+  : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
+const spinner = text => `<div class="spin"></div><p class="mut center">${text}</p>`;
 function home(msg = '') {
   const due = queue().length;
   app.innerHTML = `
-    <h1 style="margin:8px 0 16px">Λέξεις</h1>
-    <button id="rev" ${due ? '' : 'disabled'}>Повторить (${due})</button>
-    <form id="add" class="row"><input id="w" placeholder="Слово по-русски или по-гречески" autocomplete="off"><button style="width:auto">+</button></form>
-    <p class="mut small">${esc(msg)}</p>
-    <div class="links"><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключ</a></div>
-    <p class="mut small" style="text-align:center">Слов: ${cards.length}</p>
+    <h1>Λέξεις</h1>
+    <div class="sub">${plural(cards.length, 'слово', 'слова', 'слов')} в словаре</div>
+    <div class="hero">
+      <div class="label">На сегодня</div>
+      <div class="n">${due}</div>
+      <button id="rev" ${due ? '' : 'disabled'}>${due ? 'Начать повторение' : 'Всё повторено ✓'}</button>
+    </div>
+    <form id="add" class="add"><input id="w" placeholder="Новое слово или фраза" autocomplete="off"><button aria-label="Добавить">+</button></form>
+    <div class="msg">${esc(msg)}</div>
+    <div class="links"><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a></div>
     <input type="file" id="file" accept=".json,application/json" hidden>`;
-  $('#rev').onclick = () => { q = queue(); next(); };
+  $('#rev').onclick = () => { q = queue(); total = q.length; next(); };
   $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
   $('#exp').onclick = e => { e.preventDefault(); exportAll(); };
   $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
@@ -187,20 +248,22 @@ function home(msg = '') {
   $('#k').onclick = e => { e.preventDefault(); localStorage.removeItem('key'); localStorage.removeItem('tts'); key(); ttsKey(); };
 }
 
-const cardHtml = c => `<div class="card">
+const SAY = `<button class="say" id="say" aria-label="Произнести"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>`;
+const cardHtml = (c, verdict = '') => `<div class="card">${verdict}
   <div class="emoji">${esc(c.emoji)}</div>
-  <div class="big">${esc(c.gr)} <button class="say" id="say">🔊</button></div>
-  <div class="mut">${esc(c.tr)}</div>
-  <div style="margin-top:8px;font-size:20px">${esc(c.ru)}</div>
-  <div class="ex">${esc(c.ex)}</div><div class="mut small">${esc(c.exRu)}</div></div>`;
+  <div class="word">${esc(c.gr)}${SAY}</div>
+  <div class="tr">${esc(c.tr)}</div>
+  <div class="ru">${esc(c.ru)}</div>
+  <div class="ex">${esc(c.ex)}<div>${esc(c.exRu)}</div></div></div>`;
 
 async function add(text) {
-  app.innerHTML = '<p class="mut">Думаю…</p>';
+  app.innerHTML = spinner('Готовлю карточку…');
   try {
     const c = await ask(text);
     let note = '';
     try { c.audio = await tts(c.gr); } catch (e) { note = 'Озвучка голосом iOS (Cloud TTS: ' + e.message + ')'; }
-    app.innerHTML = cardHtml(c) + `<p class="mut small">${esc(note)}</p>
+    app.innerHTML = cardHtml(c) + `<p class="mut small center">${esc(note)}</p>
       <div class="row"><button class="sec" id="no">Отмена</button><button id="yes">Сохранить</button></div>`;
     $('#say').onclick = () => say(c);
     say(c);
@@ -218,36 +281,44 @@ async function add(text) {
 function next() {
   const it = q.shift();
   if (!it) return home('Готово на сегодня 🎉');
-  const { c, dir } = it, left = `<p class="mut small">Осталось: ${q.length + 1}</p>`;
+  const { c, dir } = it;
   if (dir === 'gr2ru') {
-    app.innerHTML = left + `<div class="card"><div class="big">${esc(c.gr)} <button class="say" id="say">🔊</button></div></div>
-      <button id="show">Показать</button>`;
+    app.innerHTML = topBar() + `<div class="card front"><div class="chip">Что это значит?</div>
+      <div class="word">${esc(c.gr)}${SAY}</div></div>
+      <button id="show">Показать ответ</button>`;
     $('#say').onclick = () => say(c);
     say(c);
     $('#show').onclick = () => back(it, null);
   } else {
-    app.innerHTML = left + `<div class="card"><div class="emoji">${esc(c.emoji)}</div><div class="big">${esc(c.ru)}</div></div>
-      <form id="f"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="По-гречески">
+    app.innerHTML = topBar() + `<div class="card front"><div class="chip">Как по-гречески?</div>
+      <div class="emoji">${esc(c.emoji)}</div><div class="word">${esc(c.ru)}</div></div>
+      <form id="f"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Ελληνικά…">
       <button style="margin-top:12px">Проверить</button></form>`;
     $('#a').focus();
     $('#f').onsubmit = e => { e.preventDefault(); back(it, $('#a').value); };
   }
+  $('#x').onclick = () => home();
 }
+// progress counts the card on screen as not yet done; called after q.shift()
+const topBar = () => `<div class="top"><button class="x" id="x" aria-label="Выйти">✕</button>
+  <div class="bar"><i style="width:${(total - q.length - 1) / total * 100}%"></i></div>
+  <span class="mut small">${total - q.length}/${total}</span></div>`;
 
 function back(it, answer) {
   const c = it.c;
   let verdict = '', buttons = '<button class="bad" id="n">Не знал</button><button class="ok" id="y">Знал</button>';
   if (answer !== null) {
     const r = check(answer, c.gr);
-    verdict = r === 'ok' ? '<p style="color:var(--ok)">✅ Верно</p>'
-      : r === 'accent' ? `<p style="color:var(--warn)">⚠️ Засчитано, но проверь ударение. Ты написал: «${esc(answer)}»</p>`
-      : `<p style="color:var(--bad)">❌ Ты написал: «${esc(answer)}»</p>`;
+    verdict = r === 'ok' ? '<div class="verdict ok">Верно</div>'
+      : r === 'accent' ? `<div class="verdict warn">Засчитано, проверь ударение: «${esc(answer)}»</div>`
+      : `<div class="verdict bad">Ты написал: «${esc(answer)}»</div>`;
     buttons = r === 'bad' ? '<button class="sec" id="y">Засчитать</button><button class="bad" id="n">Дальше</button>'
-      : '<button class="ok" id="y">Дальше</button>';
+      : '<button id="y">Дальше</button>';
     say(c);
   }
-  app.innerHTML = verdict + cardHtml(c) + `<div class="row">${buttons}</div>
-    <p style="text-align:center"><a href="#" id="del">удалить карточку</a></p>`;
+  app.innerHTML = topBar() + cardHtml(c, verdict) + `<div class="row">${buttons}</div>
+    <p class="center"><a href="#" id="del">Удалить карточку</a></p>`;
+  $('#x').onclick = () => home();
   $('#say').onclick = () => say(c);
   $('#y').onclick = () => done(it, true);
   if ($('#n')) $('#n').onclick = () => done(it, false);
@@ -263,7 +334,7 @@ function back(it, answer) {
 
 function done(it, ok) {
   if (!it.retry) { grade(it.c[it.dir], ok); save(it.c); } // re-shows within a session don't move the schedule
-  if (!ok) q.push({ ...it, retry: true });
+  if (!ok) { q.push({ ...it, retry: true }); total++; }
   next();
 }
 
@@ -299,13 +370,13 @@ function selftest() {
 }
 
 function login(msg = '') {
-  app.innerHTML = `<h1 style="margin:8px 0 16px">Λέξεις</h1>
-    <button id="in">Войти через Google</button><p class="mut small">${esc(msg)}</p>`;
+  app.innerHTML = `<div class="login"><h1>Λέξεις</h1><div class="mut">Греческие слова на каждый день</div>
+    <button id="in">Войти через Google</button><p class="mut small">${esc(msg)}</p></div>`;
   $('#in').onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => login('Ошибка входа: ' + e.message));
 }
 
 navigator.serviceWorker?.register('sw.js').catch(() => {});
-app.innerHTML = '<p class="mut">Загрузка…</p>';
+app.innerHTML = spinner('Загрузка…');
 onAuthStateChanged(auth, async user => {
   if (!user) return login();
   try {
