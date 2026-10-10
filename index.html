@@ -56,6 +56,23 @@ input:focus{border-color:var(--acc)}
 .msg{min-height:20px;margin:14px 4px 0;font-size:14px;color:var(--mut)}
 .links{display:flex;justify-content:center;gap:24px;margin-top:40px}
 a{color:var(--mut);font-size:14px;text-decoration:none}
+.sub{cursor:pointer}
+h2{font:600 24px/1 var(--serif);margin:0;flex:1}
+.search{margin-top:16px}
+.list{margin-top:14px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;background:none;color:var(--ink);border-radius:0;padding:12px 16px;text-align:left;
+  font-weight:400;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item[hidden]{display:none}
+.item:active{transform:none;background:var(--bg)}
+.item .e{font-size:26px;width:32px;text-align:center;flex:none}
+.item .t{flex:1;min-width:0}
+.item b{display:block;font:600 18px/1.3 var(--serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item small{display:block;color:var(--mut);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvl{color:var(--acc);font-size:9px;letter-spacing:1px;flex:none}
+.card.form{text-align:left}
+.form label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:14px}
+.form input{margin-top:6px;padding:12px 14px;font-weight:400}
 .account{text-align:center;margin-top:14px;font-size:13px;color:var(--mut);opacity:.8}
 .account a{font-size:13px;color:var(--acc)}
 
@@ -232,7 +249,7 @@ function home(msg = '') {
   const due = queue().length;
   app.innerHTML = `
     <h1>Λέξεις</h1>
-    <div class="sub">${plural(cards.length, 'слово', 'слова', 'слов')} в словаре</div>
+    <div class="sub">${plural(cards.length, 'слово', 'слова', 'слов')} в словаре ›</div>
     <div class="hero">
       <div class="label">На сегодня</div>
       <div class="n">${due}</div>
@@ -240,11 +257,12 @@ function home(msg = '') {
     </div>
     <form id="add" class="add"><input id="w" placeholder="Новое слово или фраза" autocomplete="off"><button aria-label="Добавить">+</button></form>
     <div class="msg">${esc(msg)}</div>
-    <div class="links"><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a></div>
+    <div class="links"><a href="#" id="lst">Словарь</a><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a></div>
     <div class="account">${esc(auth.currentUser?.email)} · <a href="#" id="out">Выйти</a></div>
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#rev').onclick = () => { q = queue(); total = q.length; next(); };
   $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
+  $('#lst').onclick = $('.sub').onclick = e => { e.preventDefault(); list(); };
   $('#exp').onclick = e => { e.preventDefault(); exportAll(); };
   $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
   $('#file').onchange = e => e.target.files[0] && importAll(e.target.files[0]);
@@ -267,6 +285,53 @@ const cardHtml = (c, verdict = '') => `<div class="card">${verdict}
   <div class="tr">${esc(c.tr)}</div>
   <div class="ru">${esc(c.ru)}</div>
   <div class="ex">${esc(c.ex)}<div>${esc(c.exRu)}</div></div></div>`;
+
+// learning level = weaker of the two directions, as filled dots out of INTERVALS.length
+const level = c => { const b = Math.min(c.gr2ru.box, c.ru2gr.box, INTERVALS.length); return '●'.repeat(b) + '○'.repeat(INTERVALS.length - b); };
+
+function list() {
+  const rows = [...cards].sort((a, b) => a.gr.replace(/^(ο|η|το|οι|τα)\s+/, '').localeCompare(b.gr.replace(/^(ο|η|το|οι|τα)\s+/, ''), 'el'));
+  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">✕</button><h2>Словарь</h2>
+      <span class="mut small">${cards.length}</span></div>
+    <input id="s" class="search" placeholder="Поиск по-гречески или по-русски" autocomplete="off">
+    <div class="list">${rows.map(c => `<button class="item" data-id="${esc(c.id)}" data-q="${esc((c.gr + ' ' + c.ru).toLowerCase())}">
+      <span class="e">${esc(c.emoji)}</span><span class="t"><b>${esc(c.gr)}</b><small>${esc(c.ru)}</small></span>
+      <span class="lvl">${level(c)}</span></button>`).join('') || '<p class="mut center">Пока пусто</p>'}</div>`;
+  $('#x').onclick = () => home();
+  $('#s').oninput = e => { // filter in place so the keyboard stays open
+    const f = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.item').forEach(el => el.hidden = !el.dataset.q.includes(f));
+  };
+  document.querySelectorAll('.item').forEach(el => el.onclick = () => edit(cards.find(c => c.id === el.dataset.id)));
+}
+
+function edit(c) {
+  const F = [['gr', 'Греческий'], ['tr', 'Транскрипция'], ['ru', 'Перевод'], ['ex', 'Пример'], ['exRu', 'Перевод примера'], ['emoji', 'Эмодзи']];
+  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">←</button><h2>Карточка</h2>${SAY}</div>
+    <form id="ef" class="card form">${F.map(([k, l]) => `<label>${l}<input name="${k}" value="${esc(c[k])}" autocomplete="off"></label>`).join('')}
+      <button id="sv">Сохранить</button></form>
+    <button class="bad" id="del">Удалить карточку</button>`;
+  $('#x').onclick = () => list();
+  $('#say').onclick = () => say(c);
+  $('#ef').onsubmit = async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target)), newGr = d.gr.trim() !== c.gr;
+    if (!d.gr.trim()) return alert('Греческое слово не может быть пустым');
+    Object.assign(c, d, { gr: d.gr.trim() });
+    if (newGr) { // old audio says the old word
+      $('#sv').disabled = true; $('#sv').textContent = 'Озвучиваю…';
+      try { c.audio = await tts(c.gr); } catch { delete c.audio; }
+    }
+    save(c);
+    list();
+  };
+  $('#del').onclick = () => {
+    if (!confirm(`Удалить «${c.gr}»?`)) return;
+    cards = cards.filter(x => x !== c);
+    remove(c.id);
+    list();
+  };
+}
 
 async function add(text) {
   app.innerHTML = spinner('Готовлю карточку…');
