@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Λέξεις">
+<title>Λέξεις</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1d1d1f;--mut:#86868b;--card:#fff;--line:#e5e5e0;--acc:#0d5eaf;--ok:#1f8a3b;--bad:#c62828;--warn:#b26a00}
+@media (prefers-color-scheme:dark){:root{--bg:#111;--fg:#f2f2f2;--mut:#999;--card:#1c1c1e;--line:#333;--acc:#5ea3ef;--ok:#4cc26a;--bad:#ff6b6b;--warn:#f0a020}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.4 -apple-system,system-ui,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+main{max-width:480px;margin:0 auto}
+button{font:inherit;border:0;border-radius:12px;padding:14px 16px;background:var(--acc);color:#fff;width:100%;cursor:pointer}
+button.sec{background:var(--line);color:var(--fg)} button.bad{background:var(--bad)} button.ok{background:var(--ok)}
+button:disabled{opacity:.5}
+button.say{background:none;color:var(--acc);width:auto;padding:4px 8px;font-size:24px}
+input{font:inherit;width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--fg)}
+.row{display:flex;gap:8px;margin-top:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 16px;text-align:center;margin:16px 0}
+.big{font-size:30px;font-weight:600}
+.emoji{font-size:56px}
+.mut{color:var(--mut)} .small{font-size:14px}
+.ex{margin-top:12px;font-style:italic}
+.links{display:flex;justify-content:space-around;margin-top:32px}
+a{color:var(--mut);font-size:14px}
+</style>
+</head>
+<body><main id="app"></main>
+<script>
+const MODEL = 'gemini-flash-latest';
+const INTERVALS = [1, 3, 7, 14, 30, 60]; // days, indexed by box
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
+
+// --- storage: IndexedDB, since cards carry mp3 audio (too big for localStorage) ---
+const dbp = new Promise((res, rej) => {
+  const r = indexedDB.open('greek', 1);
+  r.onupgradeneeded = () => r.result.createObjectStore('cards', { keyPath: 'id' });
+  r.onsuccess = () => res(r.result);
+  r.onerror = () => rej(r.error);
+});
+async function tx(mode, fn) {
+  const db = await dbp;
+  return new Promise((res, rej) => {
+    const t = db.transaction('cards', mode), r = fn(t.objectStore('cards'));
+    t.oncomplete = () => res(r.result);
+    t.onerror = () => rej(t.error);
+  });
+}
+const loadAll = () => tx('readonly', s => s.getAll());
+const save = c => tx('readwrite', s => s.put(c));
+const remove = id => tx('readwrite', s => s.delete(id));
+navigator.storage?.persist?.();
+let cards = [], q = [];
+
+// optional keys remember an empty answer, so we don't ask on every word
+function key(name = 'key', label = 'Gemini API key (aistudio.google.com/apikey)', optional = false) {
+  if (localStorage.getItem(name) === null) {
+    const k = prompt(label)?.trim();
+    if (k || optional) localStorage.setItem(name, k || '');
+  }
+  return localStorage.getItem(name);
+}
+const ttsKey = () => key('tts', 'Google Text-to-Speech API key (пусто — будет голос iOS)', true);
+
+// --- Google APIs ---
+const PROMPT = `Ты делаешь карточки для русскоговорящего, который учит новогреческий.
+На входе слово или фраза на русском или греческом. Верни JSON:
+gr — греческий вариант (существительные с артиклем ο/η/το, глаголы в 1 л. ед. ч. настоящего времени, фразы как есть);
+ru — короткий русский перевод (1–3 варианта через запятую);
+tr — произношение gr русскими буквами, слоги через дефис, ударный слог ЗАГЛАВНЫМИ (пример: и ка-ли-МЭ-ра);
+ex — короткий простой пример на греческом с этим словом;
+exRu — перевод примера;
+emoji — один эмодзи, лучше всего передающий смысл.
+Вход: `;
+async function google(url, body, k = key()) {
+  if (!k) throw new Error('нет ключа');
+  const r = await fetch(url + '?key=' + encodeURIComponent(k), {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error?.message || r.status);
+  return j;
+}
+async function ask(text) {
+  const S = { type: 'STRING' }, fields = ['gr', 'ru', 'tr', 'ex', 'exRu', 'emoji'];
+  const j = await google(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+    contents: [{ parts: [{ text: PROMPT + text }] }],
+    generationConfig: {
+      responseMimeType: 'application/json',
+      responseSchema: { type: 'OBJECT', properties: Object.fromEntries(fields.map(f => [f, S])), required: fields }
+    }
+  });
+  return JSON.parse(j.candidates[0].content.parts[0].text);
+}
+const tts = async text => (await google('https://texttospeech.googleapis.com/v1/text:synthesize', {
+  input: { text }, voice: { languageCode: 'el-GR' }, audioConfig: { audioEncoding: 'MP3' }
+}, ttsKey())).audioContent;
+function say(c) {
+  if (c.audio) return new Audio('data:audio/mpeg;base64,' + c.audio).play().catch(() => {});
+  const u = new SpeechSynthesisUtterance(c.gr); // fallback: iOS voice
+  u.lang = 'el-GR';
+  speechSynthesis.speak(u);
+}
+
+// --- logic ---
+const base = s => s.toLowerCase().normalize('NFC').replace(/ς/g, 'σ').replace(/[.,!?;·«»"]/g, '')
+  .trim().replace(/\s+/g, ' ').replace(/^(ο|η|το|οι|τα|ο\/η)\s+/, '');
+const loose = s => base(s).normalize('NFD').replace(/\p{M}/gu, '');
+const check = (answer, gr) => base(answer) === base(gr) ? 'ok' : loose(answer) === loose(gr) ? 'accent' : 'bad';
+function grade(d, ok) {
+  if (ok) { d.due = today() + INTERVALS[Math.min(d.box, INTERVALS.length - 1)]; d.box++; }
+  else { d.box = 0; d.due = today() + 1; }
+}
+function queue() {
+  const a = cards.flatMap(c => ['gr2ru', 'ru2gr'].filter(d => c[d].due <= today()).map(dir => ({ c, dir })));
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// --- screens ---
+function home(msg = '') {
+  const due = queue().length;
+  app.innerHTML = `
+    <h1 style="margin:8px 0 16px">Λέξεις</h1>
+    <button id="rev" ${due ? '' : 'disabled'}>Повторить (${due})</button>
+    <form id="add" class="row"><input id="w" placeholder="Слово по-русски или по-гречески" autocomplete="off"><button style="width:auto">+</button></form>
+    <p class="mut small">${esc(msg)}</p>
+    <div class="links"><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключ</a></div>
+    <p class="mut small" style="text-align:center">Слов: ${cards.length}</p>
+    <input type="file" id="file" accept=".json,application/json" hidden>`;
+  $('#rev').onclick = () => { q = queue(); next(); };
+  $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
+  $('#exp').onclick = e => { e.preventDefault(); exportAll(); };
+  $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
+  $('#file').onchange = e => e.target.files[0] && importAll(e.target.files[0]);
+  $('#k').onclick = e => { e.preventDefault(); localStorage.removeItem('key'); localStorage.removeItem('tts'); key(); ttsKey(); };
+}
+
+const cardHtml = c => `<div class="card">
+  <div class="emoji">${esc(c.emoji)}</div>
+  <div class="big">${esc(c.gr)} <button class="say" id="say">🔊</button></div>
+  <div class="mut">${esc(c.tr)}</div>
+  <div style="margin-top:8px;font-size:20px">${esc(c.ru)}</div>
+  <div class="ex">${esc(c.ex)}</div><div class="mut small">${esc(c.exRu)}</div></div>`;
+
+async function add(text) {
+  app.innerHTML = '<p class="mut">Думаю…</p>';
+  try {
+    const c = await ask(text);
+    let note = '';
+    try { c.audio = await tts(c.gr); } catch (e) { note = 'Озвучка голосом iOS (Cloud TTS: ' + e.message + ')'; }
+    app.innerHTML = cardHtml(c) + `<p class="mut small">${esc(note)}</p>
+      <div class="row"><button class="sec" id="no">Отмена</button><button id="yes">Сохранить</button></div>`;
+    $('#say').onclick = () => say(c);
+    say(c);
+    $('#no').onclick = () => home();
+    $('#yes').onclick = async () => {
+      Object.assign(c, { id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+        gr2ru: { box: 0, due: today() }, ru2gr: { box: 0, due: today() + 1 } }); // reverse starts tomorrow
+      await save(c);
+      cards.push(c);
+      home('Добавлено: ' + c.gr);
+    };
+  } catch (e) { home('Ошибка: ' + e.message); }
+}
+
+function next() {
+  const it = q.shift();
+  if (!it) return home('Готово на сегодня 🎉');
+  const { c, dir } = it, left = `<p class="mut small">Осталось: ${q.length + 1}</p>`;
+  if (dir === 'gr2ru') {
+    app.innerHTML = left + `<div class="card"><div class="big">${esc(c.gr)} <button class="say" id="say">🔊</button></div></div>
+      <button id="show">Показать</button>`;
+    $('#say').onclick = () => say(c);
+    say(c);
+    $('#show').onclick = () => back(it, null);
+  } else {
+    app.innerHTML = left + `<div class="card"><div class="emoji">${esc(c.emoji)}</div><div class="big">${esc(c.ru)}</div></div>
+      <form id="f"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="По-гречески">
+      <button style="margin-top:12px">Проверить</button></form>`;
+    $('#a').focus();
+    $('#f').onsubmit = e => { e.preventDefault(); back(it, $('#a').value); };
+  }
+}
+
+function back(it, answer) {
+  const c = it.c;
+  let verdict = '', buttons = '<button class="bad" id="n">Не знал</button><button class="ok" id="y">Знал</button>';
+  if (answer !== null) {
+    const r = check(answer, c.gr);
+    verdict = r === 'ok' ? '<p style="color:var(--ok)">✅ Верно</p>'
+      : r === 'accent' ? `<p style="color:var(--warn)">⚠️ Засчитано, но проверь ударение. Ты написал: «${esc(answer)}»</p>`
+      : `<p style="color:var(--bad)">❌ Ты написал: «${esc(answer)}»</p>`;
+    buttons = r === 'bad' ? '<button class="sec" id="y">Засчитать</button><button class="bad" id="n">Дальше</button>'
+      : '<button class="ok" id="y">Дальше</button>';
+    say(c);
+  }
+  app.innerHTML = verdict + cardHtml(c) + `<div class="row">${buttons}</div>
+    <p style="text-align:center"><a href="#" id="del">удалить карточку</a></p>`;
+  $('#say').onclick = () => say(c);
+  $('#y').onclick = () => done(it, true);
+  if ($('#n')) $('#n').onclick = () => done(it, false);
+  $('#del').onclick = e => {
+    e.preventDefault();
+    if (!confirm(`Удалить «${c.gr}»?`)) return;
+    cards = cards.filter(x => x !== c);
+    q = q.filter(x => x.c !== c);
+    remove(c.id);
+    next();
+  };
+}
+
+function done(it, ok) {
+  if (!it.retry) { grade(it.c[it.dir], ok); save(it.c); } // re-shows within a session don't move the schedule
+  if (!ok) q.push({ ...it, retry: true });
+  next();
+}
+
+async function exportAll() {
+  const file = new File([JSON.stringify(cards)], `greek-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' });
+  if (navigator.canShare?.({ files: [file] })) return navigator.share({ files: [file] }).catch(() => {});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(file);
+  a.download = file.name;
+  a.click();
+}
+async function importAll(file) {
+  try {
+    const list = JSON.parse(await file.text());
+    if (!Array.isArray(list) || !list.every(c => c.id && c.gr && c.gr2ru && c.ru2gr)) throw new Error('не тот файл');
+    for (const c of list) await save(c);
+    cards = await loadAll();
+    home('Импортировано: ' + list.length);
+  } catch (e) { home('Ошибка импорта: ' + e.message); }
+}
+
+function selftest() {
+  const eq = (a, b) => { if (a !== b) throw new Error(a + ' !== ' + b); };
+  eq(check('καλημέρα', 'η καλημέρα'), 'ok');
+  eq(check(' Καλημερα ', 'η καλημέρα'), 'accent');
+  eq(check('καλησπέρα', 'η καλημέρα'), 'bad');
+  eq(check('ο δρόμοσ', 'ο δρόμος'), 'ok');
+  const d = { box: 0, due: 0 };
+  grade(d, true); eq(d.due, today() + 1);
+  grade(d, true); eq(d.due, today() + 3);
+  grade(d, false); eq(d.box, 0); eq(d.due, today() + 1);
+  return 'selftest ok';
+}
+
+navigator.serviceWorker?.register('sw.js').catch(() => {});
+loadAll().then(c => { cards = c; home(location.hash === '#test' ? selftest() : ''); });
+</script>
+</body>
+</html>
