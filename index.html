@@ -29,7 +29,21 @@ a{color:var(--mut);font-size:14px}
 </style>
 </head>
 <body><main id="app"></main>
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { initializeFirestore, persistentLocalCache, collection, doc, getDocs, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+// Public web config, not a secret: access is enforced by Firestore rules (users/{uid}/** is owner-only).
+const fb = initializeApp({
+  apiKey: 'AIzaSyBM-nKxH-5GoYd5lUyDxwhDLOlh0Ea532A',
+  authDomain: 'gen-lang-client-0926920334.firebaseapp.com',
+  projectId: 'gen-lang-client-0926920334',
+  appId: '1:665443389022:web:1b6839b28521d9cefeeecf'
+});
+const auth = getAuth(fb);
+const fs = initializeFirestore(fb, { localCache: persistentLocalCache(), ignoreUndefinedProperties: true });
+
 const MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest']; // second is the fallback when the first is overloaded
 const INTERVALS = [1, 3, 7, 14, 30, 60]; // days, indexed by box
 const $ = s => document.querySelector(s);
@@ -37,26 +51,37 @@ const app = $('#app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
 const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
 
-// --- storage: IndexedDB, since cards carry mp3 audio (too big for localStorage) ---
-const dbp = new Promise((res, rej) => {
-  const r = indexedDB.open('greek', 1);
-  r.onupgradeneeded = () => r.result.createObjectStore('cards', { keyPath: 'id' });
-  r.onsuccess = () => res(r.result);
-  r.onerror = () => rej(r.error);
-});
-async function tx(mode, fn) {
-  const db = await dbp;
-  return new Promise((res, rej) => {
-    const t = db.transaction('cards', mode), r = fn(t.objectStore('cards'));
-    t.oncomplete = () => res(r.result);
-    t.onerror = () => rej(t.error);
-  });
-}
-const loadAll = () => tx('readonly', s => s.getAll());
-const save = c => tx('readwrite', s => s.put(c));
-const remove = id => tx('readwrite', s => s.delete(id));
+// --- storage: Firestore users/{uid}/cards, cached on device so review works offline.
+// Writes are not awaited: they land in the local cache at once and sync when online.
+const cardsRef = () => collection(fs, 'users', auth.currentUser.uid, 'cards');
+const loadAll = async () => (await getDocs(cardsRef())).docs.map(d => d.data());
+const save = c => setDoc(doc(cardsRef(), c.id), c).catch(e => alert('Не сохранилось: ' + e.message));
+const remove = id => deleteDoc(doc(cardsRef(), id));
 navigator.storage?.persist?.();
 let cards = [], q = [];
+
+// One-time move of cards from the pre-Firebase on-device IndexedDB; the old copy is kept untouched.
+function oldCards() {
+  return new Promise(res => {
+    const r = indexedDB.open('greek');
+    r.onupgradeneeded = () => r.transaction.abort(); // no old db: don't create one
+    r.onerror = () => res([]);
+    r.onsuccess = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains('cards')) return res([]);
+      const g = db.transaction('cards').objectStore('cards').getAll();
+      g.onsuccess = () => res(g.result);
+      g.onerror = () => res([]);
+    };
+  });
+}
+async function migrate() {
+  if (localStorage.getItem('migrated')) return;
+  const old = await oldCards();
+  old.forEach(save);
+  localStorage.setItem('migrated', '1');
+  return old.length;
+}
 
 // optional keys remember an empty answer, so we don't ask on every word
 function key(name = 'key', label = 'Gemini API key (aistudio.google.com/apikey)', optional = false) {
@@ -173,7 +198,7 @@ async function add(text) {
     $('#yes').onclick = async () => {
       Object.assign(c, { id: Date.now().toString(36) + Math.random().toString(36).slice(2),
         gr2ru: { box: 0, due: today() }, ru2gr: { box: 0, due: today() + 1 } }); // reverse starts tomorrow
-      await save(c);
+      save(c);
       cards.push(c);
       home('Добавлено: ' + c.gr);
     };
@@ -244,7 +269,7 @@ async function importAll(file) {
   try {
     const list = JSON.parse(await file.text());
     if (!Array.isArray(list) || !list.every(c => c.id && c.gr && c.gr2ru && c.ru2gr)) throw new Error('не тот файл');
-    for (const c of list) await save(c);
+    list.forEach(save);
     cards = await loadAll();
     home('Импортировано: ' + list.length);
   } catch (e) { home('Ошибка импорта: ' + e.message); }
@@ -263,8 +288,22 @@ function selftest() {
   return 'selftest ok';
 }
 
+function login(msg = '') {
+  app.innerHTML = `<h1 style="margin:8px 0 16px">Λέξεις</h1>
+    <button id="in">Войти через Google</button><p class="mut small">${esc(msg)}</p>`;
+  $('#in').onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => login('Ошибка входа: ' + e.message));
+}
+
 navigator.serviceWorker?.register('sw.js').catch(() => {});
-loadAll().then(c => { cards = c; home(location.hash === '#test' ? selftest() : ''); });
+app.innerHTML = '<p class="mut">Загрузка…</p>';
+onAuthStateChanged(auth, async user => {
+  if (!user) return login();
+  try {
+    const moved = await migrate();
+    cards = await loadAll();
+    home(location.hash === '#test' ? selftest() : moved ? `Перенесено с телефона в аккаунт: ${moved}` : '');
+  } catch (e) { home('Ошибка загрузки: ' + e.message); }
+});
 </script>
 </body>
 </html>
