@@ -83,8 +83,9 @@ async function migrate() {
   return old.length;
 }
 
-// API keys live in the account (owner-only per Firestore rules), mirrored to localStorage for sync access
-const keysRef = () => doc(fs, 'users', auth.currentUser.uid, 'settings', 'keys');
+// API keys live in one shared doc: readable by the email allowlist in Firestore rules, writable by the owner only.
+// Others get a permission error here and simply type their own keys. Mirrored to localStorage for sync access.
+const keysRef = () => doc(fs, 'shared', 'keys');
 const saveKeys = () => setDoc(keysRef(), { key: localStorage.getItem('key'), tts: localStorage.getItem('tts') }).catch(() => {});
 async function loadKeys() {
   const k = (await getDoc(keysRef()).catch(() => null))?.data();
