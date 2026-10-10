@@ -78,6 +78,13 @@ h2{font:600 24px/1 var(--serif);margin:0;flex:1}
 .sched div{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
 .sched div:last-child{border-bottom:0}
 .sched b{color:var(--acc);font-weight:600;white-space:nowrap}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.streak{font-size:14px;font-weight:600;color:var(--mut);background:var(--surface);border:1px solid var(--line);border-radius:999px;
+  padding:7px 12px;text-align:center;line-height:1.15;white-space:nowrap}
+.streak.on{color:#b4520f;background:#fdeedd;border-color:#f6d3b0}
+@media (prefers-color-scheme:dark){.streak.on{color:#ffb070;background:#3a2412;border-color:#5a3818}}
+.streak small{display:block;font-size:11px;font-weight:500;opacity:.8}
+.links{flex-wrap:wrap;row-gap:12px}
 .account{text-align:center;margin-top:14px;font-size:13px;color:var(--mut);opacity:.8}
 .account a{font-size:13px;color:var(--acc)}
 
@@ -139,6 +146,7 @@ button.say.big svg{width:40px;height:40px}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, getDocs, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { getMessaging, getToken, isSupported } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js';
 
 // Public web config, not a secret: access is enforced by Firestore rules (users/{uid}/** is owner-only).
 const fb = initializeApp({
@@ -171,6 +179,45 @@ const save = c => setDoc(doc(cardsRef(), c.id), c).catch(e => alert('Не сох
 const remove = id => deleteDoc(doc(cardsRef(), id));
 navigator.storage?.persist?.();
 let cards = [], q = [];
+
+// --- streak & reminders: users/{uid}/meta/{stats,push}. Reminders are sent by .github/workflows/remind.yml
+const VAPID = 'BPeo583swFMcfOAu3KAgjPdnX5xCs5ZiNtI6qKrCzf9oWztiFTHpE9z3_1zVi58MDE0jnWBcUQb2OAkAF-QFlC4'; // public half
+const metaRef = n => doc(fs, 'users', auth.currentUser.uid, 'meta', n);
+let stats = {}, push = {};
+async function loadMeta() {
+  [stats, push] = await Promise.all(['stats', 'push'].map(n => getDoc(metaRef(n)).then(d => d.data() ?? {}).catch(() => ({}))));
+  if (push.token && globalThis.Notification?.permission === 'granted') pushToken().then(t => { // tokens rotate: keep ours current
+    if (t !== push.token) { push.token = t; setDoc(metaRef('push'), push); }
+  }).catch(() => {});
+}
+// a day counts once at least one card was graded; the streak survives until the end of the next day
+function nextStats(s, t) {
+  if (s.last === t) return s;
+  const streak = s.last === t - 1 ? s.streak + 1 : 1;
+  return { last: t, streak, best: Math.max(s.best ?? 0, streak) };
+}
+function bumpStreak() {
+  const n = nextStats(stats, today());
+  if (n !== stats) { stats = n; setDoc(metaRef('stats'), stats).catch(() => {}); }
+}
+const streakNow = () => stats.last >= today() - 1 ? stats.streak : 0;
+const pushToken = async () => getToken(getMessaging(fb), { vapidKey: VAPID, serviceWorkerRegistration: await navigator.serviceWorker.ready });
+
+async function setupReminders() {
+  // iOS exposes web push only to the app opened from the home screen (iOS 16.4+)
+  if (!('Notification' in window) || !('PushManager' in window)) return home('Напоминания работают в приложении с экрана «Домой» (iOS 16.4+)');
+  const h = prompt('Во сколько напоминать? Час от 0 до 23. Пусто — выключить', String(push.hour ?? 9));
+  if (h === null) return;
+  if (!h.trim()) { push = {}; setDoc(metaRef('push'), push); return home('Напоминания выключены'); }
+  const hour = Math.min(23, Math.max(0, parseInt(h, 10) || 0));
+  if (await Notification.requestPermission() !== 'granted') return home('Уведомления запрещены — разреши их в настройках iOS для Λέξεις');
+  try {
+    if (!(await isSupported())) throw new Error('браузер не поддерживает push');
+    push = { token: await pushToken(), hour, tz: new Date().getTimezoneOffset() };
+    await setDoc(metaRef('push'), push);
+    home(`Напомню в ${hour}:00, если к этому времени ещё не повторишь`);
+  } catch (e) { home('Не получилось включить напоминания: ' + e.message); }
+}
 
 // One-time move of cards from the pre-Firebase on-device IndexedDB; the old copy is kept untouched.
 function oldCards() {
@@ -346,6 +393,11 @@ function queue() {
 }
 
 // --- screens ---
+function streakChip() {
+  const n = streakNow(), doneToday = stats.last === today();
+  return `<div class="streak${doneToday ? ' on' : ''}" title="Лучшая серия: ${stats.best ?? 0}">🔥 ${n ? plural(n, 'день', 'дня', 'дней') : 'начни серию'}
+    ${n && !doneToday ? '<small>повтори сегодня</small>' : ''}</div>`;
+}
 let total = 0; // cards in the current review session, for the progress bar
 const plural = (n, one, few, many) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? one
   : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
@@ -353,7 +405,7 @@ const spinner = text => `<div class="spin"></div><p class="mut center">${text}</
 function home(msg = '') {
   const due = queue().length, waiting = newWaiting(), pend = cards.filter(c => c.pending).length;
   app.innerHTML = `
-    <h1>Λέξεις</h1>
+    <div class="head"><h1>Λέξεις</h1>${streakChip()}</div>
     <div class="sub">${plural(cards.length, 'слово', 'слова', 'слов')} в словаре ›</div>
     <div class="hero">
       <div class="label">На сегодня</div>
@@ -364,7 +416,8 @@ function home(msg = '') {
     <form id="add" class="add"><textarea id="w" rows="1" placeholder="Новое слово или список" autocomplete="off"></textarea>
       <button aria-label="Добавить">+</button></form>
     <div class="msg">${esc(msg)}${pend ? `<div>⏳ Ждут интернета: ${pend} — доделаю сам</div>` : ''}</div>
-    <div class="links"><a href="#" id="lst">Словарь</a><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a></div>
+    <div class="links"><a href="#" id="lst">Словарь</a><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a>
+      <a href="#" id="rem">${push.token ? '🔔 ' + push.hour + ':00' : 'Напоминания'}</a></div>
     <div class="account">${esc(auth.currentUser?.email)} · <a href="#" id="out">Выйти</a></div>
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#rev').onclick = () => { q = queue(); total = q.length; next(); };
@@ -376,12 +429,13 @@ function home(msg = '') {
   $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
   $('#file').onchange = e => e.target.files[0] && importAll(e.target.files[0]);
   $('#k').onclick = e => { e.preventDefault(); editKeys(); };
+  $('#rem').onclick = e => { e.preventDefault(); setupReminders(); };
   $('#out').onclick = e => {
     e.preventDefault();
     if (!confirm('Выйти из аккаунта?')) return;
     // keys came from this account: don't leave them for whoever signs in next
     localStorage.removeItem('key'); localStorage.removeItem('tts');
-    cards = [];
+    cards = []; stats = {}; push = {};
     signOut(auth); // onAuthStateChanged then shows the login screen
   };
 }
@@ -574,6 +628,7 @@ function back(it, answer) {
 function done(it, ok) {
   if (!it.retry) { // re-shows within a session don't move the schedule
     grade(it.c[it.dir], ok);
+    bumpStreak();
     it.c.introduced ??= today(); // counts toward today's NEW_PER_DAY
     save(it.c);
   }
@@ -618,6 +673,10 @@ function selftest() {
   eq(entryDay(cards[0]), today()); eq(entryDay(cards[1]), today()); // introduced / within today's room
   eq(entryDay(cards[11]), today() + 1); // 11th new card with room 9 → tomorrow
   cards = real;
+  eq(nextStats({}, 10).streak, 1); // streak: first day, next day, same day, gap
+  const s9 = { last: 9, streak: 4, best: 4 };
+  eq(nextStats(s9, 10).streak, 5); eq(nextStats(s9, 10).best, 5); eq(nextStats(s9, 9), s9);
+  eq(nextStats({ last: 7, streak: 4, best: 6 }, 10).streak, 1); eq(nextStats({ last: 7, streak: 4, best: 6 }, 10).best, 6);
   return 'selftest ok';
 }
 
@@ -635,7 +694,7 @@ onAuthStateChanged(auth, async user => {
   if (!user) return login();
   app.innerHTML = SPLASH;
   try {
-    await loadKeys();
+    await Promise.all([loadKeys(), loadMeta()]);
     const moved = await migrate();
     cards = await loadAll();
     processPending(); // background: finish words added offline
