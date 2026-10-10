@@ -143,9 +143,9 @@ const fb = initializeApp({
 const auth = getAuth(fb);
 const fs = initializeFirestore(fb, { localCache: persistentLocalCache(), ignoreUndefinedProperties: true });
 
-// Gemini 3 thinks by default, which is slow; 'low' works on every Gemini 3 Flash ('minimal' errors on some).
-// Lite goes without thinkingConfig so a parameter mismatch can't break the fallback too.
-const TRIES = [['gemini-flash-latest', { thinkingLevel: 'low' }], ['gemini-flash-lite-latest'], ['gemini-flash-lite-latest']];
+// A translation card needs no reasoning: lite with minimal thinking is fastest. Some versions reject 'minimal' (400),
+// which just moves on to lite with defaults, then full Flash with 'low' (supported by every Gemini 3 Flash).
+const TRIES = [['gemini-flash-lite-latest', { thinkingLevel: 'minimal' }], ['gemini-flash-lite-latest'], ['gemini-flash-latest', { thinkingLevel: 'low' }]];
 const INTERVALS = [1, 3, 7, 14, 30, 60]; // days, indexed by box
 const DIRS = ['gr2ru', 'ru2gr', 'listen'];
 const NEW_PER_DAY = 10;
@@ -239,8 +239,10 @@ async function ask(text) {
   };
   for (const [i, [model, thinkingConfig]] of TRIES.entries()) {
     try {
+      const t0 = performance.now();
       const j = await google(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
         { contents: [{ parts: [{ text: PROMPT + text }] }], generationConfig: { ...config, thinkingConfig } });
+      ask.took = `Gemini ${sec(t0)} (${model.replace('gemini-', '').replace('-latest', '')}${i ? ', попытка ' + (i + 1) : ''})`;
       return JSON.parse(j.candidates[0].content.parts[0].text);
     } catch (e) {
       // overload/bad param → next model; a slow first model gets one chance on lite; real offline fails fast to the queue
@@ -271,10 +273,13 @@ async function build(text, step = () => {}) {
   step('Перевожу…');
   const c = await ask(text);
   step('Записываю произношение…');
+  const t0 = performance.now();
   const [a, ea] = await Promise.allSettled([tts(c.gr), tts(c.ex)]);
   c.audio = a.value; c.exAudio = ea.value; // undefined on failure: iOS voice plays instead
-  return { c, note: a.reason ? 'Озвучка голосом iOS (Cloud TTS: ' + a.reason.message + ')' : '' };
+  const timing = `${ask.took} · озвучка ${sec(t0)}`; // shown under the preview to see where time goes
+  return { c, note: a.reason ? `Озвучка голосом iOS (Cloud TTS: ${a.reason.message}) · ${timing}` : timing };
 }
+const sec = t0 => ((performance.now() - t0) / 1000).toFixed(1) + ' с';
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2); // time-ordered prefix
 const schedule = () => ({ gr2ru: { box: 0, due: today() }, ru2gr: { box: 0, due: today() + 1 }, listen: { box: 0, due: today() + 2 } });
 const draft = text => ({ id: newId(), text, pending: true, ...schedule() });
