@@ -81,7 +81,8 @@ emoji — один эмодзи, лучше всего передающий см
 async function google(url, body, k = key()) {
   if (!k) throw new Error('нет ключа');
   const r = await fetch(url + '?key=' + encodeURIComponent(k), {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    signal: AbortSignal.timeout(20000)
   });
   const j = await r.json();
   if (!r.ok) throw Object.assign(new Error(j.error?.message || r.status), { status: r.status });
