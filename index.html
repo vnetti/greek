@@ -209,6 +209,17 @@ function key(name = 'key', label = 'Gemini API key (aistudio.google.com/apikey)'
   return localStorage.getItem(name);
 }
 const ttsKey = () => key('tts', 'Google Text-to-Speech API key (пусто — будет голос iOS)', true);
+// Prefilled with current keys; Cancel changes nothing, an empty Gemini field keeps the old key.
+function editKeys() {
+  const g = prompt('Gemini API key', localStorage.getItem('key') || '');
+  if (g === null) return;
+  const t = prompt('Google Text-to-Speech API key (пусто — голос iOS)', localStorage.getItem('tts') || '');
+  if (t === null) return;
+  if (g.trim()) localStorage.setItem('key', g.trim());
+  localStorage.setItem('tts', t.trim());
+  saveKeys();
+  home('Ключи сохранены');
+}
 
 // --- Google APIs ---
 const PROMPT = `Ты делаешь карточки для русскоговорящего, который учит новогреческий.
@@ -353,7 +364,7 @@ function home(msg = '') {
   $('#exp').onclick = e => { e.preventDefault(); exportAll(); };
   $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
   $('#file').onchange = e => e.target.files[0] && importAll(e.target.files[0]);
-  $('#k').onclick = e => { e.preventDefault(); localStorage.removeItem('key'); localStorage.removeItem('tts'); key(); ttsKey(); };
+  $('#k').onclick = e => { e.preventDefault(); editKeys(); };
   $('#out').onclick = e => {
     e.preventDefault();
     if (!confirm('Выйти из аккаунта?')) return;
