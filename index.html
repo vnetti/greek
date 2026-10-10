@@ -73,6 +73,11 @@ h2{font:600 24px/1 var(--serif);margin:0;flex:1}
 .card.form{text-align:left}
 .form label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:14px}
 .form input{margin-top:6px;padding:12px 14px;font-weight:400}
+.edit-btn{width:auto;padding:10px 14px;font-size:15px}
+.sched{padding:6px 20px;text-align:left}
+.sched div{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
+.sched div:last-child{border-bottom:0}
+.sched b{color:var(--acc);font-weight:600;white-space:nowrap}
 .account{text-align:center;margin-top:14px;font-size:13px;color:var(--mut);opacity:.8}
 .account a{font-size:13px;color:var(--acc)}
 
@@ -416,7 +421,7 @@ function list() {
   };
   document.querySelectorAll('.item').forEach(el => el.onclick = () => {
     const c = cards.find(c => c.id === el.dataset.id);
-    if (!c.pending) return edit(c);
+    if (!c.pending) return view(c);
     if (!confirm(`«${c.text}» ещё не готово. Убрать из очереди?`)) return;
     cards = cards.filter(x => x !== c);
     remove(c.id);
@@ -424,14 +429,26 @@ function list() {
   });
 }
 
+// Read-only card from the dictionary, with when each direction comes up next; editing is one tap away.
+function view(c) {
+  const L = { gr2ru: 'Греческий → русский', ru2gr: 'Русский → греческий', listen: 'На слух' };
+  const when = d => { const n = c[d].due - today(); return n <= 0 ? 'сегодня' : n === 1 ? 'завтра' : 'через ' + plural(n, 'день', 'дня', 'дней'); };
+  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">←</button><h2>Карточка</h2>
+      <button class="sec edit-btn" id="ed">Изменить</button></div>` + cardHtml(c) +
+    `<div class="card sched">${DIRS.map(d => `<div><span>${L[d]}</span><b>${when(d)}</b></div>`).join('')}</div>`;
+  wire(c);
+  $('#x').onclick = () => list();
+  $('#ed').onclick = () => edit(c);
+}
+
 function edit(c) {
   const F = [['gr', 'Греческий'], ['tr', 'Транскрипция'], ['forms', 'Грамматика'], ['ru', 'Перевод'], ['ex', 'Пример'],
     ['exRu', 'Перевод примера'], ['emoji', 'Эмодзи']];
-  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">←</button><h2>Карточка</h2>${SAY}</div>
+  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">←</button><h2>Редактирование</h2>${SAY}</div>
     <form id="ef" class="card form">${F.map(([k, l]) => `<label>${l}<input name="${k}" value="${esc(c[k])}" autocomplete="off"></label>`).join('')}
       <button id="sv">Сохранить</button></form>
     <button class="bad" id="del">Удалить карточку</button>`;
-  $('#x').onclick = () => list();
+  $('#x').onclick = () => view(c);
   $('#say').onclick = () => say(c);
   $('#ef').onsubmit = async e => {
     e.preventDefault();
@@ -445,7 +462,7 @@ function edit(c) {
       if (newEx) try { c.exAudio = await tts(c.ex); } catch { delete c.exAudio; }
     }
     save(c);
-    list();
+    view(c);
   };
   $('#del').onclick = () => {
     if (!confirm(`Удалить «${c.gr}»?`)) return;
