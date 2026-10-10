@@ -56,6 +56,8 @@ input:focus{border-color:var(--acc)}
 .msg{min-height:20px;margin:14px 4px 0;font-size:14px;color:var(--mut)}
 .links{display:flex;justify-content:center;gap:24px;margin-top:40px}
 a{color:var(--mut);font-size:14px;text-decoration:none}
+.account{text-align:center;margin-top:14px;font-size:13px;color:var(--mut);opacity:.8}
+.account a{font-size:13px;color:var(--acc)}
 
 /* cards */
 .card{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:30px 22px;text-align:center;margin:16px 0;
@@ -84,7 +86,7 @@ a{color:var(--mut);font-size:14px;text-decoration:none}
 <body><main id="app"></main>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, getDocs, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 // Public web config, not a secret: access is enforced by Firestore rules (users/{uid}/** is owner-only).
@@ -239,6 +241,7 @@ function home(msg = '') {
     <form id="add" class="add"><input id="w" placeholder="Новое слово или фраза" autocomplete="off"><button aria-label="Добавить">+</button></form>
     <div class="msg">${esc(msg)}</div>
     <div class="links"><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a></div>
+    <div class="account">${esc(auth.currentUser?.email)} · <a href="#" id="out">Выйти</a></div>
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#rev').onclick = () => { q = queue(); total = q.length; next(); };
   $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
@@ -246,6 +249,14 @@ function home(msg = '') {
   $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
   $('#file').onchange = e => e.target.files[0] && importAll(e.target.files[0]);
   $('#k').onclick = e => { e.preventDefault(); localStorage.removeItem('key'); localStorage.removeItem('tts'); key(); ttsKey(); };
+  $('#out').onclick = e => {
+    e.preventDefault();
+    if (!confirm('Выйти из аккаунта?')) return;
+    // keys came from this account: don't leave them for whoever signs in next
+    localStorage.removeItem('key'); localStorage.removeItem('tts');
+    cards = [];
+    signOut(auth); // onAuthStateChanged then shows the login screen
+  };
 }
 
 const SAY = `<button class="say" id="say" aria-label="Произнести"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -372,7 +383,9 @@ function selftest() {
 function login(msg = '') {
   app.innerHTML = `<div class="login"><h1>Λέξεις</h1><div class="mut">Греческие слова на каждый день</div>
     <button id="in">Войти через Google</button><p class="mut small">${esc(msg)}</p></div>`;
-  $('#in').onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => login('Ошибка входа: ' + e.message));
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' }); // let a different account sign in after logout
+  $('#in').onclick = () => signInWithPopup(auth, provider).catch(e => login('Ошибка входа: ' + e.message));
 }
 
 navigator.serviceWorker?.register('sw.js').catch(() => {});
