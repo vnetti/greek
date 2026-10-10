@@ -102,6 +102,18 @@ h2{font:600 24px/1 var(--serif);margin:0;flex:1}
 .face.back{transform:rotateY(180deg);background:linear-gradient(140deg,#2b62a8,#14365f);color:#fff;font:600 22px -apple-system,system-ui,sans-serif}
 @keyframes flip{0%,30%{transform:rotateY(0)}50%,80%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
 .splash-title{font:600 34px/1 var(--serif);margin-bottom:8px}
+.face{padding:14px;text-align:center;overflow-wrap:anywhere}
+.face.long{font-size:20px}
+.face.q{font:600 56px/1 var(--serif)}
+#step{min-height:20px;margin-top:4px}
+.hero .later{font-size:13px;opacity:.75;margin:-10px 0 16px}
+.forms{font-size:14px;color:var(--acc);margin-top:8px}
+button.say.sm{float:right;width:34px;height:34px;margin:0 0 4px 10px}
+button.say.sm svg{width:16px;height:16px}
+button.say.big{width:96px;height:96px;margin:0}
+button.say.big svg{width:40px;height:40px}
+.add{align-items:flex-end}
+.add textarea{flex:1;font:inherit;border:0;background:none;color:var(--ink);padding:12px 10px;resize:none;outline:none;max-height:140px;line-height:1.4}
 @media (prefers-reduced-motion:reduce){.flip{animation:none}}
 .login{min-height:80dvh;display:flex;flex-direction:column;justify-content:center;text-align:center}
 .login h1{font-size:64px}
@@ -131,8 +143,12 @@ const fb = initializeApp({
 const auth = getAuth(fb);
 const fs = initializeFirestore(fb, { localCache: persistentLocalCache(), ignoreUndefinedProperties: true });
 
-const MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest']; // second is the fallback when the first is overloaded
+// Gemini 3 thinks by default, which is slow; 'low' works on every Gemini 3 Flash ('minimal' errors on some).
+// Lite goes without thinkingConfig so a parameter mismatch can't break the fallback too.
+const TRIES = [['gemini-flash-latest', { thinkingLevel: 'low' }], ['gemini-flash-lite-latest'], ['gemini-flash-lite-latest']];
 const INTERVALS = [1, 3, 7, 14, 30, 60]; // days, indexed by box
+const DIRS = ['gr2ru', 'ru2gr', 'listen'];
+const NEW_PER_DAY = 10;
 const $ = s => document.querySelector(s);
 const app = $('#app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
@@ -141,7 +157,9 @@ const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e
 // --- storage: Firestore users/{uid}/cards, cached on device so review works offline.
 // Writes are not awaited: they land in the local cache at once and sync when online.
 const cardsRef = () => collection(fs, 'users', auth.currentUser.uid, 'cards');
-const loadAll = async () => (await getDocs(cardsRef())).docs.map(d => d.data());
+// cards made before listening mode get its schedule in memory, a day after the reverse one; stored on first grade
+const loadAll = async () => (await getDocs(cardsRef())).docs.map(d => d.data())
+  .map(c => ({ ...c, listen: c.listen ?? { box: 0, due: c.ru2gr.due + 1 } }));
 const save = c => setDoc(doc(cardsRef(), c.id), c).catch(e => alert('Не сохранилось: ' + e.message));
 const remove = id => deleteDoc(doc(cardsRef(), id));
 navigator.storage?.persist?.();
@@ -198,47 +216,82 @@ ru — короткий русский перевод (1–3 варианта ч
 tr — произношение gr русскими буквами, слоги через дефис, ударный слог ЗАГЛАВНЫМИ (пример: и ка-ли-МЭ-ра);
 ex — короткий простой пример на греческом с этим словом;
 exRu — перевод примера;
+forms — краткая грамматика: у существительного мн. число с артиклем («мн.: οι θάλασσες»), у глагола аорист и будущее
+(«аор.: έφαγα · буд.: θα φάω»), у прилагательного м/ж/ср («καλός, καλή, καλό»); для остального пустая строка;
 emoji — один эмодзи, лучше всего передающий смысл.
 Вход: `;
 async function google(url, body, k = key()) {
-  if (!k) throw new Error('нет ключа');
+  if (!k) throw Object.assign(new Error('нет ключа'), { status: 401 });
   const r = await fetch(url + '?key=' + encodeURIComponent(k), {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-    signal: AbortSignal.timeout(20000)
+    signal: AbortSignal.timeout(12000)
   });
   const j = await r.json();
   if (!r.ok) throw Object.assign(new Error(j.error?.message || r.status), { status: r.status });
   return j;
 }
+// Errors without .status are network trouble (offline, timeout): callers park the word until we're online.
 async function ask(text) {
-  const S = { type: 'STRING' }, fields = ['gr', 'ru', 'tr', 'ex', 'exRu', 'emoji'];
-  const body = {
-    contents: [{ parts: [{ text: PROMPT + text }] }],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseSchema: { type: 'OBJECT', properties: Object.fromEntries(fields.map(f => [f, S])), required: fields }
-    }
+  const S = { type: 'STRING' }, fields = ['gr', 'ru', 'tr', 'ex', 'exRu', 'forms', 'emoji'];
+  const config = {
+    responseMimeType: 'application/json',
+    responseSchema: { type: 'OBJECT', properties: Object.fromEntries(fields.map(f => [f, S])), required: fields }
   };
-  const tries = [...MODELS, ...MODELS]; // each model twice
-  for (const [i, model] of tries.entries()) {
+  for (const [i, [model, thinkingConfig]] of TRIES.entries()) {
     try {
-      const j = await google(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, body);
+      const j = await google(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        { contents: [{ parts: [{ text: PROMPT + text }] }], generationConfig: { ...config, thinkingConfig } });
       return JSON.parse(j.candidates[0].content.parts[0].text);
     } catch (e) {
-      if (![429, 500, 503].includes(e.status) || i === tries.length - 1) throw e;
-      await new Promise(r => setTimeout(r, 1500 * (i + 1)));
+      // overload/bad param → next model; a slow first model gets one chance on lite; real offline fails fast to the queue
+      const retryable = e.status ? [400, 429, 500, 503].includes(e.status) : e.name === 'TimeoutError' && i === 0;
+      if (i === TRIES.length - 1 || !retryable) throw e;
+      await new Promise(r => setTimeout(r, 800 * i));
     }
   }
 }
 const tts = async text => (await google('https://texttospeech.googleapis.com/v1/text:synthesize', {
   input: { text }, voice: { languageCode: 'el-GR' }, audioConfig: { audioEncoding: 'MP3' }
 }, ttsKey())).audioContent;
-function say(c) {
-  if (c.audio) return new Audio('data:audio/mpeg;base64,' + c.audio).play().catch(() => {});
-  const u = new SpeechSynthesisUtterance(c.gr); // fallback: iOS voice
+function play(audio, text) {
+  if (audio) return new Audio('data:audio/mpeg;base64,' + audio).play().catch(() => {});
+  const u = new SpeechSynthesisUtterance(text); // fallback: iOS voice
   u.lang = 'el-GR';
   speechSynthesis.speak(u);
 }
+const say = c => play(c.audio, c.gr);
+function sayEx(c) {
+  play(c.exAudio, c.ex);
+  // cards made before example audio existed: speak with iOS now, fetch Google audio for next time
+  if (!c.exAudio && c.ex) tts(c.ex).then(a => { c.exAudio = a; save(c); }).catch(() => {});
+}
+
+// Full card content from a word: Gemini text, then both recordings in parallel.
+async function build(text, step = () => {}) {
+  step('Перевожу…');
+  const c = await ask(text);
+  step('Записываю произношение…');
+  const [a, ea] = await Promise.allSettled([tts(c.gr), tts(c.ex)]);
+  c.audio = a.value; c.exAudio = ea.value; // undefined on failure: iOS voice plays instead
+  return { c, note: a.reason ? 'Озвучка голосом iOS (Cloud TTS: ' + a.reason.message + ')' : '' };
+}
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2); // time-ordered prefix
+const schedule = () => ({ gr2ru: { box: 0, due: today() }, ru2gr: { box: 0, due: today() + 1 }, listen: { box: 0, due: today() + 2 } });
+const draft = text => ({ id: newId(), text, pending: true, ...schedule() });
+
+// Words added without network (or several at once) wait here as drafts and get filled in the background.
+let busy = false;
+async function processPending() {
+  if (busy || !navigator.onLine) return;
+  busy = true;
+  for (const c of cards.filter(c => c.pending)) {
+    try { Object.assign(c, (await build(c.text)).c, { pending: false }); save(c); }
+    catch (e) { if (!e.status) break; } // offline again: stop, the 'online' event retries
+  }
+  busy = false;
+  if ($('.hero') && !$('#w').value) home(); // refresh counters unless the user is typing
+}
+addEventListener('online', processPending);
 
 // --- logic ---
 const base = s => s.toLowerCase().normalize('NFC').replace(/ς/g, 'σ').replace(/[.,!?;·«»"]/g, '')
@@ -249,8 +302,14 @@ function grade(d, ok) {
   if (ok) { d.due = today() + INTERVALS[Math.min(d.box, INTERVALS.length - 1)]; d.box++; }
   else { d.box = 0; d.due = today() + 1; }
 }
+// A card is new until first graded (then `introduced` = that day). At most NEW_PER_DAY new cards enter per day, oldest first.
+const isNew = c => !c.pending && c.introduced == null && DIRS.every(d => c[d].box === 0);
+const newRoom = () => Math.max(0, NEW_PER_DAY - cards.filter(c => c.introduced === today()).length);
+const newWaiting = () => Math.max(0, cards.filter(isNew).length - newRoom());
 function queue() {
-  const a = cards.flatMap(c => ['gr2ru', 'ru2gr'].filter(d => c[d].due <= today()).map(dir => ({ c, dir })));
+  const fresh = new Set(cards.filter(isNew).sort((a, b) => a.id < b.id ? -1 : 1).slice(0, newRoom()));
+  const a = cards.filter(c => !c.pending && (!isNew(c) || fresh.has(c)))
+    .flatMap(c => DIRS.filter(d => c[d].due <= today()).map(dir => ({ c, dir })));
   for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
@@ -261,22 +320,26 @@ const plural = (n, one, few, many) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 
   : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
 const spinner = text => `<div class="spin"></div><p class="mut center">${text}</p>`;
 function home(msg = '') {
-  const due = queue().length;
+  const due = queue().length, waiting = newWaiting(), pend = cards.filter(c => c.pending).length;
   app.innerHTML = `
     <h1>Λέξεις</h1>
     <div class="sub">${plural(cards.length, 'слово', 'слова', 'слов')} в словаре ›</div>
     <div class="hero">
       <div class="label">На сегодня</div>
       <div class="n">${due}</div>
+      ${waiting ? `<div class="later">ещё ${plural(waiting, 'новое слово ждёт', 'новых слова ждут', 'новых слов ждут')} следующих дней</div>` : ''}
       <button id="rev" ${due ? '' : 'disabled'}>${due ? 'Начать повторение' : 'Всё повторено ✓'}</button>
     </div>
-    <form id="add" class="add"><input id="w" placeholder="Новое слово или фраза" autocomplete="off"><button aria-label="Добавить">+</button></form>
-    <div class="msg">${esc(msg)}</div>
+    <form id="add" class="add"><textarea id="w" rows="1" placeholder="Новое слово или список" autocomplete="off"></textarea>
+      <button aria-label="Добавить">+</button></form>
+    <div class="msg">${esc(msg)}${pend ? `<div>⏳ Ждут интернета: ${pend} — доделаю сам</div>` : ''}</div>
     <div class="links"><a href="#" id="lst">Словарь</a><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a></div>
     <div class="account">${esc(auth.currentUser?.email)} · <a href="#" id="out">Выйти</a></div>
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#rev').onclick = () => { q = queue(); total = q.length; next(); };
   $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
+  $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };
+  $('#w').oninput = e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; };
   $('#lst').onclick = $('.sub').onclick = e => { e.preventDefault(); list(); };
   $('#exp').onclick = e => { e.preventDefault(); exportAll(); };
   $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
@@ -292,36 +355,57 @@ function home(msg = '') {
   };
 }
 
-const SAY = `<button class="say" id="say" aria-label="Произнести"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>`;
+const sayBtn = (id = 'say', cls = '') => `<button type="button" class="say ${cls}" id="${id}" aria-label="Произнести"><svg width="20" height="20"
+  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>`;
+const SAY = sayBtn();
 const cardHtml = (c, verdict = '') => `<div class="card">${verdict}
   <div class="emoji">${esc(c.emoji)}</div>
   <div class="word">${esc(c.gr)}${SAY}</div>
   <div class="tr">${esc(c.tr)}</div>
+  ${c.forms ? `<div class="forms">${esc(c.forms)}</div>` : ''}
   <div class="ru">${esc(c.ru)}</div>
-  <div class="ex">${esc(c.ex)}<div>${esc(c.exRu)}</div></div></div>`;
+  ${c.ex ? `<div class="ex">${sayBtn('sayEx', 'sm')}${esc(c.ex)}<div>${esc(c.exRu)}</div></div>` : ''}</div>`;
+const wire = c => {
+  if ($('#say')) $('#say').onclick = () => say(c);
+  if ($('#sayEx')) $('#sayEx').onclick = () => sayEx(c);
+};
 
-// learning level = weaker of the two directions, as filled dots out of INTERVALS.length
-const level = c => { const b = Math.min(c.gr2ru.box, c.ru2gr.box, INTERVALS.length); return '●'.repeat(b) + '○'.repeat(INTERVALS.length - b); };
+// learning level = weakest direction, as filled dots out of INTERVALS.length
+const level = c => {
+  if (c.pending) return '⏳';
+  const b = Math.min(...DIRS.map(d => c[d].box), INTERVALS.length);
+  return '●'.repeat(b) + '○'.repeat(INTERVALS.length - b);
+};
 
 function list() {
-  const rows = [...cards].sort((a, b) => a.gr.replace(/^(ο|η|το|οι|τα)\s+/, '').localeCompare(b.gr.replace(/^(ο|η|το|οι|τα)\s+/, ''), 'el'));
+  const sortKey = c => (c.gr || c.text).replace(/^(ο|η|το|οι|τα)\s+/, '');
+  const rows = [...cards].sort((a, b) => sortKey(a).localeCompare(sortKey(b), "el"));
   app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">✕</button><h2>Словарь</h2>
       <span class="mut small">${cards.length}</span></div>
     <input id="s" class="search" placeholder="Поиск по-гречески или по-русски" autocomplete="off">
-    <div class="list">${rows.map(c => `<button class="item" data-id="${esc(c.id)}" data-q="${esc((c.gr + ' ' + c.ru).toLowerCase())}">
-      <span class="e">${esc(c.emoji)}</span><span class="t"><b>${esc(c.gr)}</b><small>${esc(c.ru)}</small></span>
+    <div class="list">${rows.map(c => `<button class="item" data-id="${esc(c.id)}" data-q="${esc((c.gr || c.text) + ' ' + (c.ru || '')).toLowerCase()}">
+      <span class="e">${esc(c.pending ? '⏳' : c.emoji)}</span>
+      <span class="t"><b>${esc(c.gr || c.text)}</b><small>${esc(c.pending ? 'ждёт интернета' : c.ru)}</small></span>
       <span class="lvl">${level(c)}</span></button>`).join('') || '<p class="mut center">Пока пусто</p>'}</div>`;
   $('#x').onclick = () => home();
   $('#s').oninput = e => { // filter in place so the keyboard stays open
     const f = e.target.value.trim().toLowerCase();
     document.querySelectorAll('.item').forEach(el => el.hidden = !el.dataset.q.includes(f));
   };
-  document.querySelectorAll('.item').forEach(el => el.onclick = () => edit(cards.find(c => c.id === el.dataset.id)));
+  document.querySelectorAll('.item').forEach(el => el.onclick = () => {
+    const c = cards.find(c => c.id === el.dataset.id);
+    if (!c.pending) return edit(c);
+    if (!confirm(`«${c.text}» ещё не готово. Убрать из очереди?`)) return;
+    cards = cards.filter(x => x !== c);
+    remove(c.id);
+    list();
+  });
 }
 
 function edit(c) {
-  const F = [['gr', 'Греческий'], ['tr', 'Транскрипция'], ['ru', 'Перевод'], ['ex', 'Пример'], ['exRu', 'Перевод примера'], ['emoji', 'Эмодзи']];
+  const F = [['gr', 'Греческий'], ['tr', 'Транскрипция'], ['forms', 'Грамматика'], ['ru', 'Перевод'], ['ex', 'Пример'],
+    ['exRu', 'Перевод примера'], ['emoji', 'Эмодзи']];
   app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">←</button><h2>Карточка</h2>${SAY}</div>
     <form id="ef" class="card form">${F.map(([k, l]) => `<label>${l}<input name="${k}" value="${esc(c[k])}" autocomplete="off"></label>`).join('')}
       <button id="sv">Сохранить</button></form>
@@ -330,12 +414,13 @@ function edit(c) {
   $('#say').onclick = () => say(c);
   $('#ef').onsubmit = async e => {
     e.preventDefault();
-    const d = Object.fromEntries(new FormData(e.target)), newGr = d.gr.trim() !== c.gr;
+    const d = Object.fromEntries(new FormData(e.target)), newGr = d.gr.trim() !== c.gr, newEx = d.ex !== c.ex;
     if (!d.gr.trim()) return alert('Греческое слово не может быть пустым');
     Object.assign(c, d, { gr: d.gr.trim() });
-    if (newGr) { // old audio says the old word
+    if (newGr || newEx) { // old audio says the old text
       $('#sv').disabled = true; $('#sv').textContent = 'Озвучиваю…';
-      try { c.audio = await tts(c.gr); } catch { delete c.audio; }
+      if (newGr) try { c.audio = await tts(c.gr); } catch { delete c.audio; }
+      if (newEx) try { c.exAudio = await tts(c.ex); } catch { delete c.exAudio; }
     }
     save(c);
     list();
@@ -348,46 +433,62 @@ function edit(c) {
   };
 }
 
-async function add(text) {
-  app.innerHTML = spinner('Готовлю карточку…');
+// same flip card as the splash: what you typed on the front, "?" on the back, live step text below
+const making = text => `<div class="splash"><div class="flip">
+    <div class="face${text.length > 9 ? ' long' : ''}">${esc(text)}</div><div class="face back q">?</div></div>
+  <div class="splash-title">Готовлю карточку</div><div class="mut small" id="step"></div></div>`;
+
+async function add(raw) {
+  const words = raw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+  const park = list => list.forEach(w => { const d = draft(w); cards.push(d); save(d); });
+  if (words.length > 1) { // batch: no preview, fill in the background
+    park(words);
+    home(`Готовлю ${plural(words.length, 'карточку', 'карточки', 'карточек')}…`);
+    return processPending();
+  }
+  const text = words[0];
+  app.innerHTML = making(text);
   try {
-    const c = await ask(text);
-    let note = '';
-    try { c.audio = await tts(c.gr); } catch (e) { note = 'Озвучка голосом iOS (Cloud TTS: ' + e.message + ')'; }
+    const { c, note } = await build(text, s => { if ($('#step')) $('#step').textContent = s; });
     app.innerHTML = cardHtml(c) + `<p class="mut small center">${esc(note)}</p>
       <div class="row"><button class="sec" id="no">Отмена</button><button id="yes">Сохранить</button></div>`;
-    $('#say').onclick = () => say(c);
+    wire(c);
     say(c);
     $('#no').onclick = () => home();
-    $('#yes').onclick = async () => {
-      Object.assign(c, { id: Date.now().toString(36) + Math.random().toString(36).slice(2),
-        gr2ru: { box: 0, due: today() }, ru2gr: { box: 0, due: today() + 1 } }); // reverse starts tomorrow
+    $('#yes').onclick = () => {
+      Object.assign(c, { id: newId(), ...schedule() });
       save(c);
       cards.push(c);
       home('Добавлено: ' + c.gr);
     };
-  } catch (e) { home('Ошибка: ' + e.message); }
+  } catch (e) {
+    if (e.status) return home('Ошибка: ' + e.message);
+    park([text]); // no network: keep the word, finish it later
+    home(`Нет связи — «${text}» доделаю сам, когда появится интернет`);
+  }
 }
 
 function next() {
   const it = q.shift();
   if (!it) return home('Готово на сегодня 🎉');
   const { c, dir } = it;
+  const answer = `<form id="f"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+    placeholder="Ελληνικά…"><button style="margin-top:12px">Проверить</button></form>`;
   if (dir === 'gr2ru') {
     app.innerHTML = topBar() + `<div class="card front"><div class="chip">Что это значит?</div>
       <div class="word">${esc(c.gr)}${SAY}</div></div>
       <button id="show">Показать ответ</button>`;
-    $('#say').onclick = () => say(c);
-    say(c);
     $('#show').onclick = () => back(it, null);
-  } else {
+  } else if (dir === 'ru2gr') {
     app.innerHTML = topBar() + `<div class="card front"><div class="chip">Как по-гречески?</div>
-      <div class="emoji">${esc(c.emoji)}</div><div class="word">${esc(c.ru)}</div></div>
-      <form id="f"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Ελληνικά…">
-      <button style="margin-top:12px">Проверить</button></form>`;
-    $('#a').focus();
-    $('#f').onsubmit = e => { e.preventDefault(); back(it, $('#a').value); };
+      <div class="emoji">${esc(c.emoji)}</div><div class="word">${esc(c.ru)}</div></div>` + answer;
+  } else { // listen: audio only, type what you hear
+    app.innerHTML = topBar() + `<div class="card front"><div class="chip">Что ты слышишь?</div>${sayBtn('say', 'big')}
+      <div class="mut small" style="margin-top:14px">нажми, чтобы послушать ещё раз</div></div>` + answer;
   }
+  wire(c);
+  if (dir !== 'ru2gr') say(c);
+  if ($('#f')) { $('#a').focus(); $('#f').onsubmit = e => { e.preventDefault(); back(it, $('#a').value); }; }
   $('#x').onclick = () => home();
 }
 // progress counts the card on screen as not yet done; called after q.shift()
@@ -410,7 +511,7 @@ function back(it, answer) {
   app.innerHTML = topBar() + cardHtml(c, verdict) + `<div class="row">${buttons}</div>
     <p class="center"><a href="#" id="del">Удалить карточку</a></p>`;
   $('#x').onclick = () => home();
-  $('#say').onclick = () => say(c);
+  wire(c);
   $('#y').onclick = () => done(it, true);
   if ($('#n')) $('#n').onclick = () => done(it, false);
   $('#del').onclick = e => {
@@ -424,7 +525,11 @@ function back(it, answer) {
 }
 
 function done(it, ok) {
-  if (!it.retry) { grade(it.c[it.dir], ok); save(it.c); } // re-shows within a session don't move the schedule
+  if (!it.retry) { // re-shows within a session don't move the schedule
+    grade(it.c[it.dir], ok);
+    it.c.introduced ??= today(); // counts toward today's NEW_PER_DAY
+    save(it.c);
+  }
   if (!ok) { q.push({ ...it, retry: true }); total++; }
   next();
 }
@@ -457,6 +562,13 @@ function selftest() {
   grade(d, true); eq(d.due, today() + 1);
   grade(d, true); eq(d.due, today() + 3);
   grade(d, false); eq(d.box, 0); eq(d.due, today() + 1);
+  const real = cards; // new-per-day limit: 12 fresh cards, only gr2ru is due today
+  cards = Array.from({ length: 12 }, (_, i) => ({ id: 'a' + String(i).padStart(2, '0'), ...schedule() }));
+  eq(queue().length, NEW_PER_DAY); eq(newWaiting(), 2);
+  cards[0].introduced = today(); // one seen today: still 10 today in total, one less waiting
+  eq(queue().length, NEW_PER_DAY); eq(newWaiting(), 2); eq(newRoom(), NEW_PER_DAY - 1);
+  cards.push(draft('x')); eq(queue().length, NEW_PER_DAY); // drafts never enter review
+  cards = real;
   return 'selftest ok';
 }
 
@@ -477,6 +589,7 @@ onAuthStateChanged(auth, async user => {
     await loadKeys();
     const moved = await migrate();
     cards = await loadAll();
+    processPending(); // background: finish words added offline
     home(location.hash === '#test' ? selftest() : moved ? `Перенесено с телефона в аккаунт: ${moved}` : '');
   } catch (e) { home('Ошибка загрузки: ' + e.message); }
 });
