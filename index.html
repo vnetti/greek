@@ -32,7 +32,7 @@ a{color:var(--mut);font-size:14px}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, collection, doc, getDocs, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, getDocs, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 // Public web config, not a secret: access is enforced by Firestore rules (users/{uid}/** is owner-only).
 const fb = initializeApp({
@@ -83,11 +83,20 @@ async function migrate() {
   return old.length;
 }
 
+// API keys live in the account (owner-only per Firestore rules), mirrored to localStorage for sync access
+const keysRef = () => doc(fs, 'users', auth.currentUser.uid, 'settings', 'keys');
+const saveKeys = () => setDoc(keysRef(), { key: localStorage.getItem('key'), tts: localStorage.getItem('tts') }).catch(() => {});
+async function loadKeys() {
+  const k = (await getDoc(keysRef()).catch(() => null))?.data();
+  if (!k) return saveKeys(); // first device: upload whatever is already entered here
+  for (const n of ['key', 'tts']) if (k[n] != null) localStorage.setItem(n, k[n]);
+}
+
 // optional keys remember an empty answer, so we don't ask on every word
 function key(name = 'key', label = 'Gemini API key (aistudio.google.com/apikey)', optional = false) {
   if (localStorage.getItem(name) === null) {
     const k = prompt(label)?.trim();
-    if (k || optional) localStorage.setItem(name, k || '');
+    if (k || optional) { localStorage.setItem(name, k || ''); saveKeys(); }
   }
   return localStorage.getItem(name);
 }
@@ -299,6 +308,7 @@ app.innerHTML = '<p class="mut">Загрузка…</p>';
 onAuthStateChanged(auth, async user => {
   if (!user) return login();
   try {
+    await loadKeys();
     const moved = await migrate();
     cards = await loadAll();
     home(location.hash === '#test' ? selftest() : moved ? `Перенесено с телефона в аккаунт: ${moved}` : '');
