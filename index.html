@@ -6,140 +6,207 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Λέξεις">
-<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1420" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ECEEF1">
 <link rel="apple-touch-icon" href="icon.png">
 <title>Λέξεις</title>
+<script>
+// before first paint: the chosen colour theme (per device), so nothing flashes
+try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'graphite'; } catch { document.documentElement.dataset.theme = 'graphite'; }
+</script>
 <style>
-:root{
-  --bg:#f5f2ea;--surface:#fffdf8;--ink:#14213d;--mut:#7a7f8c;--line:#e6e0d2;
-  --acc:#1f4e8c;--acc-bg:#e4ecf7;--ok:#2e7d4f;--ok-bg:#e1f0e6;--bad:#b4442f;--bad-bg:#f8e3dd;--warn:#9a6200;--warn-bg:#fbefd6;
-  --shadow:0 1px 2px rgba(20,33,61,.05),0 10px 30px rgba(20,33,61,.08);
-  --serif:ui-serif,"New York","Iowan Old Style",Georgia,serif;
-}
-@media (prefers-color-scheme:dark){:root{
-  --bg:#0f1420;--surface:#182030;--ink:#eef1f7;--mut:#8b93a5;--line:#273045;
-  --acc:#7fb2f5;--acc-bg:#1d2d47;--ok:#6fd096;--ok-bg:#163024;--bad:#f08a75;--bad-bg:#3a1f19;--warn:#f0b14a;--warn-bg:#3a2c10;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
-}}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system,system-ui,sans-serif;
-  padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));min-height:100dvh}
-main{max-width:440px;margin:0 auto}
-h1{font:600 40px/1 var(--serif);margin:8px 0 4px;letter-spacing:-.01em}
-button{font:600 17px/1 -apple-system,system-ui,sans-serif;border:0;border-radius:16px;padding:17px 18px;background:var(--acc);color:#fff;
-  width:100%;cursor:pointer;transition:transform .12s,opacity .2s}
-@media (prefers-color-scheme:dark){button{color:#0f1420}}
-button:active{transform:scale(.97)}
-button:disabled{opacity:.45}
-button.sec{background:var(--line);color:var(--ink)}
-button.ok{background:var(--ok-bg);color:var(--ok)} button.bad{background:var(--bad-bg);color:var(--bad)}
-button.say{width:44px;height:44px;padding:0;border-radius:50%;background:var(--acc-bg);color:var(--acc);vertical-align:middle;margin-left:8px;display:inline-grid;place-items:center}
-button.x{width:auto;background:none;color:var(--mut);padding:8px;font-size:22px;font-weight:400}
-input{font:inherit;width:100%;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);outline:none}
-input:focus{border-color:var(--acc)}
-.row{display:flex;gap:10px;margin-top:14px}
-.mut{color:var(--mut)} .small{font-size:14px} .center{text-align:center}
+@font-face{font-family:Commissioner;font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/commissioner-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:Commissioner;font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/commissioner-greek.woff2) format('woff2');unicode-range:U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF}
+@font-face{font-family:Commissioner;font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/commissioner-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:Commissioner;font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/commissioner-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
 
-/* home */
-.sub{color:var(--mut);font-size:15px;margin-bottom:22px}
-.hero{position:relative;overflow:hidden;border-radius:26px;padding:24px 22px 34px;color:#fff;
-  background:linear-gradient(140deg,#2b62a8,#14365f);box-shadow:var(--shadow)}
-.hero::after{content:"";position:absolute;left:0;right:0;bottom:12px;height:10px;opacity:.35;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='10'%3E%3Cpath d='M0 9.4H12M10 9.4V1H2V7H8V3.5H5' fill='none' stroke='white' stroke-width='1.2'/%3E%3C/svg%3E") repeat-x}
-.hero .label{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
-.hero .n{font:600 68px/1 var(--serif);margin:6px 0 18px}
-.hero button{background:#fff;color:#1f4e8c}
-.add{display:flex;gap:6px;margin-top:16px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
-.add input{border:0;background:none;padding:12px 10px}
-.add button{width:48px;height:48px;padding:0;border-radius:14px;font-size:26px;font-weight:400;flex:none}
-.msg{min-height:20px;margin:14px 4px 0;font-size:14px;color:var(--mut)}
-.links{display:flex;justify-content:center;gap:24px;margin-top:40px}
-a{color:var(--mut);font-size:14px;text-decoration:none}
-.sub{cursor:pointer}
-h2{font:600 24px/1 var(--serif);margin:0;flex:1}
-.search{margin-top:16px}
-.list{margin-top:14px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
-.item{display:flex;align-items:center;gap:12px;background:none;color:var(--ink);border-radius:0;padding:12px 16px;text-align:left;
-  font-weight:400;border-bottom:1px solid var(--line)}
+/* ---------- tokens: four themes, each light + dark (night is always dark) ---------- */
+:root{
+  --m1:#0069B4;--m2:#E3001B;--m3:#009A49; /* Athens metro lines: Узнать, Написать, Услышать */
+  --ok:#1E7A45;--ok-bg:#DFF1E6;--bad:#B3261E;--bad-bg:#F9E1DE;--warn:#8A5A00;--warn-bg:#FBEFD3;--fire:#B4520F;--fire-bg:#FDEBD8;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.06);
+  --r:20px;--font:Commissioner,-apple-system,system-ui,sans-serif;
+}
+[data-theme=graphite]{--ground:#ECEEF1;--block:#FFFFFF;--ink:#1C1F24;--mut:#5A606A;--rule:#E2E5E9;--inset:#F3F4F6;--primary:#1C1F24;--on-primary:#FFFFFF;--head:var(--block);--head-ink:var(--ink);--head-mut:var(--mut)}
+[data-theme=aegean]{--ground:#D9E5F2;--block:#FFFFFF;--ink:#0E2A47;--mut:#4A6180;--rule:#DCE5EF;--inset:#EEF3F9;--primary:#0E4C92;--on-primary:#FFFFFF;--head:#0E4C92;--head-ink:#FFFFFF;--head-mut:#C6D8EE}
+[data-theme=olive]{--ground:#E2E6DC;--block:#FBFCF8;--ink:#222A1E;--mut:#56614D;--rule:#E1E5D9;--inset:#F1F3EC;--primary:#3D5A2C;--on-primary:#FFFFFF;--head:var(--block);--head-ink:var(--ink);--head-mut:var(--mut)}
+@media (prefers-color-scheme:dark){
+  :root{--m1:#3B8FE0;--m2:#FF4757;--m3:#1FBF68;--ok:#6FD59A;--ok-bg:#14301F;--bad:#FF8A80;--bad-bg:#3A1B18;--warn:#F5C15A;--warn-bg:#36290E;--fire:#FFB070;--fire-bg:#3A2412;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28)}
+  [data-theme=graphite]{--ground:#0E1013;--block:#191C21;--ink:#ECEEF1;--mut:#9BA1AB;--rule:#2A2E35;--inset:#22262C;--primary:#ECEEF1;--on-primary:#0E1013}
+  [data-theme=aegean]{--ground:#06172A;--block:#0E223B;--ink:#E5EDF7;--mut:#92A7C1;--rule:#1B3150;--inset:#132A47;--primary:#6AAEF5;--on-primary:#06172A;--head:#0E4C92;--head-mut:#BFD3EC}
+  [data-theme=olive]{--ground:#11150E;--block:#1B2117;--ink:#E8ECE2;--mut:#A0AA94;--rule:#2A3225;--inset:#232A1E;--primary:#A3C584;--on-primary:#11150E}
+}
+[data-theme=night]{--ground:#0F1217;--block:#1A1F27;--ink:#EEF1F6;--mut:#9AA3B2;--rule:#29303B;--inset:#222832;--primary:#F2C230;--on-primary:#0F1217;--head:var(--block);--head-ink:var(--ink);--head-mut:var(--mut);
+  --m1:#3B8FE0;--m2:#FF4757;--m3:#1FBF68;--ok:#6FD59A;--ok-bg:#14301F;--bad:#FF8A80;--bad-bg:#3A1B18;--warn:#F5C15A;--warn-bg:#36290E;--fire:#FFB070;--fire-bg:#3A2412;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);color-scheme:dark}
+
+/* ---------- base: three sizes (13 / 17 / 34) ranked by weight; the count numeral is the one exception ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--ground)}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 17px/1.45 var(--font);caret-color:var(--primary);
+  padding:max(16px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));min-height:100dvh;-webkit-font-smoothing:antialiased}
+::selection{background:color-mix(in srgb,var(--primary) 22%,transparent)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+main{max-width:440px;margin:0 auto}
+h1{font:800 34px/1.1 var(--font);letter-spacing:-.02em;margin:0}
+h2{font:800 17px/1.2 var(--font);margin:0;flex:1}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--mut)} .small{font-size:13px} .center{text-align:center}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+button{font:700 17px/1 var(--font);border:0;border-radius:14px;padding:16px 18px;background:var(--primary);color:var(--on-primary);
+  width:100%;cursor:pointer;transition:transform .15s cubic-bezier(.16,1,.3,1),opacity .2s}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.4;cursor:default}
+button.sec{background:var(--inset);color:var(--ink)}
+button.ok{background:var(--ok-bg);color:var(--ok)} button.bad{background:var(--bad-bg);color:var(--bad)}
+button.link{background:none;color:var(--primary);width:auto;padding:8px 4px;font-size:17px}
+button.icon{width:40px;height:40px;padding:0;border-radius:12px;background:var(--block);color:var(--ink);display:grid;place-items:center;flex:none;box-shadow:var(--shadow)}
+button.say{width:44px;height:44px;padding:0;border-radius:50%;background:var(--inset);color:var(--ink);display:inline-grid;place-items:center;vertical-align:middle;margin-left:10px}
+input,textarea{font:inherit;color:var(--ink);caret-color:var(--primary)}
+input{width:100%;padding:14px 16px;border:1px solid var(--rule);border-radius:14px;background:var(--block);outline:none}
+input:focus{border-color:var(--primary)}
+input:focus-visible{outline:none}
+::placeholder{color:var(--mut);opacity:1}
+.row{display:flex;gap:10px;margin-top:12px}
+.block{background:var(--block);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+.block+.block{margin-top:12px}
+
+/* ---------- metro lines: badge + station track (signature) ---------- */
+.badge{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font:800 13px/1 var(--font);flex:none}
+.badge svg.i{width:15px;height:15px;stroke-width:2.4}
+.l-gr2ru{--lc:var(--m1)} .l-ru2gr{--lc:var(--m2)} .l-listen{--lc:var(--m3)}
+.badge{background:var(--lc)}
+.track{position:relative;height:16px;margin:0 7px}
+.track::before{content:"";position:absolute;left:0;right:0;top:6px;height:4px;border-radius:2px;background:var(--lc)}
+.track b{position:absolute;top:2px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--block);border:3px solid var(--lc)}
+.track b.on{background:var(--lc)}
+.track b.here{top:-2px;width:20px;height:20px;margin-left:-10px;border-width:4px;background:var(--block);box-shadow:0 0 0 3px var(--block)}
+
+/* ---------- home ---------- */
+.head{text-align:center;background:var(--head);color:var(--head-ink);padding:18px 18px 16px}
+.meta{margin-top:8px;display:flex;justify-content:center;align-items:center;gap:8px;font-size:13px;color:var(--head-mut)}
+.meta a{color:inherit;text-decoration:none}
+.streak{display:inline-flex;align-items:center;gap:4px;font-weight:700;color:var(--head-mut);border:1px solid currentColor;border-radius:999px;padding:3px 10px 3px 7px}
+.streak svg.i{width:14px;height:14px}
+.streak.on{color:var(--fire);background:var(--fire-bg);border-color:transparent}
+.today{text-align:center;padding:14px 18px 18px}
+.count{font:800 72px/1 var(--font);letter-spacing:-.03em;margin:0 0 4px;font-variant-numeric:tabular-nums}
+.lines{margin:14px 0 16px;text-align:left}
+.line{display:grid;grid-template-columns:28px 1fr 28px;gap:12px;align-items:center;padding:8px 0}
+.line .name{font-size:13px;font-weight:700;margin-bottom:2px}
+.line .n{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.line .n.zero{color:var(--mut);font-weight:600}
+.add{display:flex;align-items:flex-end;gap:8px;padding:8px 8px 8px 14px}
+.add textarea{flex:1;border:0;background:none;padding:12px 0;resize:none;outline:none;max-height:140px;line-height:1.4}
+.add button{width:44px;height:44px;padding:0;border-radius:12px;flex:none;display:grid;place-items:center}
+.msg{margin:6px 6px 0;font-size:13px;color:var(--mut);min-height:18px}
+.msg div{display:flex;align-items:center;gap:6px;margin-top:4px}
+.msg svg.i{width:15px;height:15px}
+.menu{padding:0 16px;margin-top:12px}
+.mi{display:flex;align-items:center;gap:12px;width:100%;background:none;color:var(--ink);border-radius:0;padding:14px 0;font-weight:500;text-align:left;
+  border-bottom:1px solid var(--rule)}
+.mi:last-child{border-bottom:0}
+.mi:active{transform:none;opacity:.6}
+.mi .v{margin-left:auto;color:var(--mut);font-weight:500;display:flex;align-items:center;gap:2px}
+.mi .v svg.i{width:18px;height:18px}
+.acct{display:flex;align-items:center;gap:12px;padding:14px 0}
+.av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--inset);display:grid;place-items:center;font-weight:800;color:var(--ink);flex:none}
+.acct .who{flex:1;min-width:0;line-height:1.25}
+.acct .who small{display:block;color:var(--mut);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- screens with a top bar ---------- */
+.top{display:flex;align-items:center;gap:12px;margin-bottom:12px;min-height:44px}
+.top .dir{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;white-space:nowrap}
+.top .track{flex:1;margin:0 4px}
+.top .track .train{position:absolute;top:0;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--lc);border:3px solid var(--ground);
+  box-shadow:0 0 0 2px var(--lc);transition:left .6s cubic-bezier(.16,1,.3,1)}
+.top .track::before{opacity:.3}
+.top .fill{position:absolute;left:0;top:6px;height:4px;border-radius:2px;background:var(--lc);transition:width .6s cubic-bezier(.16,1,.3,1)}
+
+/* ---------- card: one scale, one axis everywhere ---------- */
+.card{position:relative;text-align:center;padding:28px 20px;animation:rise .35s cubic-bezier(.16,1,.3,1)}
+.card.front{min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+@keyframes rise{from{opacity:.4;transform:translateY(8px)}}
+.emoji{font-size:56px;line-height:1;margin-bottom:12px}
+.word{font:800 34px/1.2 var(--font);letter-spacing:-.01em;overflow-wrap:anywhere}
+.tr{color:var(--mut);margin-top:6px}
+.forms{font-size:13px;font-weight:700;color:var(--mut);margin-top:8px;display:flex;justify-content:center;align-items:center;gap:6px}
+.ru{font-weight:700;margin-top:18px;padding-top:18px;border-top:1px solid var(--rule)}
+.ex{margin-top:18px;text-align:left;background:var(--inset);border-radius:14px;padding:12px 14px;font-weight:500;display:flex;gap:10px;align-items:flex-start}
+.ex .t{flex:1} .ex small{display:block;font-size:13px;color:var(--mut);font-weight:400;margin-top:2px}
+button.say.sm{width:34px;height:34px;margin:0;background:var(--block)} button.say.sm svg.i{width:16px;height:16px}
+.forms button.say.sm{width:28px;height:28px;background:var(--inset)} .forms button.say.sm svg.i{width:14px;height:14px}
+button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button.say.big svg.i{width:44px;height:44px}
+.card.stamped{padding-top:56px}
+.yours{font-size:13px;color:var(--mut);margin-bottom:12px}
+/* verdict stamps onto the card and stays, like a validated ticket */
+.stamp{position:absolute;top:16px;right:14px;font:800 13px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;
+  padding:7px 10px;border:2px solid currentColor;border-radius:8px;transform:rotate(-8deg);animation:stamp .45s cubic-bezier(.16,1,.3,1)}
+.stamp.ok{color:var(--ok)} .stamp.warn{color:var(--warn)} .stamp.bad{color:var(--bad)}
+@keyframes stamp{from{transform:rotate(-8deg) scale(1.8);opacity:0}}
+.prompt{font-size:13px;color:var(--mut);margin-top:14px}
+.answer input{text-align:center;font-weight:600}
+
+/* ---------- dictionary ---------- */
+.list{padding:0 4px;overflow:hidden}
+.item{display:flex;align-items:center;gap:12px;background:none;color:var(--ink);border-radius:0;padding:12px;text-align:left;font-weight:400;border-bottom:1px solid var(--rule)}
 .item:last-child{border-bottom:0}
 .item[hidden]{display:none}
-.item:active{transform:none;background:var(--bg)}
-.item .e{font-size:26px;width:32px;text-align:center;flex:none}
+.item:active{transform:none;background:var(--inset)}
+.item .e{font-size:24px;width:30px;text-align:center;flex:none;display:grid;place-items:center;color:var(--mut)}
 .item .t{flex:1;min-width:0}
-.item b{display:block;font:600 18px/1.3 var(--serif);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item small{display:block;color:var(--mut);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lvl{color:var(--acc);font-size:9px;letter-spacing:1px;flex:none}
-.card.form{text-align:left}
-.form label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:14px}
-.form input{margin-top:6px;padding:12px 14px;font-weight:400}
-.edit-btn{width:auto;padding:10px 14px;font-size:15px}
-.sched{padding:6px 20px;text-align:left}
-.sched div{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:15px}
-.sched div:last-child{border-bottom:0}
-.sched b{color:var(--acc);font-weight:600;white-space:nowrap}
-.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.streak{font-size:14px;font-weight:600;color:var(--mut);background:var(--surface);border:1px solid var(--line);border-radius:999px;
-  padding:7px 12px;text-align:center;line-height:1.15;white-space:nowrap}
-.streak.on{color:#b4520f;background:#fdeedd;border-color:#f6d3b0}
-@media (prefers-color-scheme:dark){.streak.on{color:#ffb070;background:#3a2412;border-color:#5a3818}}
-.streak small{display:block;font-size:11px;font-weight:500;opacity:.8}
-.links{flex-wrap:wrap;row-gap:12px}
-.account{text-align:center;margin-top:14px;font-size:13px;color:var(--mut);opacity:.8}
-.account a{font-size:13px;color:var(--acc)}
+.item b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item small{display:block;color:var(--mut);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stops{display:flex;gap:4px;flex:none}
+.stops i{width:26px;height:26px;border-radius:50%;border:2px solid var(--lc);display:grid;place-items:center;font:700 11px/1 var(--font);font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
+.scale{display:grid;grid-template-columns:28px 1fr 28px;gap:12px;margin-top:2px}
+.scale.st-scale{grid-template-columns:28px 1fr 96px;margin:-6px 0 12px}
+.scale .days{position:relative;height:14px;margin:0 7px}
+.scale .days span{position:absolute;transform:translateX(-50%);font:600 11px/14px var(--font);color:var(--mut);font-variant-numeric:tabular-nums}
+.sched{padding:6px 18px}
+.st{display:grid;grid-template-columns:28px 1fr 96px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule)}
+.st:last-of-type{border-bottom:0}
+.st .name{font-size:13px;font-weight:700;margin-bottom:4px}
+.st .when{font-size:13px;font-weight:700;white-space:nowrap;text-align:right}
+.form label{display:block;font-size:13px;font-weight:700;color:var(--mut);margin-bottom:14px;text-align:left}
+.form input{margin-top:6px;font-weight:500}
 
-/* cards */
-.card{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:30px 22px;text-align:center;margin:16px 0;
-  animation:pop .28s ease-out}
-.card.front{min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center}
-@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}}
-.chip{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:18px}
-.verdict{display:inline-block;font-size:14px;font-weight:600;padding:8px 14px;border-radius:14px;margin-bottom:18px}
-.verdict.ok{background:var(--ok-bg);color:var(--ok)} .verdict.bad{background:var(--bad-bg);color:var(--bad)} .verdict.warn{background:var(--warn-bg);color:var(--warn)}
-.emoji{font-size:60px;line-height:1;margin-bottom:14px}
-.word{font:600 34px/1.2 var(--serif);letter-spacing:-.01em}
-.tr{color:var(--mut);font-size:15px;margin-top:8px;letter-spacing:.02em}
-.ru{font-size:21px;font-weight:500;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
-.ex{margin-top:20px;text-align:left;background:var(--bg);border-radius:16px;padding:14px 16px;font:italic 17px/1.4 var(--serif)}
-.ex div{font:14px/1.4 -apple-system,system-ui,sans-serif;color:var(--mut);margin-top:4px}
-.top{display:flex;align-items:center;gap:10px}
-.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--acc);border-radius:3px;transition:width .3s}
-.spin{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;margin:35vh auto 14px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.splash{min-height:85dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;perspective:900px}
-.flip{width:150px;height:190px;position:relative;transform-style:preserve-3d;animation:flip 2.6s ease-in-out infinite;margin-bottom:34px}
-.face{position:absolute;inset:0;display:grid;place-items:center;border-radius:24px;background:var(--surface);box-shadow:var(--shadow);
-  font:600 30px var(--serif);backface-visibility:hidden;-webkit-backface-visibility:hidden}
-.face.back{transform:rotateY(180deg);background:linear-gradient(140deg,#2b62a8,#14365f);color:#fff;font:600 22px -apple-system,system-ui,sans-serif}
+/* ---------- more: theme picker ---------- */
+.themes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.sw{background:var(--inset);color:var(--ink);border-radius:14px;padding:10px 4px 9px;font-size:13px;font-weight:600;display:grid;justify-items:center;gap:7px;line-height:1.1;border:2px solid transparent}
+.sw[aria-pressed=true]{border-color:var(--primary)}
+.sw .dot{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--g) 50%,var(--p) 50%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+
+/* ---------- splash, card-making, login ---------- */
+.splash{min-height:85dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;perspective:900px;text-align:center}
+.flip{width:150px;height:190px;position:relative;transform-style:preserve-3d;animation:flip 2.6s cubic-bezier(.65,0,.35,1) infinite;margin-bottom:32px}
+.face{position:absolute;inset:0;display:grid;place-items:center;border-radius:22px;background:var(--block);box-shadow:var(--shadow);padding:14px;
+  font:800 28px var(--font);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow-wrap:anywhere}
+.face.back{transform:rotateY(180deg);background:var(--primary);color:var(--on-primary);font-size:22px}
+.face.long{font-size:19px} .face.q{font-size:56px}
 @keyframes flip{0%,30%{transform:rotateY(0)}50%,80%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
-.splash-title{font:600 34px/1 var(--serif);margin-bottom:8px}
-.face{padding:14px;text-align:center;overflow-wrap:anywhere}
-.face.long{font-size:20px}
-.face.q{font:600 56px/1 var(--serif)}
-#step{min-height:20px;margin-top:4px}
-.hero .later{font-size:13px;opacity:.75;margin:-10px 0 16px}
-.forms{font-size:14px;color:var(--acc);margin-top:8px}
-button.say.sm{float:right;width:34px;height:34px;margin:0 0 4px 10px}
-button.say.sm svg{width:16px;height:16px}
-.forms button.say.sm{float:none;width:28px;height:28px;margin:0 0 0 6px}
-.forms button.say.sm svg{width:14px;height:14px}
-button.say.big{width:96px;height:96px;margin:0}
-button.say.big svg{width:40px;height:40px}
-.add{align-items:flex-end}
-.add textarea{flex:1;font:inherit;border:0;background:none;color:var(--ink);padding:12px 10px;resize:none;outline:none;max-height:140px;line-height:1.4}
-@media (prefers-reduced-motion:reduce){.flip{animation:none}}
-.login{min-height:80dvh;display:flex;flex-direction:column;justify-content:center;text-align:center}
-.login h1{font-size:64px}
-.login button{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);margin-top:32px}
+.splash .dots{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
+.splash .dots .badge{width:22px;height:22px;font-size:11px} .splash .dots svg.i{width:12px;height:12px}
+#step{min-height:20px;margin-top:6px;font-size:13px;color:var(--mut)}
+.login{min-height:84dvh;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.login .dots{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.login p{color:var(--mut);margin:8px 0 28px}
+.login button{background:var(--primary);color:var(--on-primary);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:10px}
+/* ---------- help: «Как это работает» ---------- */
+.help p,.help ul{margin:6px 0 0}
+.help ul{padding-left:20px}
+.help .sched{padding:6px 0 0}
+.stn{position:relative;height:18px;margin:6px 7px 0;font-size:13px;color:var(--mut)}
+.stn span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.flip,.card,.stamp{animation:none}.top .track .train,.top .fill{transition:none}}
 </style>
 </head>
 <body><main id="app">
   <!-- splash: plain HTML+CSS so it shows before the Firebase SDK has loaded -->
   <div class="splash">
-    <div class="flip"><div class="face">γεια</div><div class="face back">привет</div></div>
-    <div class="splash-title">Λέξεις</div>
-    <div class="mut small">Открываю словарь…</div>
+    <div class="flip"><div class="face" lang="el">γεια</div><div class="face back">привет</div></div>
+    <h1>Λέξεις</h1>
+    <div class="small mut" style="margin-top:6px">Открываем словарь…</div>
   </div>
 </main>
 <script type="module">
@@ -216,7 +283,7 @@ async function setupReminders() {
     if (!(await isSupported())) throw new Error('браузер не поддерживает push');
     push = { token: await pushToken(), hour, tz: new Date().getTimezoneOffset() };
     await setDoc(metaRef('push'), push);
-    home(`Напомню в ${hour}:00, если к этому времени ещё не повторишь`);
+    home(`Напомним в ${hour}:00, если к этому времени ещё не повторишь`);
   } catch (e) { home('Не получилось включить напоминания: ' + e.message); }
 }
 
@@ -338,9 +405,9 @@ function sayPart(c, k, text) {
 
 // Full card content from a word: Gemini text, then both recordings in parallel.
 async function build(text, step = () => {}) {
-  step('Перевожу…');
+  step('Переводим…');
   const c = await ask(text);
-  step('Записываю произношение…');
+  step('Записываем произношение…');
   const t0 = performance.now();
   const [a, ea, fa] = await Promise.allSettled([tts(c.gr), tts(c.ex), formsText(c) && tts(formsText(c))]);
   c.audio = a.value; c.exAudio = ea.value; c.formsAudio = fa.value || undefined; // undefined: iOS voice plays instead
@@ -362,7 +429,7 @@ async function processPending() {
     catch (e) { if (!e.status) break; } // offline again: stop, the 'online' event retries
   }
   busy = false;
-  if ($('.hero') && !$('#w').value) home(); // refresh counters unless the user is typing
+  if ($('.today') && !$('#w').value) home(); // refresh counters unless the user is typing
 }
 addEventListener('online', processPending);
 
@@ -394,45 +461,83 @@ function queue() {
 }
 
 // --- screens ---
+// Icons: Lucide-style strokes (ISC), drawn inline so they follow the theme colour.
+const ICONS = {
+  flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  back: '<path d="m15 18-6-6 6-6"/>',
+  chev: '<path d="m9 18 6-6-6-6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  ear: '<path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/>',
+  speaker: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>'
+};
+const icon = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+
+// The three review directions are the three Athens metro lines; boxes 0…6 are their stations (depot, then 1·3·7·14·30·60 days).
+const LINES = {
+  gr2ru: { name: 'Узнать', mark: 'Ε' },
+  ru2gr: { name: 'Написать', mark: 'Р' },
+  listen: { name: 'Услышать', mark: icon('ear') }
+};
+const badge = d => `<span class="badge l-${d}" aria-hidden="true">${LINES[d].mark}</span>`;
+const STATIONS = INTERVALS.length + 1;
+const pos = i => (i / (STATIONS - 1) * 100).toFixed(1) + '%';
+const stationTrack = (d, cls) => `<div class="track l-${d}">${Array.from({ length: STATIONS }, (_, i) =>
+  `<b class="${cls(i)}" style="left:${pos(i)}"></b>`).join('')}</div>`;
+// home: a station is lit when any word currently sits there on this line
+// day labels for stations 0…6, aligned with the tracks above them (depot shown as a dot)
+const stationLabel = i => i ? String(INTERVALS[i - 1]) : '·';
+const scale = (cls = '') => `<div class="scale ${cls}" aria-hidden="true"><span></span><div class="days">${Array.from({ length: STATIONS }, (_, i) =>
+  `<span style="left:${pos(i)}">${stationLabel(i)}</span>`).join('')}</div><span></span></div>`;
+const lineTrack = d => { const at = new Set(cards.filter(c => !c.pending).map(c => Math.min(c[d].box, INTERVALS.length))); return stationTrack(d, i => at.has(i) ? 'on' : ''); };
+// one word on one line: passed stations lit, the current one ringed
+const wordTrack = (c, d) => { const b = Math.min(c[d].box, INTERVALS.length); return stationTrack(d, i => (i < b ? 'on' : '') + (i === b ? ' here' : '')); };
+
 function streakChip() {
   const n = streakNow(), doneToday = stats.last === today();
-  return `<div class="streak${doneToday ? ' on' : ''}" title="Лучшая серия: ${stats.best ?? 0}">🔥 ${n ? plural(n, 'день', 'дня', 'дней') : 'начни серию'}
-    ${n && !doneToday ? '<small>повтори сегодня</small>' : ''}</div>`;
+  return `<span class="streak${n ? ' on' : ''}${doneToday ? ' done' : ''}" title="Лучшая серия: ${stats.best ?? 0}">${icon('flame')}${n ? plural(n, 'день', 'дня', 'дней') : 'начни серию'}</span>`;
 }
-let total = 0; // cards in the current review session, for the progress bar
+let total = 0; // cards in the current review session, for the progress line
 const plural = (n, one, few, many) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? one
   : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
-const spinner = text => `<div class="spin"></div><p class="mut center">${text}</p>`;
+const avatar = u => u?.photoURL
+  ? `<img class="av" src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`
+  : `<span class="av" aria-hidden="true">${esc((u?.displayName || u?.email || '?')[0].toUpperCase())}</span>`;
+const back = (id = 'x', label = 'Назад', ic = 'back') => `<button class="icon" id="${id}" aria-label="${label}">${icon(ic)}</button>`;
+
 function home(msg = '') {
-  const due = queue().length, waiting = newWaiting(), pend = cards.filter(c => c.pending).length;
+  const qq = queue(), due = qq.length, waiting = newWaiting(), pend = cards.filter(c => c.pending).length;
+  const per = d => qq.filter(x => x.dir === d).length;
+  const n = streakNow(), doneToday = stats.last === today(), u = auth.currentUser;
   app.innerHTML = `
-    <div class="head"><h1>Λέξεις</h1>${streakChip()}</div>
-    <div class="sub">${plural(cards.length, 'слово', 'слова', 'слов')} в словаре ›</div>
-    <div class="hero">
-      <div class="label">На сегодня</div>
-      <div class="n">${due}</div>
-      ${waiting ? `<div class="later">ещё ${plural(waiting, 'новое слово ждёт', 'новых слова ждут', 'новых слов ждут')} следующих дней</div>` : ''}
-      <button id="rev" ${due ? '' : 'disabled'}>${due ? 'Начать повторение' : 'Всё повторено ✓'}</button>
-    </div>
-    <form id="add" class="add"><textarea id="w" rows="1" placeholder="Новое слово или список" autocomplete="off"></textarea>
-      <button aria-label="Добавить">+</button></form>
-    <div class="msg">${esc(msg)}${pend ? `<div>⏳ Ждут интернета: ${pend} — доделаю сам</div>` : ''}</div>
-    <div class="links"><a href="#" id="lst">Словарь</a><a href="#" id="exp">Экспорт</a><a href="#" id="imp">Импорт</a><a href="#" id="k">Ключи</a>
-      <a href="#" id="rem">${push.token ? '🔔 ' + push.hour + ':00' : 'Напоминания'}</a></div>
-    <div class="account">${esc(auth.currentUser?.email)} · <a href="#" id="out">Выйти</a></div>
-    <input type="file" id="file" accept=".json,application/json" hidden>`;
-  $('#rev').onclick = () => { q = queue(); total = q.length; next(); };
+    <section class="block head"><h1>Λέξεις</h1>
+      <div class="meta"><a href="#" id="lst2">${plural(cards.length, 'слово', 'слова', 'слов')}</a>${streakChip()}${n && !doneToday ? '<span>повтори сегодня</span>' : ''}</div></section>
+    <section class="block today">
+      <div class="count">${due}</div>
+      <div class="small mut">${due ? `${plural(due, 'карточка', 'карточки', 'карточек').replace(/^\d+ /, '')} на сегодня · около ${Math.max(1, Math.round(due / 3))} мин` : 'всё повторено'}${waiting ? ` · ещё ${waiting} новых ждут` : ''}</div>
+      <div class="lines">${DIRS.map(d => `<div class="line">${badge(d)}<div><div class="name">${LINES[d].name}</div>${lineTrack(d)}</div>
+        <div class="n${per(d) ? '' : ' zero'}">${per(d)}</div></div>`).join('')}${scale()}</div>
+      <button id="rev" ${due ? '' : 'disabled'}>${due ? 'Поехали' : 'До завтра'}</button>
+    </section>
+    <form id="add" class="block add"><textarea id="w" rows="1" placeholder="Новое слово или список" aria-label="Новое слово" autocomplete="off"></textarea>
+      <button aria-label="Добавить">${icon('plus')}</button></form>
+    <div class="msg">${esc(msg)}${pend ? `<div>${icon('clock')}Ждут интернета: ${pend} — доделаем сами</div>` : ''}</div>
+    <nav class="block menu">
+      <button class="mi" id="lst">Словарь<span class="v num">${cards.length}${icon('chev')}</span></button>
+      <button class="mi" id="rem">Напоминания<span class="v">${push.token ? push.hour + ':00' : 'выкл'}${icon('chev')}</span></button>
+      <button class="mi" id="more">Ещё<span class="v">${icon('chev')}</span></button>
+      <div class="acct">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div>
+        <button class="link" id="out">Выйти</button></div>
+    </nav>`;
+  $('#rev').onclick = () => { q = queue(); total = q.length; trainAt = 0; next(); };
   $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
   $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };
   $('#w').oninput = e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; };
-  $('#lst').onclick = $('.sub').onclick = e => { e.preventDefault(); list(); };
-  $('#exp').onclick = e => { e.preventDefault(); exportAll(); };
-  $('#imp').onclick = e => { e.preventDefault(); $('#file').click(); };
-  $('#file').onchange = e => e.target.files[0] && importAll(e.target.files[0]);
-  $('#k').onclick = e => { e.preventDefault(); editKeys(); };
-  $('#rem').onclick = e => { e.preventDefault(); setupReminders(); };
-  $('#out').onclick = e => {
-    e.preventDefault();
+  $('#lst').onclick = $('#lst2').onclick = e => { e.preventDefault(); list(); };
+  $('#rem').onclick = () => setupReminders();
+  $('#more').onclick = () => more();
+  $('#out').onclick = () => {
     if (!confirm('Выйти из аккаунта?')) return;
     // keys came from this account: don't leave them for whoever signs in next
     localStorage.removeItem('key'); localStorage.removeItem('tts');
@@ -441,44 +546,160 @@ function home(msg = '') {
   };
 }
 
-const sayBtn = (id = 'say', cls = '') => `<button type="button" class="say ${cls}" id="${id}" aria-label="Произнести"><svg width="20" height="20"
-  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>`;
+// Colour theme is a per-device preference; light/dark still follows the system (Ночь is always dark).
+const THEMES = [['graphite', 'Графит', '#ECEEF1', '#1C1F24'], ['aegean', 'Эгейский', '#D9E5F2', '#0E4C92'],
+  ['olive', 'Олива', '#E2E6DC', '#3D5A2C'], ['night', 'Ночь', '#0F1217', '#F2C230']];
+const syncThemeColor = () => { $('meta[name=theme-color]').content = getComputedStyle(document.body).backgroundColor; };
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', syncThemeColor);
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('theme', t); } catch {}
+  syncThemeColor();
+}
+// «Как это работает»: every rule on one screen, drawn with the real lines and stations. Keep in sync with the logic above.
+function help() {
+  const about = {
+    gr2ru: 'Греческое → русское. Видишь слово, открываешь перевод и отмечаешь «Знал» или «Не знал».',
+    ru2gr: 'Русское → греческое. Пишешь слово по-гречески, мы проверяем сами.',
+    listen: 'Слушаешь слово и пишешь его по-гречески.'
+  };
+  const sample = d => stationTrack(d, i => i < 2 ? 'on' : i === 2 ? ' here' : '');
+  const part = (title, body) => `<section class="block"><h2>${title}</h2>${body}</section>`;
+  app.innerHTML = `<div class="top">${back()}<h2>Как это работает</h2></div><div class="help">
+    ${part('Что это', `<p>Λέξεις — карточки для греческого. Пишешь слово или фразу по-русски или по-гречески, а мы делаем карточку:
+      слово с артиклем, произношение русскими буквами (ударный слог ЗАГЛАВНЫМИ), грамматику — мн. число, аорист и будущее или три рода,
+      перевод, пример с переводом, эмодзи и озвучку слова, форм и примера.</p>
+      <p>На iPhone удобнее как приложение: Safari → «Поделиться» → «На экран „Домой“».</p>`)}
+    ${part('Как добавить', `<p>Поле на главном экране. Одно слово — покажем карточку: сохрани её в словарь или отмени.</p>
+      <p>Несколько через запятую, точку с запятой или с новой строки — сделаем в фоне, без предпросмотра.
+      Нет интернета — слово подождёт в «Ждут интернета», доделаем, когда связь вернётся.</p>`)}
+    ${part('Три линии', `<p>Каждое слово едет по трём линиям, как в афинском метро. У каждой линии своё расписание.</p>
+      <div class="sched">${DIRS.map(d => `<div class="st">${badge(d)}<div><div class="name">${LINES[d].name}</div>
+        <div class="small mut" style="margin-bottom:8px">${about[d]}</div>${sample(d)}</div></div>`).join('')}</div>
+      <p class="small mut">Новое слово выходит на «Узнать» сразу, на «Написать» — завтра, на «Услышать» — послезавтра.</p>`)}
+    ${part('Станции', `<p>Слово стартует из депо. Каждый верный ответ — станция дальше: следующий показ через столько дней.</p>
+      <div style="margin-top:14px">${sample('gr2ru')}<div class="stn num">${['депо', ...INTERVALS].map((t, i) => `<span style="left:${pos(i)}">${t}</span>`).join('')}</div></div>
+      <p>Дальше — каждые ${INTERVALS.at(-1)} дней. Ошибка возвращает слово на этой линии в депо: снова завтра,
+      а сегодня покажем его ещё раз в конце поездки. Повторный показ расписание не двигает.</p>`)}
+    ${part('Новые слова', `<p>В день начинаем не больше ${NEW_PER_DAY} новых слов, в порядке добавления. Остальные ждут очереди —
+      в карточке видно, когда слово выйдет на линию.</p>`)}
+    ${part('Как мы проверяем', `<ul><li>Регистр не важен, ς и σ — одно и то же.</li><li>Артикль можно не писать.</li>
+      <li>Ударение пропущено или не там — засчитаем со штампом «Ударение».</li>
+      <li>Опечатка или синоним — жми «Засчитать».</li></ul>`)}
+    ${part('Главный экран', `<p>Сверху — сколько карточек на сегодня. Ниже три линии: сколько карточек ждёт на каждой,
+      а горящие станции — где сейчас твои слова. «Поехали» — начать.</p>`)}
+    ${part('Словарь', `<p>Нажми на слово — увидишь, где оно на каждой линии и когда следующий показ.
+      «Изменить» — поправить текст; если меняешь греческое слово или пример, мы перезапишем озвучку. Там же — удалить карточку.</p>`)}
+    ${part('Серия', `<p>День засчитывается, если ответил хотя бы на одну карточку. Пропустишь целый день — серия начнётся заново.</p>`)}
+    ${part('Напоминания', `<p>«Напоминания» → выбери час. Пришлём уведомление в этот час, только если ты сегодня ещё не повторял и есть что повторять.</p>
+      <p>Работает в приложении с экрана «Домой» на iPhone (iOS 16.4+) и приходит на устройство, где напоминания включили последними.</p>`)}
+    ${part('Ещё', `<ul><li>Тема: Графит, Эгейский, Олива или Ночь. Светлая или тёмная — как на телефоне, «Ночь» всегда тёмная. Запоминается на каждом устройстве отдельно.</li>
+      <li>Ключи API — Gemini делает карточки, Google Text-to-Speech озвучивает (без него говорит голос iOS). Если твой аккаунт в списке доступа, ключи владельца подтянутся сами.</li>
+      <li>Экспорт — словарь в файл, импорт — обратно из файла.</li><li>«Выйти» — внизу главного экрана.</li></ul>`)}
+  </div>`;
+  $('#x').onclick = () => more();
+}
+
+function more(msg = '') {
+  const cur = document.documentElement.dataset.theme;
+  app.innerHTML = `<div class="top">${back()}<h2>Ещё</h2></div>
+    <section class="block"><h2>Тема</h2>
+      <div class="themes">${THEMES.map(([id, name, g, p]) => `<button class="sw" data-t="${id}" aria-pressed="${id === cur}">
+        <span class="dot" style="--g:${g};--p:${p}"></span>${name}</button>`).join('')}</div>
+      <p class="small mut" style="margin:12px 0 0">Светлая или тёмная — как в настройках iPhone. «Ночь» всегда тёмная.</p></section>
+    <nav class="block menu">
+      <button class="mi" id="help">Как это работает<span class="v">${icon('chev')}</span></button>
+      <button class="mi" id="k">Ключи API<span class="v">${icon('chev')}</span></button>
+      <button class="mi" id="exp">Экспорт словаря<span class="v">${icon('chev')}</span></button>
+      <button class="mi" id="imp">Импорт из файла<span class="v">${icon('chev')}</span></button>
+    </nav>
+    <div class="msg">${esc(msg)}</div>
+    <input type="file" id="file" accept=".json,application/json" hidden>`;
+  $('#x').onclick = () => home();
+  document.querySelectorAll('.sw').forEach(b => b.onclick = () => { setTheme(b.dataset.t); more(); });
+  $('#help').onclick = () => help();
+  $('#k').onclick = () => editKeys();
+  $('#exp').onclick = () => exportAll();
+  $('#imp').onclick = () => $('#file').click();
+  $('#file').onchange = e => e.target.files[0] && importAll(e.target.files[0]);
+}
+
+const sayBtn = (id = 'say', cls = '', label = 'Произнести') => `<button type="button" class="say ${cls}" id="${id}" aria-label="${label}">${icon('speaker')}</button>`;
 const SAY = sayBtn();
-const cardHtml = (c, verdict = '') => `<div class="card">${verdict}
+// One card layout everywhere (preview, review answer, dictionary): same scale, same axis.
+const cardHtml = (c, top = '') => `<article class="block card${top.includes('stamp') ? ' stamped' : ''}">${top}
   <div class="emoji">${esc(c.emoji)}</div>
-  <div class="word">${esc(c.gr)}${SAY}</div>
+  <div class="word" lang="el">${esc(c.gr)}${SAY}</div>
   <div class="tr">${esc(c.tr)}</div>
-  ${c.forms ? `<div class="forms">${esc(c.forms)}${formsText(c) ? sayBtn('sayForms', 'sm') : ''}</div>` : ''}
+  ${c.forms ? `<div class="forms"><span lang="el">${esc(c.forms)}</span>${formsText(c) ? sayBtn('sayForms', 'sm', 'Произнести формы') : ''}</div>` : ''}
   <div class="ru">${esc(c.ru)}</div>
-  ${c.ex ? `<div class="ex">${sayBtn('sayEx', 'sm')}${esc(c.ex)}<div>${esc(c.exRu)}</div></div>` : ''}</div>`;
+  ${c.ex ? `<div class="ex"><div class="t" lang="el">${esc(c.ex)}<small lang="ru">${esc(c.exRu)}</small></div>${sayBtn('sayEx', 'sm', 'Произнести пример')}</div>` : ''}</article>`;
 const wire = c => {
   if ($('#say')) $('#say').onclick = () => say(c);
   if ($('#sayEx')) $('#sayEx').onclick = () => sayPart(c, 'exAudio', c.ex);
   if ($('#sayForms')) $('#sayForms').onclick = () => sayPart(c, 'formsAudio', formsText(c));
 };
 
-// learning level = weakest direction, as filled dots out of INTERVALS.length
-const level = c => {
-  if (c.pending) return '⏳';
-  const b = Math.min(...DIRS.map(d => c[d].box), INTERVALS.length);
-  return '●'.repeat(b) + '○'.repeat(INTERVALS.length - b);
+// dictionary row: three short bars, one per line, filled by how far the word has travelled
+// dictionary row: the station the word is at on each line, as the day number in the line's colour
+const level = c => c.pending ? '' : `<span class="stops">${DIRS.map(d => { const b = Math.min(c[d].box, INTERVALS.length);
+  return `<i class="l-${d}" aria-label="${LINES[d].name}: ${b ? 'станция ' + INTERVALS[b - 1] : 'старт'}">${stationLabel(b)}</i>`; }).join('')}</span>`;
+
+// Forgiving dictionary search. plain(): case, accents, ς, article and punctuation don't matter.
+// phon(): one loose Latin sound key shared by Greek, Cyrillic transcription and Latin, so «таласса», «thalasa» and «θάλασσα» collide.
+// relayout(): the query as if typed with another of the three keyboard layouts active (same key positions).
+const KB = ["qwertyuiop[]asdfghjkl;'zxcvbnm,.", 'йцукенгшщзхъфывапролджэячсмитьбю', ";ςερτυθιοπ[]ασδφγηξκλ΄'ζχψωβνμ,."];
+const relayout = q => KB.flatMap((a, i) => KB.filter((_, j) => j !== i).map(b => [...q].map(ch => a.includes(ch) ? b[a.indexOf(ch)] : ch).join('')));
+const plain = s => (s || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/ς/g, 'σ').trim()
+  .replace(/^(ο\/η|η\/ο|οι|ο|η|το|τα|о\/и|и\/о|о|и|то|та)\s+/, '').replace(/[-‐'’]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const LAT = { ξ: 'ks', ψ: 'ps', ц: 'ts', ч: 'ts', ш: 's', щ: 's', ю: 'iu', я: 'ia' };
+[['αβγδεζηθικλμνοπρστυφχω', 'avgdezitiklmnoprstifho'], ['абвгдежзийклмнопрстуфхыэ', 'abvgdezziiklmnoprstufhie']]
+  .forEach(([a, b]) => [...a].forEach((c, i) => LAT[c] = b[i]));
+const SOUND = [[/[kc]h/g, 'h'], [/th/g, 't'], [/dh/g, 'd'], [/ph/g, 'f'], [/x/g, 'ks'], [/[cq]/g, 'k'], [/w/g, 'o'], [/[yj]/g, 'i'],
+  [/([ae])u/g, '$1v'], [/ou|oo/g, 'u'], [/ee/g, 'i'], [/ai/g, 'e'], [/[eo]i/g, 'i'], [/([ae])v/g, '$1f'],
+  [/m[pb]/g, 'b'], [/n[td]/g, 'd'], [/ng|gk/g, 'g'], [/tz/g, 'dz'], [/(.)\1+/g, '$1']];
+const phon = (p, front) => SOUND.reduce((s, [re, to]) => s.replace(re, to), [...p.replace(/ου/g, 'u').replace(/([αεη])υ/g, '$1β')
+  .replace(/γ(?=[εηιυ]|αι|ει|οι)/g, front ? 'y' : 'γ')].map(c => LAT[c] ?? c).join('').replace(/[^a-z0-9]/g, ''));
+const searchKeys = c => {
+  const g = plain(c.gr || c.text), t = plain(c.tr);
+  return { p: [g, plain(c.ru), t].join('|'), f: [...new Set([phon(g), phon(g, true), phon(t)])].join('|') };
+};
+// approximate substring (Sellers): q occurs somewhere in k with at most one typo
+const near = (q, k) => {
+  let p = [...Array(q.length + 1).keys()];
+  for (const ch of k) {
+    const n = [0];
+    for (let i = 1; i <= q.length; i++) n[i] = Math.min(p[i] + 1, n[i - 1] + 1, p[i - 1] + (q[i - 1] !== ch));
+    if (n[q.length] <= 1) return true;
+    p = n;
+  }
+  return false;
+};
+// one-letter queries match plainly; longer ones also via layouts and sound, 6+ letters forgive one typo
+const matcher = raw => {
+  const q = raw.trim().toLowerCase();
+  if (!q) return () => true;
+  const vs = q.length < 2 ? [plain(q)] : [...new Set([q, ...relayout(q)].map(plain))].filter((v, i) => !i || v.length > 1);
+  const ps = q.length < 2 ? [] : [...new Set(vs.map(v => phon(v)))].filter(Boolean);
+  const fz = ps[0]?.length >= 6 ? ps[0] : '';
+  return k => vs.some(v => k.p.includes(v)) || ps.some(f => k.f.includes(f)) || !!fz && near(fz, k.f);
 };
 
 function list() {
   const sortKey = c => (c.gr || c.text).replace(/^(ο|η|το|οι|τα)\s+/, '');
   const rows = [...cards].sort((a, b) => sortKey(a).localeCompare(sortKey(b), "el"));
-  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">✕</button><h2>Словарь</h2>
-      <span class="mut small">${cards.length}</span></div>
-    <input id="s" class="search" placeholder="Поиск по-гречески или по-русски" autocomplete="off">
-    <div class="list">${rows.map(c => `<button class="item" data-id="${esc(c.id)}" data-q="${esc((c.gr || c.text) + ' ' + (c.ru || '')).toLowerCase()}">
-      <span class="e">${esc(c.pending ? '⏳' : c.emoji)}</span>
-      <span class="t"><b>${esc(c.gr || c.text)}</b><small>${esc(c.pending ? 'ждёт интернета' : c.ru)}</small></span>
-      <span class="lvl">${level(c)}</span></button>`).join('') || '<p class="mut center">Пока пусто</p>'}</div>`;
+  app.innerHTML = `<div class="top">${back()}<h2>Словарь</h2><span class="small mut num">${cards.length}</span></div>
+    <input id="s" type="search" placeholder="Поиск по-гречески или по-русски" aria-label="Поиск" autocomplete="off">
+    <div class="block list" style="margin-top:12px">${!rows.length ? '<p class="mut center" style="padding:24px 12px">Пока пусто — добавь первое слово на главной</p>' : rows.map(c => { const k = searchKeys(c); return `<button class="item" data-id="${esc(c.id)}" data-p="${esc(k.p)}" data-f="${esc(k.f)}">
+      <span class="e">${c.pending ? icon('clock') : esc(c.emoji)}</span>
+      <span class="t"><b lang="el">${esc(c.gr || c.text)}</b><small>${esc(c.pending ? 'ждёт интернета' : c.ru)}</small></span>
+      ${level(c)}</button>`; }).join('') + '<p class="mut center" id="none" hidden style="padding:24px 12px">Ничего не нашли</p>'}</div>`;
   $('#x').onclick = () => home();
   $('#s').oninput = e => { // filter in place so the keyboard stays open
-    const f = e.target.value.trim().toLowerCase();
-    document.querySelectorAll('.item').forEach(el => el.hidden = !el.dataset.q.includes(f));
+    const m = matcher(e.target.value);
+    let any = false;
+    document.querySelectorAll('.item').forEach(el => { el.hidden = !m(el.dataset); any ||= !el.hidden; });
+    if ($('#none')) $('#none').hidden = any;
   };
   document.querySelectorAll('.item').forEach(el => el.onclick = () => {
     const c = cards.find(c => c.id === el.dataset.id);
@@ -490,15 +711,14 @@ function list() {
   });
 }
 
-// Read-only card from the dictionary, with when each direction comes up next; editing is one tap away.
+// Read-only card from the dictionary: where the word is on each line and when it comes up next; editing is one tap away.
 function view(c) {
-  const L = { gr2ru: 'Греческий → русский', ru2gr: 'Русский → греческий', listen: 'На слух' };
   const start = entryDay(c); // a waiting new card shows nothing before it enters review
   const when = d => { const n = Math.max(c[d].due, start) - today(); return n <= 0 ? 'сегодня' : n === 1 ? 'завтра' : 'через ' + plural(n, 'день', 'дня', 'дней'); };
-  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">←</button><h2>Карточка</h2>
-      <button class="sec edit-btn" id="ed">Изменить</button></div>` + cardHtml(c) +
-    `<div class="card sched">${DIRS.map(d => `<div><span>${L[d]}</span><b>${when(d)}</b></div>`).join('')}
-      ${start > today() ? `<p class="mut small">Новое слово ждёт своей очереди: в день начинаю не больше ${NEW_PER_DAY} новых</p>` : ''}</div>`;
+  app.innerHTML = `<div class="top">${back()}<h2>Карточка</h2><button class="link" id="ed">Изменить</button></div>` + cardHtml(c) +
+    `<section class="block sched">${DIRS.map(d => `<div class="st">${badge(d)}<div><div class="name">${LINES[d].name}</div>${wordTrack(c, d)}</div>
+      <div class="when">${when(d)}</div></div>`).join('')}${scale('st-scale')}
+      ${start > today() ? `<p class="small mut" style="margin:0 0 14px">Новое слово ждёт очереди: в день начинаем не больше ${NEW_PER_DAY} новых</p>` : ''}</section>`;
   wire(c);
   $('#x').onclick = () => list();
   $('#ed').onclick = () => edit(c);
@@ -507,10 +727,10 @@ function view(c) {
 function edit(c) {
   const F = [['gr', 'Греческий'], ['tr', 'Транскрипция'], ['forms', 'Грамматика'], ['ru', 'Перевод'], ['ex', 'Пример'],
     ['exRu', 'Перевод примера'], ['emoji', 'Эмодзи']];
-  app.innerHTML = `<div class="top"><button class="x" id="x" aria-label="Назад">←</button><h2>Редактирование</h2>${SAY}</div>
-    <form id="ef" class="card form">${F.map(([k, l]) => `<label>${l}<input name="${k}" value="${esc(c[k])}" autocomplete="off"></label>`).join('')}
+  app.innerHTML = `<div class="top">${back()}<h2>Редактирование</h2>${SAY}</div>
+    <form id="ef" class="block form">${F.map(([k, l]) => `<label>${l}<input name="${k}" value="${esc(c[k])}" autocomplete="off"></label>`).join('')}
       <button id="sv">Сохранить</button></form>
-    <button class="bad" id="del">Удалить карточку</button>`;
+    <button class="bad" id="del" style="margin-top:12px">Удалить карточку</button>`;
   $('#x').onclick = () => view(c);
   $('#say').onclick = () => say(c);
   $('#ef').onsubmit = async e => {
@@ -520,7 +740,7 @@ function edit(c) {
     if (d.forms !== c.forms) delete c.formsAudio; // re-recorded on next play
     Object.assign(c, d, { gr: d.gr.trim() });
     if (newGr || newEx) { // old audio says the old text
-      $('#sv').disabled = true; $('#sv').textContent = 'Озвучиваю…';
+      $('#sv').disabled = true; $('#sv').textContent = 'Озвучиваем…';
       if (newGr) try { c.audio = await tts(c.gr); } catch { delete c.audio; }
       if (newEx) try { c.exAudio = await tts(c.ex); } catch { delete c.exAudio; }
     }
@@ -538,22 +758,22 @@ function edit(c) {
 // same flip card as the splash: what you typed on the front, "?" on the back, live step text below
 const making = text => `<div class="splash"><div class="flip">
     <div class="face${text.length > 9 ? ' long' : ''}">${esc(text)}</div><div class="face back q">?</div></div>
-  <div class="splash-title">Готовлю карточку</div><div class="mut small" id="step"></div></div>`;
+  <h1 style="font-size:17px">Готовим карточку</h1><div id="step"></div></div>`;
 
 async function add(raw) {
   const words = raw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
   const park = list => list.forEach(w => { const d = draft(w); cards.push(d); save(d); });
   if (words.length > 1) { // batch: no preview, fill in the background
     park(words);
-    home(`Готовлю ${plural(words.length, 'карточку', 'карточки', 'карточек')}…`);
+    home(`Готовим ${plural(words.length, 'карточку', 'карточки', 'карточек')}…`);
     return processPending();
   }
   const text = words[0];
   app.innerHTML = making(text);
   try {
     const { c, note } = await build(text, s => { if ($('#step')) $('#step').textContent = s; });
-    app.innerHTML = cardHtml(c) + `<p class="mut small center">${esc(note)}</p>
-      <div class="row"><button class="sec" id="no">Отмена</button><button id="yes">Сохранить</button></div>`;
+    app.innerHTML = `<div class="top">${back('no', 'Отмена')}<h2>Новая карточка</h2></div>` + cardHtml(c) +
+      `<p class="small mut center">${esc(note)}</p><button id="yes">Сохранить в словарь</button>`;
     wire(c);
     say(c);
     $('#no').onclick = () => home();
@@ -566,58 +786,67 @@ async function add(raw) {
   } catch (e) {
     if (e.status) return home('Ошибка: ' + e.message);
     park([text]); // no network: keep the word, finish it later
-    home(`Нет связи — «${text}» доделаю сам, когда появится интернет`);
+    home(`Нет связи — «${text}» доделаем, когда появится интернет`);
   }
+}
+
+// Review progress is a ride along the current card's line; the train glides from where the last card left it.
+let trainAt = 0;
+const topBar = d => `<div class="top l-${d}">${back('x', 'Закончить', 'x')}
+  <span class="dir">${badge(d)}${LINES[d].name}</span>
+  <div class="track"><i class="fill" style="width:${trainAt}%"></i><i class="train" style="left:${trainAt}%"></i></div>
+  <span class="small mut num">${total - q.length}/${total}</span></div>`;
+function ride() { // called after q.shift(): the card on screen counts as not yet done
+  const p = (total - q.length - 1) / total * 100;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if ($('.top .fill')) { $('.top .fill').style.width = p + '%'; $('.top .train').style.left = p + '%'; }
+    trainAt = p;
+  }));
 }
 
 function next() {
   const it = q.shift();
-  if (!it) return home('Готово на сегодня 🎉');
+  if (!it) return home('Готово на сегодня. До завтра!');
   const { c, dir } = it;
-  const answer = `<form id="f"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-    placeholder="Ελληνικά…"><button style="margin-top:12px">Проверить</button></form>`;
+  const answer = `<form id="f" class="answer" style="margin-top:12px"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off"
+    spellcheck="false" placeholder="По-гречески" aria-label="Ответ по-гречески"><button style="margin-top:12px">Проверить</button></form>`;
   if (dir === 'gr2ru') {
-    app.innerHTML = topBar() + `<div class="card front"><div class="chip">Что это значит?</div>
-      <div class="word">${esc(c.gr)}${SAY}</div></div>
-      <button id="show">Показать ответ</button>`;
-    $('#show').onclick = () => back(it, null);
+    app.innerHTML = topBar(dir) + `<article class="block card front"><div class="word" lang="el">${esc(c.gr)}${SAY}</div></article>
+      <button id="show" style="margin-top:12px">Показать перевод</button>`;
+    $('#show').onclick = () => back_(it, null);
   } else if (dir === 'ru2gr') {
-    app.innerHTML = topBar() + `<div class="card front"><div class="chip">Как по-гречески?</div>
-      <div class="emoji">${esc(c.emoji)}</div><div class="word">${esc(c.ru)}</div></div>` + answer;
+    app.innerHTML = topBar(dir) + `<article class="block card front"><div class="emoji">${esc(c.emoji)}</div><div class="word">${esc(c.ru)}</div></article>` + answer;
   } else { // listen: audio only, type what you hear
-    app.innerHTML = topBar() + `<div class="card front"><div class="chip">Что ты слышишь?</div>${sayBtn('say', 'big')}
-      <div class="mut small" style="margin-top:14px">нажми, чтобы послушать ещё раз</div></div>` + answer;
+    app.innerHTML = topBar(dir) + `<article class="block card front">${sayBtn('say', 'big', 'Послушать ещё раз')}
+      <div class="prompt">Нажми, чтобы послушать ещё раз</div></article>` + answer;
   }
   wire(c);
+  ride();
   if (dir !== 'ru2gr') say(c);
-  if ($('#f')) { $('#a').focus(); $('#f').onsubmit = e => { e.preventDefault(); back(it, $('#a').value); }; }
+  if ($('#f')) { $('#a').focus(); $('#f').onsubmit = e => { e.preventDefault(); back_(it, $('#a').value); }; }
   $('#x').onclick = () => home();
 }
-// progress counts the card on screen as not yet done; called after q.shift()
-const topBar = () => `<div class="top"><button class="x" id="x" aria-label="Выйти">✕</button>
-  <div class="bar"><i style="width:${(total - q.length - 1) / total * 100}%"></i></div>
-  <span class="mut small">${total - q.length}/${total}</span></div>`;
 
-function back(it, answer) {
+function back_(it, answer) {
   const c = it.c;
-  let verdict = '', buttons = '<button class="bad" id="n">Не знал</button><button class="ok" id="y">Знал</button>';
+  let top = '', buttons = '<button class="bad" id="n">Не знал</button><button class="ok" id="y">Знал</button>';
   if (answer !== null) {
     const r = check(answer, c.gr);
-    verdict = r === 'ok' ? '<div class="verdict ok">Верно</div>'
-      : r === 'accent' ? `<div class="verdict warn">Засчитано, проверь ударение: «${esc(answer)}»</div>`
-      : `<div class="verdict bad">Ты написал: «${esc(answer)}»</div>`;
-    buttons = r === 'bad' ? '<button class="sec" id="y">Засчитать</button><button class="bad" id="n">Дальше</button>'
+    // the verdict stamps onto the card and stays, like a validated ticket
+    top = `<span class="stamp ${r === 'accent' ? 'warn' : r}">${r === 'ok' ? 'Верно' : r === 'accent' ? 'Ударение' : 'Ошибка'}</span>`
+      + (r === 'ok' ? '' : `<div class="yours">Ты написал: «<span lang="el">${esc(answer)}</span>»</div>`);
+    buttons = r === 'bad' ? '<button class="sec" id="y">Засчитать</button><button id="n">Дальше</button>'
       : '<button id="y">Дальше</button>';
     say(c);
   }
-  app.innerHTML = topBar() + cardHtml(c, verdict) + `<div class="row">${buttons}</div>
-    <p class="center"><a href="#" id="del">Удалить карточку</a></p>`;
+  app.innerHTML = topBar(it.dir) + cardHtml(c, top) + `<div class="row">${buttons}</div>
+    <p class="center" style="margin:32px 0 0"><button class="link" id="del" style="font-size:13px;font-weight:400;color:var(--mut)">Удалить карточку</button></p>`;
+  ride();
   $('#x').onclick = () => home();
   wire(c);
   $('#y').onclick = () => done(it, true);
   if ($('#n')) $('#n').onclick = () => done(it, false);
-  $('#del').onclick = e => {
-    e.preventDefault();
+  $('#del').onclick = () => {
     if (!confirm(`Удалить «${c.gr}»?`)) return;
     cards = cards.filter(x => x !== c);
     q = q.filter(x => x.c !== c);
@@ -678,12 +907,23 @@ function selftest() {
   const s9 = { last: 9, streak: 4, best: 4 };
   eq(nextStats(s9, 10).streak, 5); eq(nextStats(s9, 10).best, 5); eq(nextStats(s9, 9), s9);
   eq(nextStats({ last: 7, streak: 4, best: 6 }, 10).streak, 1); eq(nextStats({ last: 7, streak: 4, best: 6 }, 10).best, 6);
+  const finds = (q, c) => matcher(q)(searchKeys(c)); // forgiving dictionary search
+  const sea = { gr: 'η θάλασσα', ru: 'море', tr: 'и ТХА-ла-са' }, morning = { gr: 'η καλημέρα', ru: 'доброе утро', tr: 'ка-ли-МЭ-ра' };
+  const thanks = { gr: 'ευχαριστώ', ru: 'спасибо', tr: 'эф-ха-ри-СТО' }, oven = { gr: 'ο φούρνος', ru: 'пекарня, печь', tr: 'о ФУР-нос' };
+  for (const q of ['таласса', 'тхалас', 'thalassa', 'thalasa', 'θαλασσα', 'ΘΑΛΑΣΣΑ', 'θαλ', 'η θαλασσα', 'море', 'МОРЕ', 'vjht', 'ωξητ', 'ualassa', 'гфдфыыф'])
+    eq(finds(q, sea), true);
+  for (const q of ['калимера', 'калимэра', 'kalimera', 'KALIMERA', 'kalhmera', 'καλημερα', 'rfkbvthf']) eq(finds(q, morning), true);
+  for (const q of ['efharisto', 'eucharisto', 'evcharisto', 'эфхаристо', 'ευχαριστω']) eq(finds(q, thanks), true);
+  for (const q of ['fournos', 'furnos', 'фурнос', 'пекарн', 'пекарня печь']) eq(finds(q, oven), true);
+  eq(finds('spiti', { gr: 'το σπίτι', ru: 'дом' }), true); eq(finds('yia', { gr: 'γεια', ru: 'привет' }), true);
+  eq(finds('салата', { pending: true, text: 'σαλάτα' }), true);
+  for (const q of ['vfkfccf', 'telefono', 'kipos', 'спасибо']) eq(finds(q, sea), false);
   return 'selftest ok';
 }
 
 function login(msg = '') {
-  app.innerHTML = `<div class="login"><h1>Λέξεις</h1><div class="mut">Греческие слова на каждый день</div>
-    <button id="in">Войти через Google</button><p class="mut small">${esc(msg)}</p></div>`;
+  app.innerHTML = `<div class="login"><div class="dots">${DIRS.map(badge).join('')}</div><h1>Λέξεις</h1>
+    <p>Греческие слова на каждый день</p><button id="in">Войти через Google</button><p class="small">${esc(msg)}</p></div>`;
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' }); // let a different account sign in after logout
   $('#in').onclick = () => signInWithPopup(auth, provider).catch(e => login('Ошибка входа: ' + e.message));
@@ -691,6 +931,7 @@ function login(msg = '') {
 
 navigator.serviceWorker?.register('sw.js').catch(() => {});
 const SPLASH = app.innerHTML; // reused while a fresh sign-in loads the dictionary
+syncThemeColor();
 onAuthStateChanged(auth, async user => {
   if (!user) return login();
   app.innerHTML = SPLASH;

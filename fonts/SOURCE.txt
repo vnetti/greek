@@ -1,0 +1,4 @@
+Commissioner (variable, weights 400–800) by Kostas Bartsokas.
+Downloaded from Google Fonts (fonts.googleapis.com/css2?family=Commissioner:wght@400..800), subsets: cyrillic, greek, latin-ext, latin.
+License: SIL Open Font License 1.1 — https://openfontlicense.org
+The @font-face rules are inlined at the top of the <style> block in index.html.
