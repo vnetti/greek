@@ -42,9 +42,11 @@
 
 ## Для тех, кто будет поддерживать
 
-- **Стек.** Статический `index.html` (вся вёрстка и код) и `sw.js`, хостинг на GitHub Pages. Сборки нет.
+- **Стек.** Статические файлы на GitHub Pages, сборки нет: браузерные ES-модули грузятся как есть.
+  - `index.html` — разметка заставки; `css/app.css` — все стили; `sw.js` — офлайн-кэш и push.
+  - `js/main.js` — запуск; `js/srs.js` — расписание и проверка ответа, `js/search.js` — поиск по словарю (оба без DOM, их импортирует node); `js/store.js` — Firebase; `js/api.js` — Gemini и TTS; `js/audio.js`, `js/ui.js`, `js/util.js`, `js/state.js` — общее; `js/screens/*.js` — экраны.
 - **Данные.** Firebase Auth (вход через Google) и Firestore: карточки в `users/{uid}/cards`, серия и напоминания в `users/{uid}/meta`. Работает офлайн через локальный кэш Firestore.
 - **Карточки.** Текст делает Gemini, озвучку — Google Cloud Text-to-Speech.
 - **Ключи API** лежат в Firestore-документе `shared/keys`; читать его могут только адреса из списка в правилах Firestore, писать — только владелец. Остальные вводят свои ключи.
 - **Напоминания.** Push через Firebase Cloud Messaging. Каждый час GitHub Action `.github/workflows/remind.yml` запускает `scripts/remind.mjs`; нужен секрет репозитория `FIREBASE_SA` (JSON сервисного аккаунта).
-- **Тесты.** `selftest()` в `index.html` — открой приложение с `#test` в адресе, результат появится на главном экране. Логика напоминаний: `node scripts/remind.test.mjs`.
+- **Тесты.** `npm test` (нужен только node 22+, зависимостей нет): `tests/` — расписание, проверка ответа и поиск; `scripts/remind.test.mjs` — напоминания. `scripts/remind.mjs` берёт правила расписания из `js/srs.js`.

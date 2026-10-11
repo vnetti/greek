@@ -1,6 +1,7 @@
 // node scripts/remind.test.mjs
 import assert from 'node:assert/strict';
-import { dueCount, message } from './remind.mjs';
+import { dueCount } from '../js/srs.js';
+import { message } from './remind.mjs';
 
 const day = 100, s = (box, due) => ({ box, due });
 const card = (id, o = {}) => ({ id, gr2ru: s(0, day), ru2gr: s(0, day + 1), listen: s(0, day + 2), ...o });

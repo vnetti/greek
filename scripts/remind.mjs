@@ -1,19 +1,8 @@
 // Hourly (see .github/workflows/remind.yml): push a reminder to users whose chosen local hour is now,
-// who haven't reviewed today and have cards due. Mirrors the app's schedule rules in index.html.
+// who haven't reviewed today and have cards due. Schedule rules come from the app's js/srs.js.
 // The repo is public, so its logs are too: never log user ids, emails or tokens.
-const DIRS = ['gr2ru', 'ru2gr', 'listen'], NEW_PER_DAY = 10;
-
-const plural = (n, one, few, many) => n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? one
-  : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
-
-// Cards due on `day`, counting at most NEW_PER_DAY new cards (oldest first), like queue() in the app.
-export function dueCount(cards, day) {
-  const live = cards.filter(c => !c.pending).map(c => ({ ...c, listen: c.listen ?? { box: 0, due: c.ru2gr.due + 1 } }));
-  const isNew = c => c.introduced == null && DIRS.every(d => c[d].box === 0);
-  const due = c => DIRS.filter(d => c[d].due <= day).length;
-  const fresh = live.filter(isNew).sort((a, b) => a.id < b.id ? -1 : 1).slice(0, NEW_PER_DAY);
-  return [...live.filter(c => !isNew(c)), ...fresh].reduce((n, c) => n + due(c), 0);
-}
+import { DIRS, dueCount } from '../js/srs.js';
+import { plural } from '../js/util.js';
 
 export function message(n, stats, day) {
   const streak = stats.last === day - 1 ? stats.streak : 0; // alive, but today not done yet

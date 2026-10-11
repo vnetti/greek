@@ -28,7 +28,7 @@ Speed and minimalism over feature breadth: one input field produces a complete, 
 
 ## Capabilities and Constraints
 
-- Static `index.html` + `sw.js` on GitHub Pages (vnetti.github.io/greek); no build step. Firebase Auth (Google sign-in) + Firestore (offline cache), Gemini for card content, Google Cloud TTS, FCM push sent by an hourly GitHub Action (`scripts/remind.mjs`).
+- Static site on GitHub Pages: `index.html` shell, `css/app.css`, native ES modules in `js/` (no bundler), `sw.js` (vnetti.github.io/greek); no build step. Firebase Auth (Google sign-in) + Firestore (offline cache), Gemini for card content, Google Cloud TTS, FCM push sent by an hourly GitHub Action (`scripts/remind.mjs`).
 - Russian UI; Greek content. iOS Safari standalone PWA is the primary runtime (safe areas, Greek keyboard, home-screen icon `icon.png`).
 - Functionality must stay intact through visual changes.
 
