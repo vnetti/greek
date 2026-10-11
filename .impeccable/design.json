@@ -1,0 +1,1437 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-11T00:34:26+00:00",
+  "title": "Design System: Λέξεις",
+  "extensions": {
+    "colorMeta": {
+      "m1-blue": {
+        "role": "primary",
+        "displayName": "Line Blue M1",
+        "canonical": "#0069B4",
+        "tonalRamp": [
+          "oklch(15% 0.143 249.5)",
+          "oklch(26% 0.143 249.5)",
+          "oklch(38% 0.143 249.5)",
+          "oklch(50% 0.143 249.5)",
+          "oklch(62% 0.143 249.5)",
+          "oklch(74% 0.143 249.5)",
+          "oklch(85% 0.143 249.5)",
+          "oklch(95% 0.143 249.5)"
+        ]
+      },
+      "m2-red": {
+        "role": "primary",
+        "displayName": "Line Red M2",
+        "canonical": "#E3001B",
+        "tonalRamp": [
+          "oklch(15% 0.200 26.7)",
+          "oklch(26% 0.200 26.7)",
+          "oklch(38% 0.200 26.7)",
+          "oklch(50% 0.200 26.7)",
+          "oklch(62% 0.200 26.7)",
+          "oklch(74% 0.200 26.7)",
+          "oklch(85% 0.200 26.7)",
+          "oklch(95% 0.200 26.7)"
+        ]
+      },
+      "m3-green": {
+        "role": "primary",
+        "displayName": "Line Green M3",
+        "canonical": "#009A49",
+        "tonalRamp": [
+          "oklch(15% 0.162 150.8)",
+          "oklch(26% 0.162 150.8)",
+          "oklch(38% 0.162 150.8)",
+          "oklch(50% 0.162 150.8)",
+          "oklch(62% 0.162 150.8)",
+          "oklch(74% 0.162 150.8)",
+          "oklch(85% 0.162 150.8)",
+          "oklch(95% 0.162 150.8)"
+        ]
+      },
+      "m1-blue-dark": {
+        "role": "primary",
+        "displayName": "Line Blue M1 dark",
+        "canonical": "#3B8FE0",
+        "tonalRamp": [
+          "oklch(15% 0.146 250.6)",
+          "oklch(26% 0.146 250.6)",
+          "oklch(38% 0.146 250.6)",
+          "oklch(50% 0.146 250.6)",
+          "oklch(62% 0.146 250.6)",
+          "oklch(74% 0.146 250.6)",
+          "oklch(85% 0.146 250.6)",
+          "oklch(95% 0.146 250.6)"
+        ]
+      },
+      "m2-red-dark": {
+        "role": "primary",
+        "displayName": "Line Red M2 dark",
+        "canonical": "#FF4757",
+        "tonalRamp": [
+          "oklch(15% 0.200 20.9)",
+          "oklch(26% 0.200 20.9)",
+          "oklch(38% 0.200 20.9)",
+          "oklch(50% 0.200 20.9)",
+          "oklch(62% 0.200 20.9)",
+          "oklch(74% 0.200 20.9)",
+          "oklch(85% 0.200 20.9)",
+          "oklch(95% 0.200 20.9)"
+        ]
+      },
+      "m3-green-dark": {
+        "role": "primary",
+        "displayName": "Line Green M3 dark",
+        "canonical": "#1FBF68",
+        "tonalRamp": [
+          "oklch(15% 0.176 152.6)",
+          "oklch(26% 0.176 152.6)",
+          "oklch(38% 0.176 152.6)",
+          "oklch(50% 0.176 152.6)",
+          "oklch(62% 0.176 152.6)",
+          "oklch(74% 0.176 152.6)",
+          "oklch(85% 0.176 152.6)",
+          "oklch(95% 0.176 152.6)"
+        ]
+      },
+      "ok": {
+        "role": "secondary",
+        "displayName": "Success Green",
+        "canonical": "#1E7A45",
+        "tonalRamp": [
+          "oklch(15% 0.118 153.1)",
+          "oklch(26% 0.118 153.1)",
+          "oklch(38% 0.118 153.1)",
+          "oklch(50% 0.118 153.1)",
+          "oklch(62% 0.118 153.1)",
+          "oklch(74% 0.118 153.1)",
+          "oklch(85% 0.118 153.1)",
+          "oklch(95% 0.118 153.1)"
+        ]
+      },
+      "ok-bg": {
+        "role": "secondary",
+        "displayName": "Success Green bg",
+        "canonical": "#DFF1E6",
+        "tonalRamp": [
+          "oklch(15% 0.024 159.1)",
+          "oklch(26% 0.024 159.1)",
+          "oklch(38% 0.024 159.1)",
+          "oklch(50% 0.024 159.1)",
+          "oklch(62% 0.024 159.1)",
+          "oklch(74% 0.024 159.1)",
+          "oklch(85% 0.024 159.1)",
+          "oklch(95% 0.024 159.1)"
+        ]
+      },
+      "bad": {
+        "role": "secondary",
+        "displayName": "Error Red",
+        "canonical": "#B3261E",
+        "tonalRamp": [
+          "oklch(15% 0.178 28.7)",
+          "oklch(26% 0.178 28.7)",
+          "oklch(38% 0.178 28.7)",
+          "oklch(50% 0.178 28.7)",
+          "oklch(62% 0.178 28.7)",
+          "oklch(74% 0.178 28.7)",
+          "oklch(85% 0.178 28.7)",
+          "oklch(95% 0.178 28.7)"
+        ]
+      },
+      "bad-bg": {
+        "role": "secondary",
+        "displayName": "Error Red bg",
+        "canonical": "#F9E1DE",
+        "tonalRamp": [
+          "oklch(15% 0.027 26.2)",
+          "oklch(26% 0.027 26.2)",
+          "oklch(38% 0.027 26.2)",
+          "oklch(50% 0.027 26.2)",
+          "oklch(62% 0.027 26.2)",
+          "oklch(74% 0.027 26.2)",
+          "oklch(85% 0.027 26.2)",
+          "oklch(95% 0.027 26.2)"
+        ]
+      },
+      "warn": {
+        "role": "secondary",
+        "displayName": "Amber Warning",
+        "canonical": "#8A5A00",
+        "tonalRamp": [
+          "oklch(15% 0.108 73.3)",
+          "oklch(26% 0.108 73.3)",
+          "oklch(38% 0.108 73.3)",
+          "oklch(50% 0.108 73.3)",
+          "oklch(62% 0.108 73.3)",
+          "oklch(74% 0.108 73.3)",
+          "oklch(85% 0.108 73.3)",
+          "oklch(95% 0.108 73.3)"
+        ]
+      },
+      "warn-bg": {
+        "role": "secondary",
+        "displayName": "Amber Warning bg",
+        "canonical": "#FBEFD3",
+        "tonalRamp": [
+          "oklch(15% 0.039 87.6)",
+          "oklch(26% 0.039 87.6)",
+          "oklch(38% 0.039 87.6)",
+          "oklch(50% 0.039 87.6)",
+          "oklch(62% 0.039 87.6)",
+          "oklch(74% 0.039 87.6)",
+          "oklch(85% 0.039 87.6)",
+          "oklch(95% 0.039 87.6)"
+        ]
+      },
+      "fire": {
+        "role": "secondary",
+        "displayName": "Ember",
+        "canonical": "#B4520F",
+        "tonalRamp": [
+          "oklch(15% 0.145 47.7)",
+          "oklch(26% 0.145 47.7)",
+          "oklch(38% 0.145 47.7)",
+          "oklch(50% 0.145 47.7)",
+          "oklch(62% 0.145 47.7)",
+          "oklch(74% 0.145 47.7)",
+          "oklch(85% 0.145 47.7)",
+          "oklch(95% 0.145 47.7)"
+        ]
+      },
+      "fire-bg": {
+        "role": "secondary",
+        "displayName": "Ember bg",
+        "canonical": "#FDEBD8",
+        "tonalRamp": [
+          "oklch(15% 0.032 68.9)",
+          "oklch(26% 0.032 68.9)",
+          "oklch(38% 0.032 68.9)",
+          "oklch(50% 0.032 68.9)",
+          "oklch(62% 0.032 68.9)",
+          "oklch(74% 0.032 68.9)",
+          "oklch(85% 0.032 68.9)",
+          "oklch(95% 0.032 68.9)"
+        ]
+      },
+      "ok-dark": {
+        "role": "secondary",
+        "displayName": "Success Green dark",
+        "canonical": "#6FD59A",
+        "tonalRamp": [
+          "oklch(15% 0.129 156.5)",
+          "oklch(26% 0.129 156.5)",
+          "oklch(38% 0.129 156.5)",
+          "oklch(50% 0.129 156.5)",
+          "oklch(62% 0.129 156.5)",
+          "oklch(74% 0.129 156.5)",
+          "oklch(85% 0.129 156.5)",
+          "oklch(95% 0.129 156.5)"
+        ]
+      },
+      "ok-bg-dark": {
+        "role": "secondary",
+        "displayName": "Success Green bg dark",
+        "canonical": "#14301F",
+        "tonalRamp": [
+          "oklch(15% 0.047 155.2)",
+          "oklch(26% 0.047 155.2)",
+          "oklch(38% 0.047 155.2)",
+          "oklch(50% 0.047 155.2)",
+          "oklch(62% 0.047 155.2)",
+          "oklch(74% 0.047 155.2)",
+          "oklch(85% 0.047 155.2)",
+          "oklch(95% 0.047 155.2)"
+        ]
+      },
+      "bad-dark": {
+        "role": "secondary",
+        "displayName": "Error Red dark",
+        "canonical": "#FF8A80",
+        "tonalRamp": [
+          "oklch(15% 0.144 26.1)",
+          "oklch(26% 0.144 26.1)",
+          "oklch(38% 0.144 26.1)",
+          "oklch(50% 0.144 26.1)",
+          "oklch(62% 0.144 26.1)",
+          "oklch(74% 0.144 26.1)",
+          "oklch(85% 0.144 26.1)",
+          "oklch(95% 0.144 26.1)"
+        ]
+      },
+      "bad-bg-dark": {
+        "role": "secondary",
+        "displayName": "Error Red bg dark",
+        "canonical": "#3A1B18",
+        "tonalRamp": [
+          "oklch(15% 0.050 26.7)",
+          "oklch(26% 0.050 26.7)",
+          "oklch(38% 0.050 26.7)",
+          "oklch(50% 0.050 26.7)",
+          "oklch(62% 0.050 26.7)",
+          "oklch(74% 0.050 26.7)",
+          "oklch(85% 0.050 26.7)",
+          "oklch(95% 0.050 26.7)"
+        ]
+      },
+      "warn-dark": {
+        "role": "secondary",
+        "displayName": "Amber Warning dark",
+        "canonical": "#F5C15A",
+        "tonalRamp": [
+          "oklch(15% 0.133 82.2)",
+          "oklch(26% 0.133 82.2)",
+          "oklch(38% 0.133 82.2)",
+          "oklch(50% 0.133 82.2)",
+          "oklch(62% 0.133 82.2)",
+          "oklch(74% 0.133 82.2)",
+          "oklch(85% 0.133 82.2)",
+          "oklch(95% 0.133 82.2)"
+        ]
+      },
+      "warn-bg-dark": {
+        "role": "secondary",
+        "displayName": "Amber Warning bg dark",
+        "canonical": "#36290E",
+        "tonalRamp": [
+          "oklch(15% 0.045 83.4)",
+          "oklch(26% 0.045 83.4)",
+          "oklch(38% 0.045 83.4)",
+          "oklch(50% 0.045 83.4)",
+          "oklch(62% 0.045 83.4)",
+          "oklch(74% 0.045 83.4)",
+          "oklch(85% 0.045 83.4)",
+          "oklch(95% 0.045 83.4)"
+        ]
+      },
+      "fire-dark": {
+        "role": "secondary",
+        "displayName": "Ember dark",
+        "canonical": "#FFB070",
+        "tonalRamp": [
+          "oklch(15% 0.123 58.9)",
+          "oklch(26% 0.123 58.9)",
+          "oklch(38% 0.123 58.9)",
+          "oklch(50% 0.123 58.9)",
+          "oklch(62% 0.123 58.9)",
+          "oklch(74% 0.123 58.9)",
+          "oklch(85% 0.123 58.9)",
+          "oklch(95% 0.123 58.9)"
+        ]
+      },
+      "fire-bg-dark": {
+        "role": "secondary",
+        "displayName": "Ember bg dark",
+        "canonical": "#3A2412",
+        "tonalRamp": [
+          "oklch(15% 0.045 58.9)",
+          "oklch(26% 0.045 58.9)",
+          "oklch(38% 0.045 58.9)",
+          "oklch(50% 0.045 58.9)",
+          "oklch(62% 0.045 58.9)",
+          "oklch(74% 0.045 58.9)",
+          "oklch(85% 0.045 58.9)",
+          "oklch(95% 0.045 58.9)"
+        ]
+      },
+      "graphite-ground": {
+        "role": "neutral",
+        "displayName": "Графит ground",
+        "canonical": "#ECEEF1",
+        "tonalRamp": [
+          "oklch(15% 0.005 258.3)",
+          "oklch(26% 0.005 258.3)",
+          "oklch(38% 0.005 258.3)",
+          "oklch(50% 0.005 258.3)",
+          "oklch(62% 0.005 258.3)",
+          "oklch(74% 0.005 258.3)",
+          "oklch(85% 0.005 258.3)",
+          "oklch(95% 0.005 258.3)"
+        ]
+      },
+      "graphite-block": {
+        "role": "neutral",
+        "displayName": "Графит block",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(26% 0.000 89.9)",
+          "oklch(38% 0.000 89.9)",
+          "oklch(50% 0.000 89.9)",
+          "oklch(62% 0.000 89.9)",
+          "oklch(74% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "graphite-ink": {
+        "role": "neutral",
+        "displayName": "Графит ink",
+        "canonical": "#1C1F24",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.7)",
+          "oklch(26% 0.011 260.7)",
+          "oklch(38% 0.011 260.7)",
+          "oklch(50% 0.011 260.7)",
+          "oklch(62% 0.011 260.7)",
+          "oklch(74% 0.011 260.7)",
+          "oklch(85% 0.011 260.7)",
+          "oklch(95% 0.011 260.7)"
+        ]
+      },
+      "graphite-mut": {
+        "role": "neutral",
+        "displayName": "Графит mut",
+        "canonical": "#5A606A",
+        "tonalRamp": [
+          "oklch(15% 0.018 260.7)",
+          "oklch(26% 0.018 260.7)",
+          "oklch(38% 0.018 260.7)",
+          "oklch(50% 0.018 260.7)",
+          "oklch(62% 0.018 260.7)",
+          "oklch(74% 0.018 260.7)",
+          "oklch(85% 0.018 260.7)",
+          "oklch(95% 0.018 260.7)"
+        ]
+      },
+      "graphite-rule": {
+        "role": "neutral",
+        "displayName": "Графит rule",
+        "canonical": "#E2E5E9",
+        "tonalRamp": [
+          "oklch(15% 0.006 255.5)",
+          "oklch(26% 0.006 255.5)",
+          "oklch(38% 0.006 255.5)",
+          "oklch(50% 0.006 255.5)",
+          "oklch(62% 0.006 255.5)",
+          "oklch(74% 0.006 255.5)",
+          "oklch(85% 0.006 255.5)",
+          "oklch(95% 0.006 255.5)"
+        ]
+      },
+      "graphite-inset": {
+        "role": "neutral",
+        "displayName": "Графит inset",
+        "canonical": "#F3F4F6",
+        "tonalRamp": [
+          "oklch(15% 0.003 264.5)",
+          "oklch(26% 0.003 264.5)",
+          "oklch(38% 0.003 264.5)",
+          "oklch(50% 0.003 264.5)",
+          "oklch(62% 0.003 264.5)",
+          "oklch(74% 0.003 264.5)",
+          "oklch(85% 0.003 264.5)",
+          "oklch(95% 0.003 264.5)"
+        ]
+      },
+      "graphite-primary": {
+        "role": "primary",
+        "displayName": "Графит primary",
+        "canonical": "#1C1F24",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.7)",
+          "oklch(26% 0.011 260.7)",
+          "oklch(38% 0.011 260.7)",
+          "oklch(50% 0.011 260.7)",
+          "oklch(62% 0.011 260.7)",
+          "oklch(74% 0.011 260.7)",
+          "oklch(85% 0.011 260.7)",
+          "oklch(95% 0.011 260.7)"
+        ]
+      },
+      "graphite-on-primary": {
+        "role": "neutral",
+        "displayName": "Графит on primary",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(26% 0.000 89.9)",
+          "oklch(38% 0.000 89.9)",
+          "oklch(50% 0.000 89.9)",
+          "oklch(62% 0.000 89.9)",
+          "oklch(74% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "graphite-dark-ground": {
+        "role": "neutral",
+        "displayName": "Графит dark ground",
+        "canonical": "#0E1013",
+        "tonalRamp": [
+          "oklch(15% 0.007 258.4)",
+          "oklch(26% 0.007 258.4)",
+          "oklch(38% 0.007 258.4)",
+          "oklch(50% 0.007 258.4)",
+          "oklch(62% 0.007 258.4)",
+          "oklch(74% 0.007 258.4)",
+          "oklch(85% 0.007 258.4)",
+          "oklch(95% 0.007 258.4)"
+        ]
+      },
+      "graphite-dark-block": {
+        "role": "neutral",
+        "displayName": "Графит dark block",
+        "canonical": "#191C21",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.7)",
+          "oklch(26% 0.011 260.7)",
+          "oklch(38% 0.011 260.7)",
+          "oklch(50% 0.011 260.7)",
+          "oklch(62% 0.011 260.7)",
+          "oklch(74% 0.011 260.7)",
+          "oklch(85% 0.011 260.7)",
+          "oklch(95% 0.011 260.7)"
+        ]
+      },
+      "graphite-dark-ink": {
+        "role": "neutral",
+        "displayName": "Графит dark ink",
+        "canonical": "#ECEEF1",
+        "tonalRamp": [
+          "oklch(15% 0.005 258.3)",
+          "oklch(26% 0.005 258.3)",
+          "oklch(38% 0.005 258.3)",
+          "oklch(50% 0.005 258.3)",
+          "oklch(62% 0.005 258.3)",
+          "oklch(74% 0.005 258.3)",
+          "oklch(85% 0.005 258.3)",
+          "oklch(95% 0.005 258.3)"
+        ]
+      },
+      "graphite-dark-mut": {
+        "role": "neutral",
+        "displayName": "Графит dark mut",
+        "canonical": "#9BA1AB",
+        "tonalRamp": [
+          "oklch(15% 0.016 260.7)",
+          "oklch(26% 0.016 260.7)",
+          "oklch(38% 0.016 260.7)",
+          "oklch(50% 0.016 260.7)",
+          "oklch(62% 0.016 260.7)",
+          "oklch(74% 0.016 260.7)",
+          "oklch(85% 0.016 260.7)",
+          "oklch(95% 0.016 260.7)"
+        ]
+      },
+      "graphite-dark-rule": {
+        "role": "neutral",
+        "displayName": "Графит dark rule",
+        "canonical": "#2A2E35",
+        "tonalRamp": [
+          "oklch(15% 0.014 261.7)",
+          "oklch(26% 0.014 261.7)",
+          "oklch(38% 0.014 261.7)",
+          "oklch(50% 0.014 261.7)",
+          "oklch(62% 0.014 261.7)",
+          "oklch(74% 0.014 261.7)",
+          "oklch(85% 0.014 261.7)",
+          "oklch(95% 0.014 261.7)"
+        ]
+      },
+      "graphite-dark-inset": {
+        "role": "neutral",
+        "displayName": "Графит dark inset",
+        "canonical": "#22262C",
+        "tonalRamp": [
+          "oklch(15% 0.013 258.4)",
+          "oklch(26% 0.013 258.4)",
+          "oklch(38% 0.013 258.4)",
+          "oklch(50% 0.013 258.4)",
+          "oklch(62% 0.013 258.4)",
+          "oklch(74% 0.013 258.4)",
+          "oklch(85% 0.013 258.4)",
+          "oklch(95% 0.013 258.4)"
+        ]
+      },
+      "graphite-dark-primary": {
+        "role": "primary",
+        "displayName": "Графит dark primary",
+        "canonical": "#ECEEF1",
+        "tonalRamp": [
+          "oklch(15% 0.005 258.3)",
+          "oklch(26% 0.005 258.3)",
+          "oklch(38% 0.005 258.3)",
+          "oklch(50% 0.005 258.3)",
+          "oklch(62% 0.005 258.3)",
+          "oklch(74% 0.005 258.3)",
+          "oklch(85% 0.005 258.3)",
+          "oklch(95% 0.005 258.3)"
+        ]
+      },
+      "graphite-dark-on-primary": {
+        "role": "neutral",
+        "displayName": "Графит dark on primary",
+        "canonical": "#0E1013",
+        "tonalRamp": [
+          "oklch(15% 0.007 258.4)",
+          "oklch(26% 0.007 258.4)",
+          "oklch(38% 0.007 258.4)",
+          "oklch(50% 0.007 258.4)",
+          "oklch(62% 0.007 258.4)",
+          "oklch(74% 0.007 258.4)",
+          "oklch(85% 0.007 258.4)",
+          "oklch(95% 0.007 258.4)"
+        ]
+      },
+      "aegean-ground": {
+        "role": "neutral",
+        "displayName": "Эгейский ground",
+        "canonical": "#D9E5F2",
+        "tonalRamp": [
+          "oklch(15% 0.022 250.2)",
+          "oklch(26% 0.022 250.2)",
+          "oklch(38% 0.022 250.2)",
+          "oklch(50% 0.022 250.2)",
+          "oklch(62% 0.022 250.2)",
+          "oklch(74% 0.022 250.2)",
+          "oklch(85% 0.022 250.2)",
+          "oklch(95% 0.022 250.2)"
+        ]
+      },
+      "aegean-block": {
+        "role": "neutral",
+        "displayName": "Эгейский block",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(26% 0.000 89.9)",
+          "oklch(38% 0.000 89.9)",
+          "oklch(50% 0.000 89.9)",
+          "oklch(62% 0.000 89.9)",
+          "oklch(74% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "aegean-ink": {
+        "role": "neutral",
+        "displayName": "Эгейский ink",
+        "canonical": "#0E2A47",
+        "tonalRamp": [
+          "oklch(15% 0.063 251.8)",
+          "oklch(26% 0.063 251.8)",
+          "oklch(38% 0.063 251.8)",
+          "oklch(50% 0.063 251.8)",
+          "oklch(62% 0.063 251.8)",
+          "oklch(74% 0.063 251.8)",
+          "oklch(85% 0.063 251.8)",
+          "oklch(95% 0.063 251.8)"
+        ]
+      },
+      "aegean-mut": {
+        "role": "neutral",
+        "displayName": "Эгейский mut",
+        "canonical": "#4A6180",
+        "tonalRamp": [
+          "oklch(15% 0.057 256.0)",
+          "oklch(26% 0.057 256.0)",
+          "oklch(38% 0.057 256.0)",
+          "oklch(50% 0.057 256.0)",
+          "oklch(62% 0.057 256.0)",
+          "oklch(74% 0.057 256.0)",
+          "oklch(85% 0.057 256.0)",
+          "oklch(95% 0.057 256.0)"
+        ]
+      },
+      "aegean-rule": {
+        "role": "neutral",
+        "displayName": "Эгейский rule",
+        "canonical": "#DCE5EF",
+        "tonalRamp": [
+          "oklch(15% 0.017 250.8)",
+          "oklch(26% 0.017 250.8)",
+          "oklch(38% 0.017 250.8)",
+          "oklch(50% 0.017 250.8)",
+          "oklch(62% 0.017 250.8)",
+          "oklch(74% 0.017 250.8)",
+          "oklch(85% 0.017 250.8)",
+          "oklch(95% 0.017 250.8)"
+        ]
+      },
+      "aegean-inset": {
+        "role": "neutral",
+        "displayName": "Эгейский inset",
+        "canonical": "#EEF3F9",
+        "tonalRamp": [
+          "oklch(15% 0.010 252.8)",
+          "oklch(26% 0.010 252.8)",
+          "oklch(38% 0.010 252.8)",
+          "oklch(50% 0.010 252.8)",
+          "oklch(62% 0.010 252.8)",
+          "oklch(74% 0.010 252.8)",
+          "oklch(85% 0.010 252.8)",
+          "oklch(95% 0.010 252.8)"
+        ]
+      },
+      "aegean-primary": {
+        "role": "primary",
+        "displayName": "Эгейский primary",
+        "canonical": "#0E4C92",
+        "tonalRamp": [
+          "oklch(15% 0.130 255.5)",
+          "oklch(26% 0.130 255.5)",
+          "oklch(38% 0.130 255.5)",
+          "oklch(50% 0.130 255.5)",
+          "oklch(62% 0.130 255.5)",
+          "oklch(74% 0.130 255.5)",
+          "oklch(85% 0.130 255.5)",
+          "oklch(95% 0.130 255.5)"
+        ]
+      },
+      "aegean-on-primary": {
+        "role": "neutral",
+        "displayName": "Эгейский on primary",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(26% 0.000 89.9)",
+          "oklch(38% 0.000 89.9)",
+          "oklch(50% 0.000 89.9)",
+          "oklch(62% 0.000 89.9)",
+          "oklch(74% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "aegean-head-mut": {
+        "role": "neutral",
+        "displayName": "Эгейский head mut",
+        "canonical": "#C6D8EE",
+        "tonalRamp": [
+          "oklch(15% 0.036 253.5)",
+          "oklch(26% 0.036 253.5)",
+          "oklch(38% 0.036 253.5)",
+          "oklch(50% 0.036 253.5)",
+          "oklch(62% 0.036 253.5)",
+          "oklch(74% 0.036 253.5)",
+          "oklch(85% 0.036 253.5)",
+          "oklch(95% 0.036 253.5)"
+        ]
+      },
+      "aegean-dark-ground": {
+        "role": "neutral",
+        "displayName": "Эгейский dark ground",
+        "canonical": "#06172A",
+        "tonalRamp": [
+          "oklch(15% 0.045 252.5)",
+          "oklch(26% 0.045 252.5)",
+          "oklch(38% 0.045 252.5)",
+          "oklch(50% 0.045 252.5)",
+          "oklch(62% 0.045 252.5)",
+          "oklch(74% 0.045 252.5)",
+          "oklch(85% 0.045 252.5)",
+          "oklch(95% 0.045 252.5)"
+        ]
+      },
+      "aegean-dark-block": {
+        "role": "neutral",
+        "displayName": "Эгейский dark block",
+        "canonical": "#0E223B",
+        "tonalRamp": [
+          "oklch(15% 0.054 255.1)",
+          "oklch(26% 0.054 255.1)",
+          "oklch(38% 0.054 255.1)",
+          "oklch(50% 0.054 255.1)",
+          "oklch(62% 0.054 255.1)",
+          "oklch(74% 0.054 255.1)",
+          "oklch(85% 0.054 255.1)",
+          "oklch(95% 0.054 255.1)"
+        ]
+      },
+      "aegean-dark-ink": {
+        "role": "neutral",
+        "displayName": "Эгейский dark ink",
+        "canonical": "#E5EDF7",
+        "tonalRamp": [
+          "oklch(15% 0.016 253.9)",
+          "oklch(26% 0.016 253.9)",
+          "oklch(38% 0.016 253.9)",
+          "oklch(50% 0.016 253.9)",
+          "oklch(62% 0.016 253.9)",
+          "oklch(74% 0.016 253.9)",
+          "oklch(85% 0.016 253.9)",
+          "oklch(95% 0.016 253.9)"
+        ]
+      },
+      "aegean-dark-mut": {
+        "role": "neutral",
+        "displayName": "Эгейский dark mut",
+        "canonical": "#92A7C1",
+        "tonalRamp": [
+          "oklch(15% 0.045 253.9)",
+          "oklch(26% 0.045 253.9)",
+          "oklch(38% 0.045 253.9)",
+          "oklch(50% 0.045 253.9)",
+          "oklch(62% 0.045 253.9)",
+          "oklch(74% 0.045 253.9)",
+          "oklch(85% 0.045 253.9)",
+          "oklch(95% 0.045 253.9)"
+        ]
+      },
+      "aegean-dark-rule": {
+        "role": "neutral",
+        "displayName": "Эгейский dark rule",
+        "canonical": "#1B3150",
+        "tonalRamp": [
+          "oklch(15% 0.063 257.2)",
+          "oklch(26% 0.063 257.2)",
+          "oklch(38% 0.063 257.2)",
+          "oklch(50% 0.063 257.2)",
+          "oklch(62% 0.063 257.2)",
+          "oklch(74% 0.063 257.2)",
+          "oklch(85% 0.063 257.2)",
+          "oklch(95% 0.063 257.2)"
+        ]
+      },
+      "aegean-dark-inset": {
+        "role": "neutral",
+        "displayName": "Эгейский dark inset",
+        "canonical": "#132A47",
+        "tonalRamp": [
+          "oklch(15% 0.061 255.2)",
+          "oklch(26% 0.061 255.2)",
+          "oklch(38% 0.061 255.2)",
+          "oklch(50% 0.061 255.2)",
+          "oklch(62% 0.061 255.2)",
+          "oklch(74% 0.061 255.2)",
+          "oklch(85% 0.061 255.2)",
+          "oklch(95% 0.061 255.2)"
+        ]
+      },
+      "aegean-dark-primary": {
+        "role": "primary",
+        "displayName": "Эгейский dark primary",
+        "canonical": "#6AAEF5",
+        "tonalRamp": [
+          "oklch(15% 0.125 250.8)",
+          "oklch(26% 0.125 250.8)",
+          "oklch(38% 0.125 250.8)",
+          "oklch(50% 0.125 250.8)",
+          "oklch(62% 0.125 250.8)",
+          "oklch(74% 0.125 250.8)",
+          "oklch(85% 0.125 250.8)",
+          "oklch(95% 0.125 250.8)"
+        ]
+      },
+      "aegean-dark-on-primary": {
+        "role": "neutral",
+        "displayName": "Эгейский dark on primary",
+        "canonical": "#06172A",
+        "tonalRamp": [
+          "oklch(15% 0.045 252.5)",
+          "oklch(26% 0.045 252.5)",
+          "oklch(38% 0.045 252.5)",
+          "oklch(50% 0.045 252.5)",
+          "oklch(62% 0.045 252.5)",
+          "oklch(74% 0.045 252.5)",
+          "oklch(85% 0.045 252.5)",
+          "oklch(95% 0.045 252.5)"
+        ]
+      },
+      "aegean-dark-head-mut": {
+        "role": "neutral",
+        "displayName": "Эгейский dark head mut",
+        "canonical": "#BFD3EC",
+        "tonalRamp": [
+          "oklch(15% 0.041 254.1)",
+          "oklch(26% 0.041 254.1)",
+          "oklch(38% 0.041 254.1)",
+          "oklch(50% 0.041 254.1)",
+          "oklch(62% 0.041 254.1)",
+          "oklch(74% 0.041 254.1)",
+          "oklch(85% 0.041 254.1)",
+          "oklch(95% 0.041 254.1)"
+        ]
+      },
+      "olive-ground": {
+        "role": "neutral",
+        "displayName": "Олива ground",
+        "canonical": "#E2E6DC",
+        "tonalRamp": [
+          "oklch(15% 0.014 124.6)",
+          "oklch(26% 0.014 124.6)",
+          "oklch(38% 0.014 124.6)",
+          "oklch(50% 0.014 124.6)",
+          "oklch(62% 0.014 124.6)",
+          "oklch(74% 0.014 124.6)",
+          "oklch(85% 0.014 124.6)",
+          "oklch(95% 0.014 124.6)"
+        ]
+      },
+      "olive-block": {
+        "role": "neutral",
+        "displayName": "Олива block",
+        "canonical": "#FBFCF8",
+        "tonalRamp": [
+          "oklch(15% 0.005 117.9)",
+          "oklch(26% 0.005 117.9)",
+          "oklch(38% 0.005 117.9)",
+          "oklch(50% 0.005 117.9)",
+          "oklch(62% 0.005 117.9)",
+          "oklch(74% 0.005 117.9)",
+          "oklch(85% 0.005 117.9)",
+          "oklch(95% 0.005 117.9)"
+        ]
+      },
+      "olive-ink": {
+        "role": "neutral",
+        "displayName": "Олива ink",
+        "canonical": "#222A1E",
+        "tonalRamp": [
+          "oklch(15% 0.024 135.3)",
+          "oklch(26% 0.024 135.3)",
+          "oklch(38% 0.024 135.3)",
+          "oklch(50% 0.024 135.3)",
+          "oklch(62% 0.024 135.3)",
+          "oklch(74% 0.024 135.3)",
+          "oklch(85% 0.024 135.3)",
+          "oklch(95% 0.024 135.3)"
+        ]
+      },
+      "olive-mut": {
+        "role": "neutral",
+        "displayName": "Олива mut",
+        "canonical": "#56614D",
+        "tonalRamp": [
+          "oklch(15% 0.034 131.1)",
+          "oklch(26% 0.034 131.1)",
+          "oklch(38% 0.034 131.1)",
+          "oklch(50% 0.034 131.1)",
+          "oklch(62% 0.034 131.1)",
+          "oklch(74% 0.034 131.1)",
+          "oklch(85% 0.034 131.1)",
+          "oklch(95% 0.034 131.1)"
+        ]
+      },
+      "olive-rule": {
+        "role": "neutral",
+        "displayName": "Олива rule",
+        "canonical": "#E1E5D9",
+        "tonalRamp": [
+          "oklch(15% 0.017 121.8)",
+          "oklch(26% 0.017 121.8)",
+          "oklch(38% 0.017 121.8)",
+          "oklch(50% 0.017 121.8)",
+          "oklch(62% 0.017 121.8)",
+          "oklch(74% 0.017 121.8)",
+          "oklch(85% 0.017 121.8)",
+          "oklch(95% 0.017 121.8)"
+        ]
+      },
+      "olive-inset": {
+        "role": "neutral",
+        "displayName": "Олива inset",
+        "canonical": "#F1F3EC",
+        "tonalRamp": [
+          "oklch(15% 0.009 119.6)",
+          "oklch(26% 0.009 119.6)",
+          "oklch(38% 0.009 119.6)",
+          "oklch(50% 0.009 119.6)",
+          "oklch(62% 0.009 119.6)",
+          "oklch(74% 0.009 119.6)",
+          "oklch(85% 0.009 119.6)",
+          "oklch(95% 0.009 119.6)"
+        ]
+      },
+      "olive-primary": {
+        "role": "primary",
+        "displayName": "Олива primary",
+        "canonical": "#3D5A2C",
+        "tonalRamp": [
+          "oklch(15% 0.079 135.0)",
+          "oklch(26% 0.079 135.0)",
+          "oklch(38% 0.079 135.0)",
+          "oklch(50% 0.079 135.0)",
+          "oklch(62% 0.079 135.0)",
+          "oklch(74% 0.079 135.0)",
+          "oklch(85% 0.079 135.0)",
+          "oklch(95% 0.079 135.0)"
+        ]
+      },
+      "olive-on-primary": {
+        "role": "neutral",
+        "displayName": "Олива on primary",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(26% 0.000 89.9)",
+          "oklch(38% 0.000 89.9)",
+          "oklch(50% 0.000 89.9)",
+          "oklch(62% 0.000 89.9)",
+          "oklch(74% 0.000 89.9)",
+          "oklch(85% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "olive-dark-ground": {
+        "role": "neutral",
+        "displayName": "Олива dark ground",
+        "canonical": "#11150E",
+        "tonalRamp": [
+          "oklch(15% 0.015 132.0)",
+          "oklch(26% 0.015 132.0)",
+          "oklch(38% 0.015 132.0)",
+          "oklch(50% 0.015 132.0)",
+          "oklch(62% 0.015 132.0)",
+          "oklch(74% 0.015 132.0)",
+          "oklch(85% 0.015 132.0)",
+          "oklch(95% 0.015 132.0)"
+        ]
+      },
+      "olive-dark-block": {
+        "role": "neutral",
+        "displayName": "Олива dark block",
+        "canonical": "#1B2117",
+        "tonalRamp": [
+          "oklch(15% 0.021 133.0)",
+          "oklch(26% 0.021 133.0)",
+          "oklch(38% 0.021 133.0)",
+          "oklch(50% 0.021 133.0)",
+          "oklch(62% 0.021 133.0)",
+          "oklch(74% 0.021 133.0)",
+          "oklch(85% 0.021 133.0)",
+          "oklch(95% 0.021 133.0)"
+        ]
+      },
+      "olive-dark-ink": {
+        "role": "neutral",
+        "displayName": "Олива dark ink",
+        "canonical": "#E8ECE2",
+        "tonalRamp": [
+          "oklch(15% 0.014 124.6)",
+          "oklch(26% 0.014 124.6)",
+          "oklch(38% 0.014 124.6)",
+          "oklch(50% 0.014 124.6)",
+          "oklch(62% 0.014 124.6)",
+          "oklch(74% 0.014 124.6)",
+          "oklch(85% 0.014 124.6)",
+          "oklch(95% 0.014 124.6)"
+        ]
+      },
+      "olive-dark-mut": {
+        "role": "neutral",
+        "displayName": "Олива dark mut",
+        "canonical": "#A0AA94",
+        "tonalRamp": [
+          "oklch(15% 0.033 127.2)",
+          "oklch(26% 0.033 127.2)",
+          "oklch(38% 0.033 127.2)",
+          "oklch(50% 0.033 127.2)",
+          "oklch(62% 0.033 127.2)",
+          "oklch(74% 0.033 127.2)",
+          "oklch(85% 0.033 127.2)",
+          "oklch(95% 0.033 127.2)"
+        ]
+      },
+      "olive-dark-rule": {
+        "role": "neutral",
+        "displayName": "Олива dark rule",
+        "canonical": "#2A3225",
+        "tonalRamp": [
+          "oklch(15% 0.025 133.5)",
+          "oklch(26% 0.025 133.5)",
+          "oklch(38% 0.025 133.5)",
+          "oklch(50% 0.025 133.5)",
+          "oklch(62% 0.025 133.5)",
+          "oklch(74% 0.025 133.5)",
+          "oklch(85% 0.025 133.5)",
+          "oklch(95% 0.025 133.5)"
+        ]
+      },
+      "olive-dark-inset": {
+        "role": "neutral",
+        "displayName": "Олива dark inset",
+        "canonical": "#232A1E",
+        "tonalRamp": [
+          "oklch(15% 0.024 132.5)",
+          "oklch(26% 0.024 132.5)",
+          "oklch(38% 0.024 132.5)",
+          "oklch(50% 0.024 132.5)",
+          "oklch(62% 0.024 132.5)",
+          "oklch(74% 0.024 132.5)",
+          "oklch(85% 0.024 132.5)",
+          "oklch(95% 0.024 132.5)"
+        ]
+      },
+      "olive-dark-primary": {
+        "role": "primary",
+        "displayName": "Олива dark primary",
+        "canonical": "#A3C584",
+        "tonalRamp": [
+          "oklch(15% 0.096 130.8)",
+          "oklch(26% 0.096 130.8)",
+          "oklch(38% 0.096 130.8)",
+          "oklch(50% 0.096 130.8)",
+          "oklch(62% 0.096 130.8)",
+          "oklch(74% 0.096 130.8)",
+          "oklch(85% 0.096 130.8)",
+          "oklch(95% 0.096 130.8)"
+        ]
+      },
+      "olive-dark-on-primary": {
+        "role": "neutral",
+        "displayName": "Олива dark on primary",
+        "canonical": "#11150E",
+        "tonalRamp": [
+          "oklch(15% 0.015 132.0)",
+          "oklch(26% 0.015 132.0)",
+          "oklch(38% 0.015 132.0)",
+          "oklch(50% 0.015 132.0)",
+          "oklch(62% 0.015 132.0)",
+          "oklch(74% 0.015 132.0)",
+          "oklch(85% 0.015 132.0)",
+          "oklch(95% 0.015 132.0)"
+        ]
+      },
+      "night-ground": {
+        "role": "neutral",
+        "displayName": "Ночь ground",
+        "canonical": "#0F1217",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.6)",
+          "oklch(26% 0.011 260.6)",
+          "oklch(38% 0.011 260.6)",
+          "oklch(50% 0.011 260.6)",
+          "oklch(62% 0.011 260.6)",
+          "oklch(74% 0.011 260.6)",
+          "oklch(85% 0.011 260.6)",
+          "oklch(95% 0.011 260.6)"
+        ]
+      },
+      "night-block": {
+        "role": "neutral",
+        "displayName": "Ночь block",
+        "canonical": "#1A1F27",
+        "tonalRamp": [
+          "oklch(15% 0.017 259.8)",
+          "oklch(26% 0.017 259.8)",
+          "oklch(38% 0.017 259.8)",
+          "oklch(50% 0.017 259.8)",
+          "oklch(62% 0.017 259.8)",
+          "oklch(74% 0.017 259.8)",
+          "oklch(85% 0.017 259.8)",
+          "oklch(95% 0.017 259.8)"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Ночь ink",
+        "canonical": "#EEF1F6",
+        "tonalRamp": [
+          "oklch(15% 0.007 260.7)",
+          "oklch(26% 0.007 260.7)",
+          "oklch(38% 0.007 260.7)",
+          "oklch(50% 0.007 260.7)",
+          "oklch(62% 0.007 260.7)",
+          "oklch(74% 0.007 260.7)",
+          "oklch(85% 0.007 260.7)",
+          "oklch(95% 0.007 260.7)"
+        ]
+      },
+      "night-mut": {
+        "role": "neutral",
+        "displayName": "Ночь mut",
+        "canonical": "#9AA3B2",
+        "tonalRamp": [
+          "oklch(15% 0.024 260.7)",
+          "oklch(26% 0.024 260.7)",
+          "oklch(38% 0.024 260.7)",
+          "oklch(50% 0.024 260.7)",
+          "oklch(62% 0.024 260.7)",
+          "oklch(74% 0.024 260.7)",
+          "oklch(85% 0.024 260.7)",
+          "oklch(95% 0.024 260.7)"
+        ]
+      },
+      "night-rule": {
+        "role": "neutral",
+        "displayName": "Ночь rule",
+        "canonical": "#29303B",
+        "tonalRamp": [
+          "oklch(15% 0.022 259.4)",
+          "oklch(26% 0.022 259.4)",
+          "oklch(38% 0.022 259.4)",
+          "oklch(50% 0.022 259.4)",
+          "oklch(62% 0.022 259.4)",
+          "oklch(74% 0.022 259.4)",
+          "oklch(85% 0.022 259.4)",
+          "oklch(95% 0.022 259.4)"
+        ]
+      },
+      "night-inset": {
+        "role": "neutral",
+        "displayName": "Ночь inset",
+        "canonical": "#222832",
+        "tonalRamp": [
+          "oklch(15% 0.020 260.6)",
+          "oklch(26% 0.020 260.6)",
+          "oklch(38% 0.020 260.6)",
+          "oklch(50% 0.020 260.6)",
+          "oklch(62% 0.020 260.6)",
+          "oklch(74% 0.020 260.6)",
+          "oklch(85% 0.020 260.6)",
+          "oklch(95% 0.020 260.6)"
+        ]
+      },
+      "night-primary": {
+        "role": "primary",
+        "displayName": "Ночь primary",
+        "canonical": "#F2C230",
+        "tonalRamp": [
+          "oklch(15% 0.158 89.0)",
+          "oklch(26% 0.158 89.0)",
+          "oklch(38% 0.158 89.0)",
+          "oklch(50% 0.158 89.0)",
+          "oklch(62% 0.158 89.0)",
+          "oklch(74% 0.158 89.0)",
+          "oklch(85% 0.158 89.0)",
+          "oklch(95% 0.158 89.0)"
+        ]
+      },
+      "night-on-primary": {
+        "role": "neutral",
+        "displayName": "Ночь on primary",
+        "canonical": "#0F1217",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.6)",
+          "oklch(26% 0.011 260.6)",
+          "oklch(38% 0.011 260.6)",
+          "oklch(50% 0.011 260.6)",
+          "oklch(62% 0.011 260.6)",
+          "oklch(74% 0.011 260.6)",
+          "oklch(85% 0.011 260.6)",
+          "oklch(95% 0.011 260.6)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Count numeral",
+        "purpose": "Home count of cards due today; the only 72px text."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Λέξεις title and the card word."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Block and screen headings; buttons at 700."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All running text; 500 for menu rows and examples, 700 for the card meaning."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Line names, form labels, meta and sub-lines (400 muted)."
+      },
+      "stamp": {
+        "displayName": "Stamp",
+        "purpose": "Uppercase verdict stamps only."
+      },
+      "station": {
+        "displayName": "Station numeral",
+        "purpose": "Day numbers on station scales and dictionary marks."
+      }
+    },
+    "shadows": [
+      {
+        "name": "block-lift",
+        "value": "0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06)",
+        "purpose": "Every block, icon button, login button, splash faces (light)."
+      },
+      {
+        "name": "block-lift-dark",
+        "value": "0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28)",
+        "purpose": "Same role in dark and Ночь."
+      },
+      {
+        "name": "station-halo",
+        "value": "0 0 0 3px var(--block)",
+        "purpose": "Clears the ringed current station from its track."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Press, card rise, stamp, train glide."
+      },
+      {
+        "name": "press",
+        "value": "transform .15s; scale(.97)",
+        "purpose": "Button press."
+      },
+      {
+        "name": "card-rise",
+        "value": ".35s; from opacity .4 translateY(8px)",
+        "purpose": "Card entrance."
+      },
+      {
+        "name": "stamp",
+        "value": ".45s; from rotate(-8deg) scale(1.8) opacity 0",
+        "purpose": "Verdict lands on the card."
+      },
+      {
+        "name": "train",
+        "value": "left/width .6s",
+        "purpose": "Review progress train glides along the line."
+      },
+      {
+        "name": "flip",
+        "value": "2.6s cubic-bezier(.65,0,.35,1) infinite",
+        "purpose": "Card-making splash flip."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Disables flip, rise, stamp and train animations."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "column",
+        "value": "440px max-width, single column"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one reversed action per screen («Поехали», «Проверить», «Дальше»).",
+      "html": "<button class=\"ds-btn\">Поехали</button>",
+      "css": ".ds-btn{font:700 17px/1 Commissioner,-apple-system,system-ui,sans-serif;border:0;border-radius:14px;padding:16px 18px;background:var(--primary,#1C1F24);color:var(--on-primary,#FFFFFF);width:100%;cursor:pointer;transition:transform .15s cubic-bezier(.16,1,.3,1),opacity .2s}.ds-btn:active{transform:scale(.97)}.ds-btn:focus-visible{outline:2px solid var(--primary,#1C1F24);outline-offset:2px}.ds-btn:disabled{opacity:.4}"
+    },
+    {
+      "name": "Verdict Buttons",
+      "kind": "button",
+      "refersTo": "button-ok",
+      "description": "Self-grade pair after revealing a Greek-to-Russian card.",
+      "html": "<div class=\"ds-row\"><button class=\"ds-b ds-bad\">Не знал</button><button class=\"ds-b ds-ok\">Знал</button></div>",
+      "css": ".ds-row{display:flex;gap:10px}.ds-b{font:700 17px/1 Commissioner,system-ui,sans-serif;border:0;border-radius:14px;padding:16px 18px;width:100%;cursor:pointer;transition:transform .15s cubic-bezier(.16,1,.3,1)}.ds-b:active{transform:scale(.97)}.ds-b:focus-visible{outline:2px solid #1C1F24;outline-offset:2px}.ds-ok{background:var(--ok-bg,#DFF1E6);color:var(--ok,#1E7A45)}.ds-bad{background:var(--bad-bg,#F9E1DE);color:var(--bad,#B3261E)}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Answer and edit fields; focus shifts the stroke to primary.",
+      "html": "<input class=\"ds-input\" placeholder=\"По-гречески\">",
+      "css": ".ds-input{font:400 17px/1.45 Commissioner,system-ui,sans-serif;width:100%;padding:14px 16px;border:1px solid var(--rule,#E2E5E9);border-radius:14px;background:var(--block,#FFFFFF);color:var(--ink,#1C1F24);outline:none;caret-color:var(--primary,#1C1F24)}.ds-input:focus{border-color:var(--primary,#1C1F24)}.ds-input::placeholder{color:var(--mut,#5A606A)}"
+    },
+    {
+      "name": "Today Line Row",
+      "kind": "custom",
+      "refersTo": "line-badge",
+      "description": "Signature: line badge, station track with lit stations, due count.",
+      "html": "<div class=\"ds-line\"><span class=\"ds-badge\">Ε</span><div><div class=\"ds-name\">Узнать</div><div class=\"ds-track\"><b style=\"left:0%\"></b><b class=\"on\" style=\"left:16.7%\"></b><b class=\"on\" style=\"left:33.3%\"></b><b style=\"left:50%\"></b><b style=\"left:66.7%\"></b><b style=\"left:83.3%\"></b><b style=\"left:100%\"></b></div></div><div class=\"ds-n\">12</div></div>",
+      "css": ".ds-line{--lc:var(--m1,#0069B4);display:grid;grid-template-columns:28px 1fr 28px;gap:12px;align-items:center;padding:8px 18px;background:var(--block,#FFFFFF);font-family:Commissioner,system-ui,sans-serif;color:var(--ink,#1C1F24)}.ds-badge{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--lc);font:800 13px/1 Commissioner,system-ui,sans-serif}.ds-name{font-size:13px;font-weight:700;margin-bottom:2px}.ds-track{position:relative;height:16px;margin:0 7px}.ds-track::before{content:\"\";position:absolute;left:0;right:0;top:6px;height:4px;border-radius:2px;background:var(--lc)}.ds-track b{position:absolute;top:2px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--block,#FFFFFF);border:3px solid var(--lc)}.ds-track b.on{background:var(--lc)}.ds-n{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Dictionary Station Marks",
+      "kind": "custom",
+      "refersTo": "station-mark",
+      "description": "Three line-coloured outlined circles holding each line's current station day.",
+      "html": "<span class=\"ds-stops\"><i style=\"--lc:#0069B4\">7</i><i style=\"--lc:#E3001B\">3</i><i style=\"--lc:#009A49\">·</i></span>",
+      "css": ".ds-stops{display:inline-flex;gap:4px}.ds-stops i{width:26px;height:26px;border-radius:50%;border:2px solid var(--lc);display:grid;place-items:center;font:700 11px/1 Commissioner,system-ui,sans-serif;font-style:normal;color:var(--ink,#1C1F24);font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Verdict Stamp",
+      "kind": "custom",
+      "refersTo": "verdict-stamp",
+      "description": "Stamped onto the answered card and kept: Верно / Ударение / Ошибка.",
+      "html": "<span class=\"ds-stamp\">Верно</span> <span class=\"ds-stamp ds-warn\">Ударение</span> <span class=\"ds-stamp ds-bad\">Ошибка</span>",
+      "css": ".ds-stamp{display:inline-block;margin:12px;color:var(--ok,#1E7A45);font:800 13px/1 Commissioner,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:7px 10px;border:2px solid currentColor;border-radius:8px;transform:rotate(-8deg);animation:ds-stamp .45s cubic-bezier(.16,1,.3,1)}.ds-warn{color:var(--warn,#8A5A00)}.ds-bad{color:var(--bad,#B3261E)}@keyframes ds-stamp{from{transform:rotate(-8deg) scale(1.8);opacity:0}}"
+    },
+    {
+      "name": "Streak Pill",
+      "kind": "chip",
+      "refersTo": "streak-pill-on",
+      "description": "Outlined and muted when dead; ember while the streak is alive.",
+      "html": "<span class=\"ds-streak\"><svg viewBox=\"0 0 24 24\"><path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z\"/></svg>начни серию</span> <span class=\"ds-streak on\"><svg viewBox=\"0 0 24 24\"><path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z\"/></svg>5 дней</span>",
+      "css": ".ds-streak{display:inline-flex;align-items:center;gap:4px;font:700 13px/1.3 Commissioner,system-ui,sans-serif;color:var(--mut,#5A606A);border:1px solid currentColor;border-radius:999px;padding:3px 10px 3px 7px}.ds-streak svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-streak.on{color:var(--fire,#B4520F);background:var(--fire-bg,#FDEBD8);border-color:transparent}"
+    },
+    {
+      "name": "Menu Block",
+      "kind": "nav",
+      "refersTo": "menu-item",
+      "description": "Grouped list of rows in one block with muted value and chevron.",
+      "html": "<nav class=\"ds-menu\"><button class=\"ds-mi\">Словарь<span>248<svg viewBox=\"0 0 24 24\"><path d=\"m9 18 6-6-6-6\"/></svg></span></button><button class=\"ds-mi\">Напоминания<span>20:00<svg viewBox=\"0 0 24 24\"><path d=\"m9 18 6-6-6-6\"/></svg></span></button><button class=\"ds-mi\">Ещё<span><svg viewBox=\"0 0 24 24\"><path d=\"m9 18 6-6-6-6\"/></svg></span></button></nav>",
+      "css": ".ds-menu{background:var(--block,#FFFFFF);border-radius:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.06);padding:0 16px}.ds-mi{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;border-bottom:1px solid var(--rule,#E2E5E9);color:var(--ink,#1C1F24);padding:14px 0;font:500 17px/1 Commissioner,system-ui,sans-serif;text-align:left;cursor:pointer}.ds-mi:last-child{border-bottom:0}.ds-mi:active{opacity:.6}.ds-mi:focus-visible{outline:2px solid #1C1F24;outline-offset:2px}.ds-mi span{margin-left:auto;color:var(--mut,#5A606A);display:flex;align-items:center;gap:2px}.ds-mi svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}"
+    },
+    {
+      "name": "Block",
+      "kind": "card",
+      "refersTo": "block",
+      "description": "Every container: white rounded block lifted off the tinted ground.",
+      "html": "<div class=\"ds-ground\"><section class=\"ds-block\"><h1>Λέξεις</h1><p>248 слов</p></section></div>",
+      "css": ".ds-ground{background:var(--ground,#ECEEF1);padding:16px}.ds-block{background:var(--block,#FFFFFF);border-radius:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.06);padding:18px;text-align:center;font-family:Commissioner,system-ui,sans-serif;color:var(--ink,#1C1F24)}.ds-block h1{font:800 34px/1.1 Commissioner,system-ui,sans-serif;letter-spacing:-.02em;margin:0}.ds-block p{margin:8px 0 0;font-size:13px;color:var(--mut,#5A606A)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Athens Metro Map",
+    "overview": "Every word is a passenger riding three metro lines at once: blue M1 for Узнать (Greek to Russian), red M2 for Написать (Russian to Greek), green M3 for Услышать (listening). Its review schedule is the line's stations, depot then 1 · 3 · 7 · 14 · 30 · 60 days. The interface is the system map: rounded white blocks set on a tinted ground, a line badge and a station track wherever a direction appears, and one dark reversed button that says where to go next. Verdicts are stamped onto the card like a validated ticket and stay there.\n\nDensity is phone-first and calm: one centred column no wider than 440px, blocks stacked 12px apart, three type sizes ranked by weight rather than by size. A single self-hosted face, Commissioner (drawn by a Greek type designer, with full Greek and Cyrillic), carries everything, so Greek content and Russian UI sit in the same voice.\n\nFour themes (Графит, Эгейский, Олива, Ночь) restyle ground, blocks, ink and primary; the three line colours and the state colours never move with the theme. Light and dark follow the system, except Ночь, which is always dark.",
+    "keyCharacteristics": [
+      "Three line colours reserved for the three directions, on every screen that names one.",
+      "Station tracks (line bar, ringed station dots, day scale) as the signature component.",
+      "Rounded white blocks with a soft two-layer shadow on a tinted ground.",
+      "One typeface, three sizes (13 / 17 / 34), weight does the ranking; one 72px count numeral.",
+      "One reversed primary action per screen; secondary actions are tinted, ghost, or link.",
+      "Verdict stamps that land and stay."
+    ],
+    "rules": [
+      {
+        "name": "The Three Lines Rule",
+        "body": "M1 blue, M2 red and M3 green belong to Узнать, Написать and Услышать and to nothing else. No theme, state, or decoration may borrow them, and a direction is never shown without its line colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Themes Leave The Lines Alone Rule",
+        "body": "A theme changes ground, block, ink, muted, rule, inset and primary. It never changes the line colours or the state colours.",
+        "section": "colors"
+      },
+      {
+        "name": "The Warm Only When Alive Rule",
+        "body": "The ember tint appears only on the streak pill while the streak is running; a dead streak is an outlined muted pill.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Sizes Rule",
+        "body": "Text is 13, 17 or 34px. The 72px count and the 11px station numerals are the only exceptions; emoji glyphs are content, not type.",
+        "section": "typography"
+      },
+      {
+        "name": "The Weight Ranks Rule",
+        "body": "When something needs more emphasis, raise weight or reverse it onto primary; do not add a size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Every count, progress fraction and day number uses tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Shadow Rule",
+        "body": "There is a single shadow token. Nothing gets a stronger or offset shadow; hierarchy comes from reversal and weight.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do give every direction its line colour and badge wherever it appears (home rows, review top bar, card schedule, dictionary marks, splash).",
+      "Do keep exactly one reversed primary button per screen; make every other action secondary, tinted, link or icon.",
+      "Do rank text by weight (400 / 500 / 700 / 800) inside the 13 / 17 / 34 sizes.",
+      "Do use the single block shadow and the 20 / 14 / 12px radius steps.",
+      "Do leave verdict stamps on the card after answering.",
+      "Do honour `prefers-reduced-motion`: flip, card rise, stamp and train animations switch off."
+    ],
+    "donts": [
+      "Don't use M1, M2 or M3 for anything except their directions, and don't let a theme recolour them.",
+      "Don't add text sizes beyond 13 / 17 / 34, the 72px count and the 11px station numerals.",
+      "Don't put eyebrow or kicker labels above blocks; the today block opens on its count.",
+      "Don't use warm colour anywhere except the live streak pill.",
+      "Don't add icon fonts or glyph icons; icons are inline stroke SVGs (the Ε and Р line marks are letters, not icons)."
+    ]
+  }
+}

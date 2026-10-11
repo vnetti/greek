@@ -388,4 +388,4 @@ Inline SVG only, 24px viewBox drawn at 20px, 2px round stroke, no fill, currentC
 - **Don't** add text sizes beyond 13 / 17 / 34, the 72px count and the 11px station numerals.
 - **Don't** put eyebrow or kicker labels above blocks; the today block opens on its count.
 - **Don't** use warm colour anywhere except the live streak pill.
-- **Don't** add icon fonts or glyph icons; icons are inline stroke SVGs.
+- **Don't** add icon fonts or glyph icons; icons are inline stroke SVGs (the Ε and Р line marks are letters, not icons).
