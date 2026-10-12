@@ -1,14 +1,14 @@
-import { $, esc } from '../util.js';
+import { $, esc, plural } from '../util.js';
 import { state } from '../state.js';
-import { auth, signOut, save, loadAll, saveKeys, savePush, pushToken, isSupported } from '../store.js';
+import { auth, signOut, save, loadAll, saveKeys, savePush, pushToken, isSupported, streakNow } from '../store.js';
 import { key } from '../api.js';
-import { app, icon, back, avatar } from '../ui.js';
+import { app, icon, back, avatar, sign } from '../ui.js';
 import { home } from './home.js';
 import { stats, knownCount } from './stats.js';
 
 // Colour theme is a per-device preference; light/dark still follows the system (Ночь is always dark).
-const THEMES = [['graphite', 'Графит', '#ECEEF1', '#1C1F24'], ['aegean', 'Эгейский', '#D9E5F2', '#0E4C92'],
-  ['olive', 'Олива', '#E2E6DC', '#3D5A2C'], ['night', 'Ночь', '#0F1217', '#F2C230']];
+const THEMES = [['graphite', 'Графит', '#ECEEF1', '#1C1F24', '#FFF'], ['aegean', 'Эгейский', '#D9E5F2', '#0E4C92', '#FFF'],
+  ['olive', 'Олива', '#E2E6DC', '#3D5A2C', '#FFF'], ['night', 'Ночь', '#0F1217', '#F2C230', '#0F1217']]; // ground, primary, on-primary
 export const syncThemeColor = () => { $('meta[name=theme-color]').content = getComputedStyle(document.body).backgroundColor; };
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', syncThemeColor);
 function setTheme(t) {
@@ -21,32 +21,36 @@ function setTheme(t) {
 // reminders and keys are forms whose «Сохранить» wakes up only after a change and sends it to the server.
 export function account(msg = '', at = '') { // at: the section the message belongs under ('rem' | 'keys' | 'data')
   const u = auth.currentUser, cur = document.documentElement.dataset.theme, on = !!state.push.token;
+  const nw = state.cards.length, nk = knownCount(), ns = streakNow(), word = (n, ...f) => plural(n, ...f).replace(/^\d+ /, '');
   const note = s => msg && at === s ? `<div class="msg" role="status">${esc(msg)}</div>` : '';
   const hours = Array.from({ length: 24 }, (_, h) => `<option value="${h}"${h === (state.push.hour ?? 9) ? ' selected' : ''}>${h}:00</option>`).join('');
   app.innerHTML = `<div class="top">${back()}<h2>Аккаунт</h2></div>
-    <section class="block me">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div></section>
-    <nav class="block menu"><button class="mi" id="sts">Статистика<span class="v num">${knownCount()} выучено${icon('chev')}</span></button></nav>
-    <form class="block form set" id="rem"><h2>Напоминания</h2>
+    <section class="block pass"><div class="me">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div></div>
+      <div class="fare"><div><b class="num">${nw}</b>${word(nw, 'слово', 'слова', 'слов')}</div>
+        <button type="button" id="sts2"><b class="num">${nk}</b>выучено</button>
+        <div><b class="num">${ns}</b>${word(ns, 'день', 'дня', 'дней')} подряд</div></div></section>
+    <nav class="block menu"><button class="mi" id="sts">Статистика<span class="v">${icon('chev')}</span></button></nav>
+    <form class="block form set" id="rem">${sign('bell', 'Напоминания')}
       <label class="sw-row">Напоминать каждый день<input type="checkbox" role="switch" name="on"${on ? ' checked' : ''}></label>
       <label>Во сколько<select name="hour"${on ? '' : ' disabled'}>${hours}</select></label>
       <p class="small mut">Пришлём, только если ты ещё не повторял и есть что повторять. На iPhone — в приложении с экрана «Домой».</p>
       <button class="sec" disabled>Сохранить</button></form>${note('rem')}
-    <section class="block"><h2>Тема</h2>
-      <div class="themes">${THEMES.map(([id, name, g, p]) => `<button class="sw" data-t="${id}" aria-pressed="${id === cur}">
-        <span class="dot" style="--g:${g};--p:${p}"></span>${name}</button>`).join('')}</div>
+    <section class="block">${sign('contrast', 'Тема')}
+      <div class="themes">${THEMES.map(([id, name, g, p, o]) => `<button class="sw" data-t="${id}" aria-pressed="${id === cur}">
+        <span class="dot" aria-hidden="true" style="--g:${g};--p:${p};--o:${o}">${name[0]}</span>${name}</button>`).join('')}</div>
       <p class="small mut" style="margin:12px 0 0">Светлая или тёмная — как в настройках телефона. «Ночь» всегда тёмная.</p></section>
-    <form class="block form set" id="keys"><h2>Ключи API</h2>
+    <form class="block form set" id="keys">${sign('key', 'Ключи API')}
       <label>Gemini — делает карточки<input name="key" class="secret" value="${esc(key())}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
       <label>Google Text-to-Speech — озвучка<input name="tts" class="secret" value="${esc(key('tts'))}" autocomplete="off" spellcheck="false" placeholder="пусто — голос iOS"></label>
       <button class="sec" disabled>Сохранить</button></form>${note('keys')}
-    <nav class="block menu">
+    <nav class="block menu data">${sign('archive', 'Данные')}
       <button class="mi" id="exp">Экспорт словаря<span class="v">${icon('chev')}</span></button>
       <button class="mi" id="imp">Импорт из файла<span class="v">${icon('chev')}</span></button>
     </nav>${note('data')}
     <button class="bad" id="out" style="margin-top:12px">Выйти</button>
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#x').onclick = () => home();
-  $('#sts').onclick = () => stats();
+  $('#sts').onclick = $('#sts2').onclick = () => stats();
   document.querySelectorAll('form.set').forEach(f => { f.oninput = () => { f.querySelector('button.sec').disabled = false; }; });
   $('#rem').elements.on.onchange = e => { $('#rem').elements.hour.disabled = !e.target.checked; };
   $('#rem').onsubmit = e => { e.preventDefault(); saveReminders(e.target.elements.on.checked, +e.target.elements.hour.value); };

@@ -31,7 +31,11 @@ const ICONS = {
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   ear: '<path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/>',
   snow: '<path d="M2 12h20M12 2v20m8-6-4-4 4-4M4 8l4 4-4 4m12-12-4 4-4-4m0 16 4-4 4 4"/>',
-  speaker: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>'
+  speaker: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 17a5 5 0 0 0 0-10z"/>',
+  key: '<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/>',
+  archive: '<rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/>'
 };
 export const icon = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
 
@@ -62,6 +66,8 @@ export function streakChip() {
 export const avatar = u => u?.photoURL
   ? `<img class="av" src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`
   : `<span class="av" aria-hidden="true">${esc((u?.displayName || u?.email || '?')[0].toUpperCase())}</span>`;
+// section heading as metro signage: a round pictogram (badge-shaped, ink not line colour) before the title
+export const sign = (ic, t) => `<h2 class="sign"><span class="pict" aria-hidden="true">${icon(ic)}</span>${t}</h2>`;
 export const back = (id = 'x', label = 'Назад', ic = 'back') => `<button class="icon" id="${id}" aria-label="${label}">${icon(ic)}</button>`;
 
 export const sayBtn = (id = 'say', cls = '', label = 'Произнести') => `<button type="button" class="say ${cls}" id="${id}" aria-label="${label}">${icon('speaker')}</button>`;

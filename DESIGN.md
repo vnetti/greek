@@ -210,6 +210,11 @@ components:
     typography: "{typography.stamp}"
     rounded: "{rounded.stamp}"
     padding: "7px 10px"
+  section-sign:
+    backgroundColor: "{colors.graphite-ink}"
+    textColor: "{colors.graphite-block}"
+    rounded: "{rounded.circle}"
+    size: "28px"
   theme-swatch:
     backgroundColor: "{colors.graphite-inset}"
     textColor: "{colors.graphite-ink}"
@@ -359,13 +364,13 @@ Absolute, top-right of the answered card, rotated -8deg, 2px currentColor border
 
 ### Navigation
 - **Menu block:** grouped list of rows inside one block, 14px vertical padding, 500 17px ink, 1px rule dividers, muted value and an 18px chevron on the right; press fades to 0.6 and nudges the chevron 4px right (hover: 2px). Dictionary rows press to inset fill with the emoji shrinking to 0.88.
-- **Account:** 36px circular avatar in a 44px button (Google photo or initial on inset, aria-label «Аккаунт») in the head corner opens the account screen: profile block (56px avatar, name, muted email), Статистика row, settings as forms (Напоминания: iOS-style switch + hour select; Ключи API: two fields) whose secondary «Сохранить» stays disabled until something changes and then writes to the server, theme swatches that apply at once, export/import rows, and a full-width «Выйти» in bad tint at the bottom.
+- **Account:** 36px circular avatar in a 44px button (Google photo or initial on inset, aria-label «Аккаунт») in the head corner opens the account screen. It opens on the rider's travel pass («проездной»): a block with a 6px theme-primary stripe across its top edge, 56px avatar, name, muted email, and a fare strip below in an inset well, three equal cells split by 1px rules, each a 17px 800 tabular number over a 13px muted label: words in the dictionary, learned (a button in primary that opens Статистика), current streak in days. Then the Статистика row, then sections headed like metro signage: a 28px round pictogram in the line-badge shape but ink-filled with a block-coloured 15px stroke icon (bell, contrast, key, archive; never a line colour), then the 17px title. Sections: Напоминания (iOS-style switch + hour select), Тема (roundels, below), Ключи API (two fields with the eye) — both forms keep a secondary «Сохранить» disabled until something changes; Данные (export/import rows); a full-width «Выйти» in bad tint at the bottom.
 
 ### Streak pill
 13px 700 pill with a 14px flame icon. Dead streak: outlined in currentColor, header-muted. Alive: ember fill (fire-bg) with fire text, no border.
 
 ### Theme picker
-Four equal swatch buttons in a row: inset tile, 14px radius, 34px circle split diagonally into the theme's ground and primary, 600 13px name. The selected one gets a 2px primary border.
+Four equal swatch buttons in a row: inset tile, 14px radius, a 34px station roundel in the theme's own primary rimmed 3px with its ground (plus a 1px hairline), carrying the name's first letter in 800 13px on-primary like a line badge's mark, then the 600 13px name. The selected tile gets a 2px primary border.
 
 ### Card-making splash
 A 150 × 190 card flips in 3D (2.6s loop) between the typed word and its result on a primary face, above three small line badges and a 13px muted step line.
