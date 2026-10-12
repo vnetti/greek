@@ -3,7 +3,7 @@ import { state } from '../state.js';
 import { DIRS, queue, newWaiting, news } from '../srs.js';
 import { auth, streakNow, markSeen } from '../store.js';
 import { key } from '../api.js';
-import { app, icon, LINES, badge, lineTrack, scale, streakChip, avatar, clearable } from '../ui.js';
+import { app, icon, LINES, badge, lineTrack, scale, streakChip, avatar } from '../ui.js';
 import { next } from './review.js';
 import { add } from './add.js';
 import { list } from './dictionary.js';
@@ -42,7 +42,6 @@ export function home(msg = '') {
   const w = $('#w'), grow = () => { w.style.height = 'auto'; w.style.height = w.scrollHeight + 'px'; };
   w.oninput = () => { state.draft = w.value; grow(); };
   w.value = state.draft; if (w.value) grow();
-  clearable(w);
   $('#lst').onclick = $('#lst2').onclick = e => { e.preventDefault(); list(); };
   $('#me').onclick = () => account();
   $('#help').onclick = () => help();

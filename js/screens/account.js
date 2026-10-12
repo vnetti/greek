@@ -36,8 +36,8 @@ export function account(msg = '') {
         <span class="dot" style="--g:${g};--p:${p}"></span>${name}</button>`).join('')}</div>
       <p class="small mut" style="margin:12px 0 0">Светлая или тёмная — как в настройках телефона. «Ночь» всегда тёмная.</p></section>
     <form class="block form set" id="keys"><h2>Ключи API</h2>
-      <label>Gemini — делает карточки<input name="key" value="${esc(key())}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
-      <label>Google Text-to-Speech — озвучка<input name="tts" value="${esc(key('tts'))}" autocomplete="off" spellcheck="false" placeholder="пусто — голос iOS"></label>
+      <label>Gemini — делает карточки<input name="key" class="secret" value="${esc(key())}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
+      <label>Google Text-to-Speech — озвучка<input name="tts" class="secret" value="${esc(key('tts'))}" autocomplete="off" spellcheck="false" placeholder="пусто — голос iOS"></label>
       <button class="sec" disabled>Сохранить</button></form>
     <nav class="block menu">
       <button class="mi" id="exp">Экспорт словаря<span class="v">${icon('chev')}</span></button>
