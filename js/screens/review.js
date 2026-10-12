@@ -1,6 +1,6 @@
 import { $, esc, today } from '../util.js';
 import { state } from '../state.js';
-import { check, grade } from '../srs.js';
+import { check, grade, learnedDay } from '../srs.js';
 import { save, remove, bumpStreak } from '../store.js';
 import { say } from '../audio.js';
 import { app, LINES, badge, back, sayBtn, SAY, cardHtml, wire, clearable } from '../ui.js';
@@ -75,6 +75,7 @@ function done(it, ok) {
     grade(it.c[it.dir], ok, today());
     bumpStreak();
     it.c.introduced ??= today(); // counts toward today's NEW_PER_DAY
+    it.c.learned ??= learnedDay(it.c); // stamped the first time the word is known (today, or the estimate for older ones); kept if it slips back
     save(it.c);
   }
   if (!ok) { state.q.push({ ...it, retry: true }); state.total++; }
