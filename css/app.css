@@ -94,10 +94,19 @@ button.link.del{font-size:13px;font-weight:400;color:var(--mut)}
 .mi:active{transform:none;opacity:.6}
 .mi .v{margin-left:auto;color:var(--mut);font-weight:500;display:flex;align-items:center;gap:2px}
 .mi .v svg.i{width:18px;height:18px}
-.acct{display:flex;align-items:center;gap:12px;padding:14px 0}
 .av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--inset);display:grid;place-items:center;font-weight:800;color:var(--ink);flex:none}
-.acct .who{flex:1;min-width:0;line-height:1.25}
-.acct .who small{display:block;color:var(--mut);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ---------- account: avatar button in the head corner + popover ---------- */
+.head{position:relative}
+button.acct{position:absolute;top:12px;right:12px;width:36px;height:36px;padding:0;border-radius:50%;background:none}
+button.acct:focus-visible{outline-color:var(--head-ink)}
+.block.acct-pop{position:fixed;inset:auto;top:calc(max(16px,env(safe-area-inset-top)) + 56px);right:max(16px,calc(50vw - 220px));margin:0;border:0;color:var(--ink);
+  width:min(300px,calc(100vw - 32px));text-align:center;opacity:0;transform:translateY(-6px) scale(.97);transform-origin:top right;
+  transition:opacity .18s,transform .18s cubic-bezier(.16,1,.3,1),overlay .18s allow-discrete,display .18s allow-discrete}
+.acct-pop:popover-open{opacity:1;transform:none}
+@starting-style{.acct-pop:popover-open{opacity:0;transform:translateY(-6px) scale(.97)}}
+.acct-pop .av{width:56px;height:56px;margin:0 auto 10px;font-size:17px}
+.acct-pop .who{line-height:1.25;font-weight:700;margin-bottom:14px;overflow-wrap:anywhere}
+.acct-pop .who small{display:block;color:var(--mut);font-size:13px;font-weight:400;margin-top:2px}
 
 /* ---------- screens with a top bar ---------- */
 .top{display:flex;align-items:center;gap:12px;margin-bottom:12px;min-height:44px}
@@ -183,4 +192,4 @@ button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button
 .help .sched{padding:6px 0 0}
 .stn{position:relative;height:18px;margin:6px 7px 0;font-size:13px;color:var(--mut)}
 .stn span{position:absolute;transform:translateX(-50%);white-space:nowrap}
-@media (prefers-reduced-motion:reduce){.flip,.card,.stamp{animation:none}.top .track .train,.top .fill{transition:none}}
+@media (prefers-reduced-motion:reduce){.flip,.card,.stamp{animation:none}.acct-pop{transition:none}.top .track .train,.top .fill{transition:none}}

@@ -14,7 +14,7 @@ export function home(msg = '') {
   const per = d => qq.filter(x => x.dir === d).length;
   const n = streakNow(), doneToday = state.stats.last === today(), u = auth.currentUser;
   app.innerHTML = `
-    <section class="block head"><h1>Λέξεις</h1>
+    <section class="block head"><button class="acct" popovertarget="acct" aria-label="Аккаунт">${avatar(u)}</button><h1>Λέξεις</h1>
       <div class="meta"><a href="#" id="lst2">${plural(state.cards.length, 'слово', 'слова', 'слов')}</a>${streakChip()}${n && !doneToday ? '<span>повтори сегодня</span>' : ''}</div></section>
     <section class="block today">
       <div class="count">${due}</div>
@@ -30,9 +30,9 @@ export function home(msg = '') {
       <button class="mi" id="lst">Словарь<span class="v num">${state.cards.length}${icon('chev')}</span></button>
       <button class="mi" id="rem">Напоминания<span class="v">${state.push.token ? state.push.hour + ':00' : 'выкл'}${icon('chev')}</span></button>
       <button class="mi" id="more">Ещё<span class="v">${icon('chev')}</span></button>
-      <div class="acct">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div>
-        <button class="link" id="out">Выйти</button></div>
-    </nav>`;
+    </nav>
+    <div id="acct" popover class="block acct-pop">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div>
+      <button class="sec" id="out">Выйти</button></div>`;
   $('#rev').onclick = () => { state.q = queue(state.cards, today()); state.total = state.q.length; state.trainAt = 0; next(); };
   $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
   $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };

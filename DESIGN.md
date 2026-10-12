@@ -300,7 +300,7 @@ A single centred column (max-width 440px) inside safe-area-aware body padding (1
 
 Screens other than home open with a top bar (44px min height): a 40px back/close icon button, then the title or, during review, the line badge, line name, a progress track whose train glides along, and a tabular `n/total` count.
 
-Home is ordered: centred header block (Λέξεις, word count link, streak pill, «повтори сегодня» when due) → today block (72px count, muted sub-line, three line rows each badge / name + station track / count, a station day scale aligned under the tracks, full-width «Поехали») → add-word block (auto-growing textarea + square add button) → status line → grouped menu block (Словарь, Напоминания, Ещё, account row with avatar and «Выйти»). Rarely used actions live under «Ещё».
+Home is ordered: centred header block (Λέξεις, a 36px avatar button in its top-right corner, word count link, streak pill, «повтори сегодня» when due) → today block (72px count, muted sub-line, three line rows each badge / name + station track / count, a station day scale aligned under the tracks, full-width «Поехали») → add-word block (auto-growing textarea + square add button) → status line → grouped menu block (Словарь, Напоминания, Ещё). Rarely used actions live under «Ещё».
 
 Line rows use a three-column grid (28px badge / track / 28px count); the card view schedule uses 28px / track / 96px "when".
 
@@ -359,7 +359,7 @@ Absolute, top-right of the answered card, rotated -8deg, 2px currentColor border
 
 ### Navigation
 - **Menu block:** grouped list of rows inside one block, 14px vertical padding, 500 17px ink, 1px rule dividers, muted value and an 18px chevron on the right; press fades to 0.6.
-- **Account row:** 36px circular avatar (Google photo or initial on inset), name and 13px muted email, «Выйти» link.
+- **Account:** 36px circular avatar button (Google photo or initial on inset, aria-label «Аккаунт») in the head corner opens a native `popover` block under it: 56px avatar, name, 13px muted email, «Выйти» secondary button. Light-dismiss and Escape are native; it fades and settles in 0.18s (off with reduced motion).
 
 ### Streak pill
 13px 700 pill with a 14px flame icon. Dead streak: outlined in currentColor, header-muted. Alive: ember fill (fire-bg) with fire text, no border.
