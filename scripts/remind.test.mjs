@@ -16,4 +16,5 @@ assert.equal(dueCount([card('p', { pending: true })], day), 0);
 assert.equal(message(3, {}, day), '3 карточки ждут повторения');
 assert.equal(message(1, { last: day - 1, streak: 5 }, day), '1 карточка ждёт повторения · 🔥 серия 5 дней, не прерывай');
 assert.equal(message(21, { last: day - 3, streak: 5 }, day), '21 карточка ждёт повторения'); // broken streak isn't mentioned
+assert.equal(message(2, { last: day - 2, streak: 5, freezes: 1 }, day), '2 карточки ждут повторения · 🔥 серия 5 дней, не прерывай'); // a freeze will cover yesterday
 console.log('remind ok');

@@ -39,9 +39,25 @@ export function queue(cards, day) {
 // Reminder sender (scripts/remind.mjs): cards due on `day` straight from Firestore docs, same rules as the app's queue.
 export const dueCount = (cards, day) => queue(cards.map(withListen), day).length;
 
-// a day counts once at least one card was graded; the streak survives until the end of the next day
+// Streak, users/{uid}/meta/stats: { last, streak, best, days: { [day]: grades }, frozen: [day…], freezes, seen }.
+// A day counts once at least one card was graded. Every FREEZE_EVERY-th streak day banks a freeze (at most FREEZE_MAX);
+// practising after missed days spends one per missed day if enough are banked (those days become frozen), else the streak restarts.
+// days: grades per practised day (0 = practised before history was kept); seen: the day home last showed news (below).
+export const MILESTONES = [3, 7, 14, 30, 50, 100, 365], FREEZE_EVERY = 7, FREEZE_MAX = 2;
+const gap = (s, t) => s.last == null ? Infinity : t - s.last - 1; // missed days since the last practised one
+export const alive = (s, t) => gap(s, t) <= (s.freezes ?? 0); // still going if banked freezes cover the gap
 export function nextStats(s, t) {
-  if (s.last === t) return s;
-  const streak = s.last === t - 1 ? s.streak + 1 : 1;
-  return { last: t, streak, best: Math.max(s.best ?? 0, streak) };
+  const days = { ...(s.days ?? Object.fromEntries(Array.from({ length: s.streak ?? 0 }, (_, i) => [s.last - i, 0]))) };
+  days[t] = (days[t] ?? 0) + 1;
+  if (t <= s.last) return { ...s, days }; // same day (or the clock went back): only count the grade
+  const g = gap(s, t), keep = alive(s, t), streak = keep ? s.streak + 1 : 1;
+  const frozen = [...(s.frozen ?? []), ...(keep ? Array.from({ length: g }, (_, i) => s.last + 1 + i) : [])];
+  const freezes = Math.min(FREEZE_MAX, (s.freezes ?? 0) - (keep ? g : 0) + (streak % FREEZE_EVERY ? 0 : 1));
+  return { ...s, last: t, streak, best: Math.max(s.best ?? 0, streak), days, frozen, freezes };
+}
+// What home tells once, on the day it happened: a milestone reached today, freezes spent today (the frozen run right before it).
+export function news(s, t) {
+  if (s.last !== t || s.seen === t) return {};
+  let froze = 0; while (s.frozen?.includes(t - 1 - froze)) froze++;
+  return { milestone: MILESTONES.includes(s.streak) ? s.streak : 0, froze };
 }

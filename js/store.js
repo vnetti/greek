@@ -5,7 +5,7 @@ import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, get
 import { getMessaging, getToken, isSupported } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js';
 import { state } from './state.js';
 import { today } from './util.js';
-import { nextStats, withListen } from './srs.js';
+import { nextStats, alive, withListen } from './srs.js';
 
 export { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, isSupported };
 
@@ -38,11 +38,10 @@ export async function loadMeta() {
     if (t !== state.push.token) { state.push.token = t; savePush(); }
   }).catch(() => {});
 }
-export function bumpStreak() {
-  const n = nextStats(state.stats, today());
-  if (n !== state.stats) { state.stats = n; setDoc(metaRef('stats'), state.stats).catch(() => {}); }
-}
-export const streakNow = () => state.stats.last >= today() - 1 ? state.stats.streak : 0;
+const saveStats = () => auth.currentUser && setDoc(metaRef('stats'), state.stats).catch(() => {}); // no user: signed out mid-way (or the dev harness)
+export function bumpStreak() { state.stats = nextStats(state.stats, today()); saveStats(); }
+export function markSeen() { state.stats = { ...state.stats, seen: today() }; saveStats(); } // home showed today's news
+export const streakNow = () => alive(state.stats, today()) ? state.stats.streak : 0;
 export const pushToken = async () => getToken(getMessaging(fb), { vapidKey: VAPID, serviceWorkerRegistration: await navigator.serviceWorker.ready });
 
 // One-time move of cards from the pre-Firebase on-device IndexedDB; the old copy is kept untouched.
