@@ -1270,8 +1270,8 @@
       },
       {
         "name": "screen-enter",
-        "value": ".35s; from opacity 0 translateX(±12px); 30ms stagger",
-        "purpose": "New screen's blocks ride in; reversed when going back; same-screen re-renders skip it."
+        "value": "rail .4s cubic-bezier(.65,0,.35,1), 3px fixed under the safe-area top, mirrored going back; blocks .24s clip-path doors from centre + opacity, 40ms stagger, ≤440ms",
+        "purpose": "The train pulls in: a rail (three lines stacked, or the review's line) sweeps in the direction of travel, then blocks open like doors; same-screen re-renders skip it; reduced motion: no rail, fade only."
       },
       {
         "name": "card-rise",
@@ -1296,7 +1296,7 @@
       {
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
-        "purpose": "Disables flip, rise, stamp, screen-enter and train animations."
+        "purpose": "Disables flip, rise, stamp and train animations; screen-enter drops its rail and only fades."
       }
     ],
     "breakpoints": [
@@ -1434,7 +1434,7 @@
       "Do rank text by weight (400 / 500 / 700 / 800) inside the 13 / 17 / 34 sizes.",
       "Do use the single block shadow and the 20 / 14 / 12px radius steps.",
       "Do leave verdict stamps on the card after answering.",
-      "Do honour `prefers-reduced-motion`: flip, card rise, stamp, screen entrance and train animations switch off."
+      "Do honour `prefers-reduced-motion`: flip, card rise, stamp and train animations switch off; the screen-change rail is dropped and its blocks only fade."
     ],
     "donts": [
       "Don't use M1, M2 or M3 for anything except their directions, and don't let a theme recolour them.",

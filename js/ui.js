@@ -14,8 +14,8 @@ let shown = screenKey(), goingBack = false; // the splash is already on screen
 addEventListener('click', e => { goingBack = !!e.target.closest?.('#x'); }, true); // the back button is always #x
 new MutationObserver(() => {
   const k = screenKey();
-  app.classList.toggle('go', k !== shown);
-  if (k !== shown) app.classList.toggle('back', goingBack);
+  app.classList.remove('go');
+  if (k !== shown) { app.classList.toggle('back', goingBack); void app.offsetWidth; app.classList.add('go'); } // reflow restarts the rail (#app.go::before)
   shown = k; goingBack = false;
 }).observe(app, { childList: true });
 
