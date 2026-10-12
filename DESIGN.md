@@ -342,6 +342,7 @@ Confident, full-width, pressable.
 - **Track:** 4px line-coloured bar with seven 12px stations (depot + six intervals), hollow (block fill, 3px line-coloured ring) or lit (filled). The word's current station grows to a 20px ring with a block-coloured halo.
 - **Day scale:** 11px muted day numbers (· 1 3 7 14 30 60) aligned under the tracks.
 - **Review progress:** the same track at 30% opacity with a solid fill and a 16px train dot that glides 0.6s along it.
+- **Screen change (the train pulls in):** a 3px rail sweeps the top of the viewport, just under the safe-area inset, in the direction of travel: left→right, right→left when going back via #x. It is the three lines stacked 1px each (M1, M2, M3), or the destination's line colour when entering a review. 0.4s ease-in-out; the head runs ahead, the tail follows and leaves. Behind it the screen's top-level blocks open like doors from their centre (clip-path, opacity 0→1, 0.24s, 40ms then 40ms apart, all done by 440ms). Nothing translates, so nothing shifts, there is no horizontal scrollbar, and the review top bar and its train stay put. Only a different screen plays it: in-place re-renders (search filter, background refresh, account re-render after Save, theme swatches) and review card-to-card don't. Reduced motion: no rail, blocks just fade.
 
 ### Station marks (dictionary)
 Each dictionary row ends with three 26px outlined circles, one per line, 2px line-coloured ring, holding the current station's day number (or · at the depot) in 700 11px ink. Rows otherwise show the emoji, the Greek word (700, ellipsis) and a 13px muted translation.
@@ -394,8 +395,8 @@ Inline SVG only, 24px viewBox drawn at 20px, 2px round stroke, no fill, currentC
 - **Do** rank text by weight (400 / 500 / 700 / 800) inside the 13 / 17 / 34 sizes.
 - **Do** use the single block shadow and the 20 / 14 / 12px radius steps.
 - **Do** leave verdict stamps on the card after answering.
-- **Do** let a new screen ride in: its top-level blocks slide 12px and fade in over 0.35s, 30ms apart (from the left when going back via #x). Re-rendering the same screen (background refresh, next review card) doesn't replay it.
-- **Do** honour `prefers-reduced-motion`: flip, card rise, stamp, screen entrance, train and milestone-cheer animations switch off.
+- **Do** let a new screen pull in like a train: the rail sweeps the top in the direction of travel and the blocks open like doors (see Screen change). Re-rendering the same screen (background refresh, next review card) doesn't replay it.
+- **Do** honour `prefers-reduced-motion`: flip, card rise, stamp, train and milestone-cheer animations switch off; the screen-change rail is dropped and its blocks only fade.
 
 ### Don't:
 - **Don't** use M1, M2 or M3 for anything except their directions, and don't let a theme recolour them.
