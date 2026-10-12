@@ -3,7 +3,7 @@ import { state } from '../state.js';
 import { check, grade } from '../srs.js';
 import { save, remove, bumpStreak } from '../store.js';
 import { say } from '../audio.js';
-import { app, LINES, badge, back, sayBtn, SAY, cardHtml, wire } from '../ui.js';
+import { app, LINES, badge, back, sayBtn, SAY, cardHtml, wire, clearable } from '../ui.js';
 import { home } from './home.js';
 
 // Review progress is a ride along the current card's line; the train glides from where the last card left it.
@@ -38,7 +38,7 @@ export function next() {
   wire(c);
   ride();
   if (dir !== 'ru2gr') say(c);
-  if ($('#f')) { $('#a').focus(); $('#f').onsubmit = e => { e.preventDefault(); back_(it, $('#a').value); }; }
+  if ($('#f')) { clearable($('#a')); $('#a').focus(); $('#f').onsubmit = e => { e.preventDefault(); back_(it, $('#a').value); }; }
   $('#x').onclick = () => home();
 }
 

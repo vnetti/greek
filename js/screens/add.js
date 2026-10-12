@@ -14,7 +14,7 @@ const making = text => `<div class="splash"><div class="flip">
 
 export async function add(raw) {
   const words = raw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
-  const park = list => list.forEach(w => { const d = draft(w, today()); state.cards.push(d); save(d); });
+  const park = list => { state.draft = ''; list.forEach(w => { const d = draft(w, today()); state.cards.push(d); save(d); }); };
   if (words.length > 1) { // batch: no preview, fill in the background
     park(words);
     home(`Готовим ${plural(words.length, 'карточку', 'карточки', 'карточек')}…`);
@@ -31,6 +31,7 @@ export async function add(raw) {
     $('#no').onclick = () => home();
     $('#yes').onclick = () => {
       Object.assign(c, { id: newId(), ...schedule(today()) });
+      state.draft = '';
       save(c);
       state.cards.push(c);
       home('Добавлено: ' + c.gr);

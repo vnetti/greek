@@ -5,7 +5,7 @@ import { save, remove } from '../store.js';
 import { tts } from '../api.js';
 import { say } from '../audio.js';
 import { searchKeys, matcher } from '../search.js';
-import { app, icon, LINES, badge, wordTrack, scale, back, SAY, cardHtml, wire, level } from '../ui.js';
+import { app, icon, LINES, badge, wordTrack, scale, back, SAY, cardHtml, wire, level, clearable } from '../ui.js';
 import { home } from './home.js';
 
 export function list() {
@@ -18,12 +18,15 @@ export function list() {
       <span class="t"><b lang="el">${esc(c.gr || c.text)}</b><small>${esc(c.pending ? 'ждёт интернета' : c.ru)}</small></span>
       ${level(c)}</button>`; }).join('') + '<p class="mut center" id="none" hidden style="padding:24px 12px">Ничего не нашли</p>'}</div>`;
   $('#x').onclick = () => home();
-  $('#s').oninput = e => { // filter in place so the keyboard stays open
-    const m = matcher(e.target.value);
+  const s = $('#s');
+  s.oninput = () => { // filter in place so the keyboard stays open
+    const m = matcher(state.search = s.value);
     let any = false;
     document.querySelectorAll('.item').forEach(el => { el.hidden = !m(el.dataset); any ||= !el.hidden; });
     if ($('#none')) $('#none').hidden = any;
   };
+  s.value = state.search; if (s.value) s.oninput();
+  clearable(s);
   document.querySelectorAll('.item').forEach(el => el.onclick = () => {
     const c = state.cards.find(c => c.id === el.dataset.id);
     if (!c.pending) return view(c);
@@ -54,6 +57,7 @@ export function edit(c) {
     <form id="ef" class="block form">${F.map(([k, l]) => `<label>${l}<input name="${k}" value="${esc(c[k])}" autocomplete="off"></label>`).join('')}
       <button id="sv">Сохранить</button></form>
     <button class="bad" id="del" style="margin-top:12px">Удалить карточку</button>`;
+  document.querySelectorAll('#ef input').forEach(clearable);
   $('#x').onclick = () => view(c);
   $('#say').onclick = () => say(c);
   $('#ef').onsubmit = async e => {

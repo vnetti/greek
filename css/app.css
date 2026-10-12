@@ -192,4 +192,17 @@ button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button
 .help .sched{padding:6px 0 0}
 .stn{position:relative;height:18px;margin:6px 7px 0;font-size:13px;color:var(--mut)}
 .stn span{position:absolute;transform:translateX(-50%);white-space:nowrap}
-@media (prefers-reduced-motion:reduce){.flip,.card,.stamp{animation:none}.acct-pop{transition:none}.top .track .train,.top .fill{transition:none}}
+/* ---------- clear button (×) inside text fields: ui.js clearable() ---------- */
+.clr{position:relative;display:block}
+.clr>input,.clr>textarea{display:block;width:100%;padding-right:44px}
+.clr>button{position:absolute;right:6px;top:50%;width:32px;height:32px;margin-top:-16px;padding:0;border-radius:50%;background:var(--inset);color:var(--mut);
+  display:grid;place-items:center;opacity:0;visibility:hidden;transform:translateX(6px) scale(.6);
+  transition:opacity .2s,transform .25s cubic-bezier(.16,1,.3,1),visibility 0s .25s}
+.clr>button svg.i{width:16px;height:16px;stroke-width:2.4}
+.clr.on>button{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.clr.on>button:active{transform:scale(.88)}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.add .clr{flex:1} .add .clr>textarea{padding-right:36px} .add .clr>button{top:8px;margin-top:0;right:0}
+.form .clr{margin-top:6px} .form .clr>input{margin-top:0}
+.answer .clr>input{padding-left:44px}
+@media (prefers-reduced-motion:reduce){.flip,.card,.stamp{animation:none}.acct-pop{transition:none}.top .track .train,.top .fill,.clr>button{transition:none}}
