@@ -3,7 +3,7 @@
 // current screen's live nodes on top in a layer; letting go short of the threshold puts those nodes back.
 import { app, motion } from './ui.js';
 
-const EDGE = 24, SLIDE = .3; // start zone (px); how far the screen underneath sits to the left (share of the width)
+const EDGE = 32, SLIDE = .3; // start zone (px); how far the screen underneath sits to the left (share of the width)
 let g = null; // the gesture in progress
 
 const quietly = f => { motion.quiet = true; f(); setTimeout(() => { motion.quiet = false; }); }; // no screen-change animation
