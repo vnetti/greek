@@ -62,11 +62,13 @@ test('stats: stage, learned day, added day, weekly buckets', () => {
   assert.deepEqual(w.map(x => [x.start - mon, x.added, x.learned]), [[-14, 0, 0], [-7, 1, 0], [0, 0, 1]]);
 });
 
-test('streak history: grades per day, old docs get their streak days seeded', () => {
+test('streak history: a mark per day, old docs get their streak days seeded, no change → same object', () => {
   let s = nextStats({ last: 9, streak: 2, best: 2 }, 10); // doc from before history
-  assert.deepEqual(s.days, { 8: 0, 9: 0, 10: 1 });
-  s = nextStats(s, 10); assert.equal(s.days[10], 2); assert.equal(s.streak, 3);
-  assert.equal(nextStats(s, 9).last, 10); // clock went back: no reset
+  assert.deepEqual(s.days, { 8: 1, 9: 1, 10: 1 });
+  assert.equal(nextStats(s, 10), s); // today already marked: same object, so no write
+  assert.equal(nextStats(s, 9), s); // clock went back: no reset, no stray calendar day
+  const old = { last: 10, streak: 2, best: 2 }; // same day, doc from before history: seeded once
+  assert.deepEqual(nextStats(old, 10).days, { 9: 1, 10: 1 }); assert.equal(nextStats(old, 10).streak, 2);
 });
 
 test('freezes: earned every 7th day, max 2, spent per missed day, kept on reset', () => {

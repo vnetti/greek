@@ -53,5 +53,5 @@ export async function processPending() {
     catch (e) { if (!e.status) break; } // offline again: stop, the 'online' event retries
   }
   busy = false;
-  if ($('.today') && !$('#w').value) home(); // refresh counters unless the user is typing
+  if ($('#w') && !$('#w').value) home(); // refresh counters unless the user is typing
 }

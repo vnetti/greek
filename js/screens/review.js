@@ -72,10 +72,11 @@ function back_(it, answer) {
 
 function done(it, ok) {
   if (!it.retry) { // re-shows within a session don't move the schedule
+    const was = learnedDay(it.c); // before grading: a miss would hide the estimate for words known before stamping
     grade(it.c[it.dir], ok, today());
     bumpStreak();
     it.c.introduced ??= today(); // counts toward today's NEW_PER_DAY
-    it.c.learned ??= learnedDay(it.c); // stamped the first time the word is known (today, or the estimate for older ones); kept if it slips back
+    it.c.learned ??= was ?? learnedDay(it.c); // stamped the first time the word is known (today, or the estimate for older ones); kept if it slips back
     save(it.c);
   }
   if (!ok) { state.q.push({ ...it, retry: true }); state.total++; }

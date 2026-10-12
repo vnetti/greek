@@ -15,8 +15,9 @@ export function home(msg = '') {
   const qq = queue(state.cards, today()), due = qq.length, waiting = newWaiting(state.cards, today()), pend = state.cards.filter(c => c.pending).length;
   const per = d => qq.filter(x => x.dir === d).length;
   const n = streakNow(), doneToday = state.stats.last === today(), u = auth.currentUser;
-  const nw = news(state.stats, today()); // milestone / spent freezes: told once, then marked seen
-  if (nw.milestone || nw.froze) markSeen();
+  let nw = news(state.stats, today()); // milestone / spent freezes: marked seen once, kept on screen until reload or tomorrow
+  if (nw.milestone || nw.froze) { markSeen(); state.news = { ...nw, day: today() }; }
+  else if (state.news?.day === today()) nw = state.news;
   if (nw.froze) msg = `Мы потратили ${plural(nw.froze, 'заморозку', 'заморозки', 'заморозок')} на пропуск — серия цела.${msg ? ' ' + msg : ''}`;
   app.innerHTML = `
     <section class="block head"><button class="acct" id="me" aria-label="Аккаунт">${avatar(u)}</button><h1>Λέξεις</h1>

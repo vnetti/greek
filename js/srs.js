@@ -39,17 +39,18 @@ export function queue(cards, day) {
 // Reminder sender (scripts/remind.mjs): cards due on `day` straight from Firestore docs, same rules as the app's queue.
 export const dueCount = (cards, day) => queue(cards.map(withListen), day).length;
 
-// Streak, users/{uid}/meta/stats: { last, streak, best, days: { [day]: grades }, frozen: [day…], freezes, seen }.
+// Streak, users/{uid}/meta/stats: { last, streak, best, days: { [day]: 1 }, frozen: [day…], freezes, seen }.
 // A day counts once at least one card was graded. Every FREEZE_EVERY-th streak day banks a freeze (at most FREEZE_MAX);
 // practising after missed days spends one per missed day if enough are banked (those days become frozen), else the streak restarts.
-// days: grades per practised day (0 = practised before history was kept); seen: the day home last showed news (below).
+// days: a mark per practised day; seen: the day home last showed news (below).
 export const MILESTONES = [3, 7, 14, 30, 50, 100, 365], FREEZE_EVERY = 7, FREEZE_MAX = 2;
 const gap = (s, t) => s.last == null ? Infinity : t - s.last - 1; // missed days since the last practised one
 export const alive = (s, t) => gap(s, t) <= (s.freezes ?? 0); // still going if banked freezes cover the gap
+// Returns s itself when nothing changes (today already marked, or the clock went back), so the caller can skip the write.
 export function nextStats(s, t) {
-  const days = { ...(s.days ?? Object.fromEntries(Array.from({ length: s.streak ?? 0 }, (_, i) => [s.last - i, 0]))) };
-  days[t] = (days[t] ?? 0) + 1;
-  if (t <= s.last) return { ...s, days }; // same day (or the clock went back): only count the grade
+  if (t < s.last || (t === s.last && s.days?.[t])) return s;
+  const days = { ...(s.days ?? Object.fromEntries(Array.from({ length: s.streak ?? 0 }, (_, i) => [s.last - i, 1]))), [t]: 1 };
+  if (t === s.last) return { ...s, days }; // doc from before history: seed it
   const g = gap(s, t), keep = alive(s, t), streak = keep ? s.streak + 1 : 1;
   const frozen = [...(s.frozen ?? []), ...(keep ? Array.from({ length: g }, (_, i) => s.last + 1 + i) : [])];
   const freezes = Math.min(FREEZE_MAX, (s.freezes ?? 0) - (keep ? g : 0) + (streak % FREEZE_EVERY ? 0 : 1));

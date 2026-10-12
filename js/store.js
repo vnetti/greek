@@ -39,7 +39,15 @@ export async function loadMeta() {
   }).catch(() => {});
 }
 const saveStats = () => auth.currentUser && setDoc(metaRef('stats'), state.stats).catch(() => {}); // no user: signed out mid-way (or the dev harness)
-export function bumpStreak() { state.stats = nextStats(state.stats, today()); saveStats(); }
+export const refreshStats = () => getDoc(metaRef('stats')).then(d => { state.stats = d.data() ?? {}; });
+export function bumpStreak() {
+  const t = today(), first = !(state.stats.last >= t), s = nextStats(state.stats, t);
+  if (s === state.stats) return; // today already marked: no write
+  state.stats = s;
+  if (!first) return saveStats();
+  // first grade of the day: another device may have practised (or spent freezes) since boot, so build the write on the stored doc
+  if (auth.currentUser) refreshStats().catch(() => {}).then(() => { state.stats = nextStats(state.stats, t); saveStats(); });
+}
 export function markSeen() { state.stats = { ...state.stats, seen: today() }; saveStats(); } // home showed today's news
 export const streakNow = () => alive(state.stats, today()) ? state.stats.streak : 0;
 export const pushToken = async () => getToken(getMessaging(fb), { vapidKey: VAPID, serviceWorkerRegistration: await navigator.serviceWorker.ready });
@@ -69,10 +77,15 @@ export async function migrate() {
 
 // API keys live in one shared doc: readable by the email allowlist in Firestore rules, writable by the owner only.
 // Others get a permission error here and simply type their own keys. Mirrored to localStorage for sync access.
+// ownKeys: set while keys saved on this device aren't on the server (non-owner, or not synced yet), so loadKeys keeps them.
 const keysRef = () => doc(fs, 'shared', 'keys');
-export const saveKeys = () => setDoc(keysRef(), { key: localStorage.getItem('key'), tts: localStorage.getItem('tts') }).catch(() => {});
+export const saveKeys = () => setDoc(keysRef(), { key: localStorage.getItem('key'), tts: localStorage.getItem('tts') })
+  .then(() => (localStorage.removeItem('ownKeys'), true), () => false); // resolves true once the server has them
 export async function loadKeys() {
-  const k = (await getDoc(keysRef()).catch(() => null))?.data();
-  if (!k) return saveKeys(); // first device: upload whatever is already entered here
+  let d;
+  try { d = await getDoc(keysRef()); } catch { return; } // offline or not on the allowlist: keep what's here
+  const k = d.data();
+  if (!k) { if (localStorage.getItem('key')) saveKeys(); return; } // no doc yet: the first device with a Gemini key uploads it (not awaited: boot waits on us)
+  if (localStorage.getItem('ownKeys')) return;
   for (const n of ['key', 'tts']) if (k[n] != null) localStorage.setItem(n, k[n]);
 }

@@ -53,9 +53,12 @@ export function account(msg = '') {
   document.querySelectorAll('#keys input').forEach(peekable);
   $('#keys').onsubmit = e => {
     e.preventDefault();
-    for (const n of ['key', 'tts']) localStorage.setItem(n, e.target[n].value.trim());
-    saveKeys();
+    const k = e.target.key.value.trim();
+    if (!k) return account('Ключ Gemini не может быть пустым'); // an empty one would wipe the shared key for everyone
+    localStorage.setItem('key', k); localStorage.setItem('tts', e.target.tts.value.trim()); localStorage.setItem('ownKeys', '1');
     account('Ключи сохранены');
+    // not awaited: offline the write waits for the network; a rejection means we aren't the owner
+    saveKeys().then(ok => { if (!ok && $('#keys')) account('Ключи сохранены только на этом устройстве'); });
   };
   document.querySelectorAll('.sw').forEach(b => b.onclick = () => {
     setTheme(b.dataset.t);
@@ -67,8 +70,8 @@ export function account(msg = '') {
   $('#out').onclick = () => {
     if (!confirm('Выйти из аккаунта?')) return;
     // keys came from this account: don't leave them for whoever signs in next
-    localStorage.removeItem('key'); localStorage.removeItem('tts');
-    state.cards = []; state.stats = {}; state.push = {};
+    ['key', 'tts', 'ownKeys'].forEach(n => localStorage.removeItem(n));
+    state.cards = []; state.stats = {}; state.push = {}; state.draft = state.search = ''; state.news = null;
     signOut(auth); // onAuthStateChanged then shows the login screen
   };
 }
@@ -84,7 +87,7 @@ function peekable(el) {
 }
 
 async function saveReminders(on, hour) {
-  if (!on) { state.push = { hour }; await savePush(); return account('Напоминания выключены'); }
+  if (!on) { state.push = { hour }; savePush().catch(() => {}); return account('Напоминания выключены'); } // not awaited: offline it would hang
   // iOS exposes web push only to the app opened from the home screen (iOS 16.4+)
   if (!('Notification' in window) || !('PushManager' in window)) return account('Напоминания работают в приложении с экрана «Домой» (iOS 16.4+)');
   if (await Notification.requestPermission() !== 'granted') return account('Уведомления запрещены — разреши их в настройках iOS для Λέξεις');
