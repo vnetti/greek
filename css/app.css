@@ -264,6 +264,10 @@ button.say:active{transform:scale(.88)}
 #app.go>:nth-child(4){animation-delay:160ms} #app.go>:nth-child(n+5){animation-delay:200ms}
 @keyframes doors{from{opacity:0;clip-path:inset(-40px 50%)}to{opacity:1;clip-path:inset(-40px)}} /* -40px clears the block shadow */
 @keyframes fade{from{opacity:0}}
+/* swipe back (swipe.js): the current screen rides on a layer over the previous one, which waits a little to the left */
+.swipe{position:fixed;inset:0;z-index:20;overflow:hidden;background:var(--ground);padding:max(16px,env(safe-area-inset-top)) 16px 0;
+  box-shadow:-10px 0 30px rgba(0,0,0,.18);will-change:transform;touch-action:none}
+.swipe.settle,#app.settle{transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s}
 @media (prefers-reduced-motion:reduce){#app.go::before{display:none}#app.go>*{animation-name:fade}}
 /* ---------- stats: words known, stations per line, weeks ---------- */
 .sx-known,.sx-weeks{--going:color-mix(in srgb,var(--primary) 35%,var(--block));--add:color-mix(in srgb,var(--mut) 35%,var(--block))}

@@ -10,12 +10,13 @@ export const app = $('#app');
 // Screen transitions: every render replaces app's children, which replays the CSS entrance (#app.go>*).
 // A re-render of the same screen (same first block and title: background refresh, next review card) stays put.
 const screenKey = () => { const f = app.firstElementChild; return f ? f.tagName + f.classList[0] + app.querySelector('h1,h2')?.textContent : ''; };
+export const motion = { quiet: false }; // swipe.js moves screens by hand: no entrance then
 let shown = screenKey(), goingBack = false; // the splash is already on screen
 addEventListener('click', e => { goingBack = !!e.target.closest?.('#x'); }, true); // the back button is always #x
 new MutationObserver(() => {
   const k = screenKey();
   app.classList.remove('go');
-  if (k !== shown) { app.classList.toggle('back', goingBack); void app.offsetWidth; app.classList.add('go'); } // reflow restarts the rail (#app.go::before)
+  if (k !== shown && !motion.quiet) { app.classList.toggle('back', goingBack); void app.offsetWidth; app.classList.add('go'); } // reflow restarts the rail (#app.go::before)
   shown = k; goingBack = false;
 }).observe(app, { childList: true });
 

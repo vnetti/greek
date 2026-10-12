@@ -6,6 +6,7 @@ import { app } from './ui.js';
 import { home } from './screens/home.js';
 import { login } from './screens/login.js';
 import { processPending } from './screens/add.js';
+import './swipe.js';
 import { syncThemeColor } from './screens/account.js';
 
 addEventListener('online', processPending);
