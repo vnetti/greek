@@ -81,11 +81,12 @@ input:focus-visible{outline:none}
 .line .n.zero{color:var(--mut);font-weight:600}
 .add{display:flex;align-items:flex-end;gap:8px;padding:8px 8px 8px 14px}
 .add textarea{flex:1;border:0;background:none;padding:12px 0;resize:none;outline:none;max-height:140px;line-height:1.4}
-.add button{width:44px;height:44px;padding:0;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--inset);color:var(--ink)} /* one reversed primary per screen: «Поехали» */
+.add button{width:44px;height:44px;padding:0;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--inset);color:var(--ink)} /* inset at rest; turns primary only while the field has text (the owner's deliberate exception to one primary per screen) */
 button.link.del{font-size:13px;font-weight:400;color:var(--mut)}
 .msg{margin:6px 6px 0;font-size:13px;color:var(--mut);min-height:18px}
 .msg div{display:flex;align-items:center;gap:6px;margin-top:4px}
 .msg svg.i{width:15px;height:15px}
+.msg+.block{margin-top:12px}
 .menu{padding:0 16px;margin-top:12px}
 .mi{display:flex;align-items:center;gap:12px;width:100%;background:none;color:var(--ink);border-radius:0;padding:14px 0;font-weight:500;text-align:left;
   border-bottom:1px solid var(--rule)}
@@ -95,7 +96,8 @@ button.link.del{font-size:13px;font-weight:400;color:var(--mut)}
 .av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--inset);display:grid;place-items:center;font-weight:800;color:var(--ink);flex:none}
 /* ---------- account: avatar button in the head corner opens the account screen ---------- */
 .head{position:relative}
-button.acct{position:absolute;top:12px;right:12px;width:36px;height:36px;padding:0;border-radius:50%;background:none}
+button.acct{position:absolute;top:8px;right:8px;width:44px;height:44px;padding:0;border-radius:50%;background:none;display:grid;place-items:center}
+.froze{margin-top:8px;color:var(--head-mut)}
 button.acct:focus-visible{outline-color:var(--head-ink)}
 .me{display:flex;align-items:center;gap:14px}
 .me .av{width:56px;height:56px;font-size:17px}
@@ -103,12 +105,16 @@ button.acct:focus-visible{outline-color:var(--head-ink)}
 .me .who small{display:block;color:var(--mut);font-size:13px;font-weight:400;margin-top:2px}
 .set h2{margin-bottom:14px}
 .set p{margin:0 0 14px}
-.form select{display:block;width:100%;margin-top:6px;padding:14px 16px;border:1px solid var(--rule);border-radius:14px;background:var(--block);color:var(--ink);font:500 17px var(--font)}
+.form select{display:block;width:100%;margin-top:6px;padding:14px 44px 14px 16px;appearance:none;border:1px solid var(--rule);border-radius:14px;background:var(--block);color:var(--ink);font:500 17px var(--font)}
 .form select:disabled{opacity:.5}
+.form select:focus,.form select:focus-visible{border-color:var(--primary);outline:none}
+label:has(>select){position:relative}
+label:has(>select)::after{content:"";position:absolute;right:14px;bottom:15px;width:20px;height:20px;background:var(--mut);pointer-events:none;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat} /* chevron centred where the field icons sit */
+label:has(>select:disabled)::after{opacity:.5}
 .secret{-webkit-text-security:disc;text-security:disc}
 .clr.peek>button{color:var(--mut)} .clr.peek>button svg.i{width:20px;height:20px;padding:0;background:none!important;stroke-width:2} /* keys hidden as dots; not type=password, so no password-manager prompts */
 .form .sw-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:17px;font-weight:500;color:var(--ink)}
-input[role=switch]{appearance:none;width:51px;height:31px;margin:0;padding:0;border:0;border-radius:999px;background:var(--rule);position:relative;flex:none;cursor:pointer;transition:background-color .2s}
+input[role=switch]{appearance:none;width:51px;height:31px;margin:0;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--mut) 70%,var(--block));position:relative;flex:none;cursor:pointer;transition:background-color .2s}
 input[role=switch]::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .25s cubic-bezier(.16,1,.3,1)}
 input[role=switch]:checked{background:var(--ok)}
 input[role=switch]:checked::after{transform:translateX(20px)}
@@ -199,21 +205,22 @@ button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button
 .stn span{position:absolute;transform:translateX(-50%);white-space:nowrap}
 /* ---------- clear button (×) inside text fields: ui.js clearable() ---------- */
 .clr{position:relative;display:block}
-.clr>input,.clr>textarea{display:block;width:100%;padding-right:44px}
-.clr>button{position:absolute;right:6px;top:50%;width:32px;height:32px;margin-top:-16px;padding:0;border-radius:50%;background:var(--inset);color:var(--mut);
+.clr>input,.clr>textarea{display:block;width:100%;padding-right:48px}
+.clr>button{position:absolute;right:2px;top:50%;width:44px;height:44px;margin-top:-22px;padding:0;border-radius:50%;background:var(--inset);color:var(--mut);
   display:grid;place-items:center;opacity:0;visibility:hidden;transform:translateX(6px) scale(.6);
   transition:opacity .2s,transform .25s cubic-bezier(.16,1,.3,1),visibility 0s .25s}
 .clr>button{background:none!important;color:var(--block)} /* a quiet glyph inside the field, not a peer of the field's action button */
-.clr>button svg.i{width:22px;height:22px;padding:5px;border-radius:50%;background:color-mix(in srgb,var(--mut) 60%,transparent);stroke-width:3.2}
+.clr>button svg.i{width:22px;height:22px;padding:5px;border-radius:50%;background:color-mix(in srgb,var(--mut) 80%,transparent);stroke-width:3.2}
 @media (hover:hover){.clr>button:hover svg.i{background:var(--mut)}}
 /* the add button wakes up only when there is something to add */
 .add>button{transition:background-color .2s,color .2s,transform .25s cubic-bezier(.16,1,.3,1)}
 .add:has(textarea:not(:placeholder-shown))>button{background:var(--primary);color:var(--on-primary)}
 .clr.on>button{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .clr.on>button:active{transform:scale(.88)}
+.clr:not(.peek):not(:focus-within)>button{opacity:0;visibility:hidden} /* × only in the field being typed in; the eye always shows */
 input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
 .form .clr{margin-top:6px} .form .clr>input{margin-top:0}
-.answer .clr>input{padding-left:44px}
+.answer .clr>input{padding-left:48px}
 /* ---------- motion: press, hover, screen entrance (all .2s-ish on the one ease curve) ---------- */
 button{transition:transform .15s cubic-bezier(.16,1,.3,1),opacity .2s,background-color .2s}
 @media (hover:hover){
@@ -246,7 +253,7 @@ button.say:active{transform:scale(.88)}
 .sx-key{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-weight:600}
 .sx-key span{display:inline-flex;align-items:center;gap:6px}
 .sx-key i{width:10px;height:10px;border-radius:3px}
-.sx-known .known,.sx-weeks .known{background:var(--primary)} .sx-known .going{background:var(--going)} .sx-known .new{background:var(--rule)} .sx-weeks .add{background:var(--add)}
+.sx-known .known,.sx-weeks .known{background:var(--primary)} .sx-known .going{background:var(--going)} .sx-known .new{background:none;box-shadow:inset 0 0 0 1.5px var(--mut)} .sx-key .sx-add{background:var(--add)}
 .sx-lines{padding:8px 18px 14px}
 .sx-line{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:center;padding:8px 0}
 .sx-line .name{font-size:13px;font-weight:700;margin-bottom:4px}
@@ -255,6 +262,8 @@ button.say:active{transform:scale(.88)}
 .sx-track b{position:absolute;top:0;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:var(--block);border:3px solid var(--lc);
   display:grid;place-items:center;font:700 11px/1 var(--font);font-variant-numeric:tabular-nums}
 .sx-track b.on{background:var(--lc);color:#fff}
+.l-listen .sx-track b.on,[data-theme=night] .sx-track b.on{color:#0F1217} /* white fails on green and on the brighter dark-mode lines */
+@media (prefers-color-scheme:dark){.sx-track b.on{color:#0F1217}}
 .sx-days{position:relative;height:14px;margin:0 13px}
 .sx-days span{position:absolute;transform:translateX(-50%);font:600 11px/14px var(--font);color:var(--mut);font-variant-numeric:tabular-nums}
 .sx-days .far{color:var(--ink)}
@@ -284,19 +293,19 @@ button.streak{width:auto;font:700 13px/1.3 var(--font);background:none}
 .goal .row-sb{display:flex;justify-content:space-between;align-items:baseline}
 .goal .bar{height:8px;border-radius:4px;background:var(--inset);margin:10px 0 8px;overflow:hidden}
 .goal .bar i{display:block;height:100%;border-radius:4px;background:var(--fire)}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;justify-items:center;font-size:13px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px 2px;justify-items:center;font-size:13px}
 .cal .w{font-weight:700;color:var(--mut)}
 .d{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-style:normal}
 .d svg.i{width:16px;height:16px}
+.cal .d{width:100%;max-width:36px;height:auto;aspect-ratio:1}
 .d.on{background:var(--fire-bg);color:var(--fire);font-weight:700}
 .d.frozen{background:var(--inset);color:var(--ink)}
-.d.off{color:var(--mut)}
+.d.off{color:var(--mut);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--mut) 60%,transparent)}
 .d.next{color:var(--mut);opacity:.4}
 .d.now{box-shadow:inset 0 0 0 2px var(--primary)}
-.legend{display:flex;justify-content:center;gap:14px;margin-top:14px}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:14px}
 .legend span{display:flex;align-items:center;gap:6px}
 .legend .d{width:16px;height:16px} .legend .d svg.i{width:11px;height:11px}
-.legend .d.off{box-shadow:inset 0 0 0 1px var(--rule)}
 .cheer .pop{width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--fire-bg);color:var(--fire);animation:pop .7s cubic-bezier(.34,1.56,.64,1)}
 .cheer .pop svg.i{width:30px;height:30px}
 .cheer b{display:block}

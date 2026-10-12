@@ -19,18 +19,18 @@ function setTheme(t) {
 
 // Account = everything about you: stats, settings, your data, sign-out. Theme applies at once;
 // reminders and keys are forms whose «Сохранить» wakes up only after a change and sends it to the server.
-export function account(msg = '') {
+export function account(msg = '', at = '') { // at: the section the message belongs under ('rem' | 'keys' | 'data')
   const u = auth.currentUser, cur = document.documentElement.dataset.theme, on = !!state.push.token;
+  const note = s => msg && at === s ? `<div class="msg" role="status">${esc(msg)}</div>` : '';
   const hours = Array.from({ length: 24 }, (_, h) => `<option value="${h}"${h === (state.push.hour ?? 9) ? ' selected' : ''}>${h}:00</option>`).join('');
   app.innerHTML = `<div class="top">${back()}<h2>Аккаунт</h2></div>
     <section class="block me">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div></section>
     <nav class="block menu"><button class="mi" id="sts">Статистика<span class="v num">${knownCount()} выучено${icon('chev')}</span></button></nav>
-    <div class="msg">${esc(msg)}</div>
     <form class="block form set" id="rem"><h2>Напоминания</h2>
       <label class="sw-row">Напоминать каждый день<input type="checkbox" role="switch" name="on"${on ? ' checked' : ''}></label>
       <label>Во сколько<select name="hour"${on ? '' : ' disabled'}>${hours}</select></label>
       <p class="small mut">Пришлём, только если ты ещё не повторял и есть что повторять. На iPhone — в приложении с экрана «Домой».</p>
-      <button class="sec" disabled>Сохранить</button></form>
+      <button class="sec" disabled>Сохранить</button></form>${note('rem')}
     <section class="block"><h2>Тема</h2>
       <div class="themes">${THEMES.map(([id, name, g, p]) => `<button class="sw" data-t="${id}" aria-pressed="${id === cur}">
         <span class="dot" style="--g:${g};--p:${p}"></span>${name}</button>`).join('')}</div>
@@ -38,11 +38,11 @@ export function account(msg = '') {
     <form class="block form set" id="keys"><h2>Ключи API</h2>
       <label>Gemini — делает карточки<input name="key" class="secret" value="${esc(key())}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
       <label>Google Text-to-Speech — озвучка<input name="tts" class="secret" value="${esc(key('tts'))}" autocomplete="off" spellcheck="false" placeholder="пусто — голос iOS"></label>
-      <button class="sec" disabled>Сохранить</button></form>
+      <button class="sec" disabled>Сохранить</button></form>${note('keys')}
     <nav class="block menu">
       <button class="mi" id="exp">Экспорт словаря<span class="v">${icon('chev')}</span></button>
       <button class="mi" id="imp">Импорт из файла<span class="v">${icon('chev')}</span></button>
-    </nav>
+    </nav>${note('data')}
     <button class="bad" id="out" style="margin-top:12px">Выйти</button>
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#x').onclick = () => home();
@@ -54,11 +54,11 @@ export function account(msg = '') {
   $('#keys').onsubmit = e => {
     e.preventDefault();
     const k = e.target.key.value.trim();
-    if (!k) return account('Ключ Gemini не может быть пустым'); // an empty one would wipe the shared key for everyone
+    if (!k) return account('Ключ Gemini не может быть пустым', 'keys'); // an empty one would wipe the shared key for everyone
     localStorage.setItem('key', k); localStorage.setItem('tts', e.target.tts.value.trim()); localStorage.setItem('ownKeys', '1');
-    account('Ключи сохранены');
+    account('Ключи сохранены', 'keys');
     // not awaited: offline the write waits for the network; a rejection means we aren't the owner
-    saveKeys().then(ok => { if (!ok && $('#keys')) account('Ключи сохранены только на этом устройстве'); });
+    saveKeys().then(ok => { if (!ok && $('#keys')) account('Ключи сохранены только на этом устройстве', 'keys'); });
   };
   document.querySelectorAll('.sw').forEach(b => b.onclick = () => {
     setTheme(b.dataset.t);
@@ -87,16 +87,16 @@ function peekable(el) {
 }
 
 async function saveReminders(on, hour) {
-  if (!on) { state.push = { hour }; savePush().catch(() => {}); return account('Напоминания выключены'); } // not awaited: offline it would hang
+  if (!on) { state.push = { hour }; savePush().catch(() => {}); return account('Напоминания выключены', 'rem'); } // not awaited: offline it would hang
   // iOS exposes web push only to the app opened from the home screen (iOS 16.4+)
-  if (!('Notification' in window) || !('PushManager' in window)) return account('Напоминания работают в приложении с экрана «Домой» (iOS 16.4+)');
-  if (await Notification.requestPermission() !== 'granted') return account('Уведомления запрещены — разреши их в настройках iOS для Λέξεις');
+  if (!('Notification' in window) || !('PushManager' in window)) return account('Напоминания работают в приложении с экрана «Домой» (iOS 16.4+)', 'rem');
+  if (await Notification.requestPermission() !== 'granted') return account('Уведомления запрещены — разреши их в настройках iOS для Λέξεις', 'rem');
   try {
     if (!(await isSupported())) throw new Error('браузер не поддерживает push');
     state.push = { token: await pushToken(), hour, tz: new Date().getTimezoneOffset() };
     await savePush();
-    account(`Напомним в ${hour}:00, если к этому времени ещё не повторишь`);
-  } catch (e) { account('Не получилось включить напоминания: ' + e.message); }
+    account(`Напомним в ${hour}:00, если к этому времени ещё не повторишь`, 'rem');
+  } catch (e) { account('Не получилось включить напоминания: ' + e.message, 'rem'); }
 }
 
 async function exportAll() {
@@ -113,6 +113,6 @@ async function importAll(file) {
     if (!Array.isArray(list) || !list.every(c => c.id && c.gr && c.gr2ru && c.ru2gr)) throw new Error('не тот файл');
     list.forEach(save);
     state.cards = await loadAll();
-    account('Импортировано: ' + list.length);
-  } catch (e) { account('Ошибка импорта: ' + e.message); }
+    account('Импортировано: ' + list.length, 'data');
+  } catch (e) { account('Ошибка импорта: ' + e.message, 'data'); }
 }

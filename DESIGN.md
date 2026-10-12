@@ -324,7 +324,7 @@ Soft, transit-signage geometry. Blocks round at 20px, controls (buttons, inputs,
 ### Buttons
 Confident, full-width, pressable.
 - **Shape:** gently rounded (14px), full width by default, 16px 18px padding, 700 17px label.
-- **Primary (reversed):** theme primary fill, on-primary text. One per screen: «Поехали», «Проверить», «Дальше», «Сохранить», «Войти через Google».
+- **Primary (reversed):** theme primary fill, on-primary text. One per screen: «Поехали», «Проверить», «Дальше», «Сохранить», «Войти через Google». Deliberate exception, asked for by the owner: on home the square add-word button becomes a second reversed primary, but only while its field has text; empty, it is inset.
 - **Press / Focus:** scales to 0.97 on press over 0.15s with `cubic-bezier(.16,1,.3,1)` (icon buttons and theme swatches 0.92, speaker buttons 0.88); on hover-capable pointers a filled button tints 8% toward its own text colour, a link fades to 0.7; focus-visible draws a 2px primary outline at 2px offset; disabled drops to 0.4 opacity.
 - **Secondary:** inset fill, ink text («Засчитать»).
 - **Verdict pair:** «Не знал» in bad-bg / bad and «Знал» in ok-bg / ok, side by side.
@@ -359,7 +359,7 @@ Absolute, top-right of the answered card, rotated -8deg, 2px currentColor border
 
 ### Navigation
 - **Menu block:** grouped list of rows inside one block, 14px vertical padding, 500 17px ink, 1px rule dividers, muted value and an 18px chevron on the right; press fades to 0.6 and nudges the chevron 4px right (hover: 2px). Dictionary rows press to inset fill with the emoji shrinking to 0.88.
-- **Account:** 36px circular avatar button (Google photo or initial on inset, aria-label «Аккаунт») in the head corner opens the account screen: profile block (56px avatar, name, muted email), Статистика row, settings as forms (Напоминания: iOS-style switch + hour select; Ключи API: two fields) whose secondary «Сохранить» stays disabled until something changes and then writes to the server, theme swatches that apply at once, export/import rows, and a full-width «Выйти» in bad tint at the bottom.
+- **Account:** 36px circular avatar in a 44px button (Google photo or initial on inset, aria-label «Аккаунт») in the head corner opens the account screen: profile block (56px avatar, name, muted email), Статистика row, settings as forms (Напоминания: iOS-style switch + hour select; Ключи API: two fields) whose secondary «Сохранить» stays disabled until something changes and then writes to the server, theme swatches that apply at once, export/import rows, and a full-width «Выйти» in bad tint at the bottom.
 
 ### Streak pill
 13px 700 pill with a 14px flame icon. Dead streak: outlined in currentColor, header-muted. Alive: ember fill (fire-bg) with fire text, no border.
@@ -377,7 +377,7 @@ Inline SVG only, 24px viewBox drawn at 20px, 2px round stroke, no fill, currentC
 
 ### Do:
 - **Do** give every direction its line colour and badge wherever it appears (home rows, review top bar, card schedule, dictionary marks, splash).
-- **Do** keep exactly one reversed primary button per screen; make every other action secondary, tinted, link or icon.
+- **Do** keep exactly one reversed primary button per screen; make every other action secondary, tinted, link or icon. The one exception is the add-word button, primary only while its field has text.
 - **Do** rank text by weight (400 / 500 / 700 / 800) inside the 13 / 17 / 34 sizes.
 - **Do** use the single block shadow and the 20 / 14 / 12px radius steps.
 - **Do** leave verdict stamps on the card after answering.

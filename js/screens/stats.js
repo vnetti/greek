@@ -44,7 +44,7 @@ export function stats() {
     <div class="sx-chart" role="img" aria-label="По неделям: добавлено ${sum('added')}, выучено ${sum('learned')}">${w.map(x =>
       `<div title="${dm(x.start)}–${dm(x.start + 6)}: добавлено ${x.added}, выучено ${x.learned}">${bar('sx-add', x.added)}${bar('sx-got', x.learned)}</div>`).join('')}</div>
     <div class="sx-axis" aria-hidden="true">${w.map((x, i) => `<span>${nw > 6 && (nw - 1 - i) % 2 ? '' : dm(x.start)}</span>`).join('')}</div>
-    <div class="sx-key small"><span><i class="add"></i>добавлено ${sum('added')}</span><span><i class="known"></i>выучено ${sum('learned')}</span></div></section>`;
+    <div class="sx-key small"><span><i class="sx-add"></i>добавлено ${sum('added')}</span><span><i class="known"></i>выучено ${sum('learned')}</span></div></section>`;
   app.innerHTML = top() + known + lines + chart;
   wireBack();
 }

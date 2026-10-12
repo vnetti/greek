@@ -18,10 +18,10 @@ export function home(msg = '') {
   let nw = news(state.stats, today()); // milestone / spent freezes: marked seen once, kept on screen until reload or tomorrow
   if (nw.milestone || nw.froze) { markSeen(); state.news = { ...nw, day: today() }; }
   else if (state.news?.day === today()) nw = state.news;
-  if (nw.froze) msg = `Мы потратили ${plural(nw.froze, 'заморозку', 'заморозки', 'заморозок')} на пропуск — серия цела.${msg ? ' ' + msg : ''}`;
   app.innerHTML = `
     <section class="block head"><button class="acct" id="me" aria-label="Аккаунт">${avatar(u)}</button><h1>Λέξεις</h1>
-      <div class="meta"><a href="#" id="lst2">${plural(state.cards.length, 'слово', 'слова', 'слов')}</a>${streakChip()}${n && !doneToday ? '<span>повтори сегодня</span>' : ''}</div></section>
+      <div class="meta"><a href="#" id="lst2">${plural(state.cards.length, 'слово', 'слова', 'слов')}</a>${streakChip()}${n && !doneToday ? '<span>повтори сегодня</span>' : ''}</div>
+      ${nw.froze ? `<div class="froze small" role="status">Мы потратили ${plural(nw.froze, 'заморозку', 'заморозки', 'заморозок')} на пропуск — серия цела.</div>` : ''}</section>
     ${nw.milestone ? cheer(nw.milestone) : ''}
     <section class="block today">
       <div class="count">${due}</div>
@@ -38,7 +38,7 @@ export function home(msg = '') {
       <button class="mi" id="help">Как это работает<span class="v">${icon('chev')}</span></button>
     </nav>`;
   $('#rev').onclick = () => { state.q = queue(state.cards, today()); state.total = state.q.length; state.trainAt = 0; next(); };
-  $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (!w) return; if (!key()) return account('Сначала вставь ключ Gemini — без него не сделать карточку'); add(w); };
+  $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (!w) return; if (!key()) return account('Сначала вставь ключ Gemini — без него не сделать карточку', 'keys'); add(w); };
   $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };
   const w = $('#w'), grow = () => { w.style.height = 'auto'; w.style.height = w.scrollHeight + 'px'; };
   w.oninput = () => { state.draft = w.value; grow(); };
