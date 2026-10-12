@@ -1,14 +1,14 @@
 import { $, esc, today, plural } from '../util.js';
 import { state } from '../state.js';
 import { DIRS, queue, newWaiting, news } from '../srs.js';
-import { auth, signOut, streakNow, markSeen } from '../store.js';
+import { auth, streakNow, markSeen } from '../store.js';
 import { key } from '../api.js';
 import { app, icon, LINES, badge, lineTrack, scale, streakChip, avatar, clearable } from '../ui.js';
 import { next } from './review.js';
 import { add } from './add.js';
 import { list } from './dictionary.js';
-import { more, setupReminders } from './more.js';
-import { stats, knownCount } from './stats.js';
+import { account } from './account.js';
+import { help } from './help.js';
 import { streak, cheer } from './streak.js';
 
 export function home(msg = '') {
@@ -19,7 +19,7 @@ export function home(msg = '') {
   if (nw.milestone || nw.froze) markSeen();
   if (nw.froze) msg = `Мы потратили ${plural(nw.froze, 'заморозку', 'заморозки', 'заморозок')} на пропуск — серия цела.${msg ? ' ' + msg : ''}`;
   app.innerHTML = `
-    <section class="block head"><button class="acct" popovertarget="acct" aria-label="Аккаунт">${avatar(u)}</button><h1>Λέξεις</h1>
+    <section class="block head"><button class="acct" id="me" aria-label="Аккаунт">${avatar(u)}</button><h1>Λέξεις</h1>
       <div class="meta"><a href="#" id="lst2">${plural(state.cards.length, 'слово', 'слова', 'слов')}</a>${streakChip()}${n && !doneToday ? '<span>повтори сегодня</span>' : ''}</div></section>
     ${nw.milestone ? cheer(nw.milestone) : ''}
     <section class="block today">
@@ -34,29 +34,17 @@ export function home(msg = '') {
     <div class="msg">${esc(msg)}${pend ? `<div>${icon('clock')}Ждут интернета: ${pend} — доделаем сами</div>` : ''}</div>
     <nav class="block menu">
       <button class="mi" id="lst">Словарь<span class="v num">${state.cards.length}${icon('chev')}</span></button>
-      <button class="mi" id="sts">Статистика<span class="v num">${knownCount()} из ${state.cards.length}${icon('chev')}</span></button>
-      <button class="mi" id="rem">Напоминания<span class="v">${state.push.token ? state.push.hour + ':00' : 'выкл'}${icon('chev')}</span></button>
-      <button class="mi" id="more">Ещё<span class="v">${icon('chev')}</span></button>
-    </nav>
-    <div id="acct" popover class="block acct-pop">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div>
-      <button class="sec" id="out">Выйти</button></div>`;
+      <button class="mi" id="help">Как это работает<span class="v">${icon('chev')}</span></button>
+    </nav>`;
   $('#rev').onclick = () => { state.q = queue(state.cards, today()); state.total = state.q.length; state.trainAt = 0; next(); };
-  $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (w && key()) add(w); };
+  $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (!w) return; if (!key()) return account('Сначала вставь ключ Gemini — без него не сделать карточку'); add(w); };
   $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };
   const w = $('#w'), grow = () => { w.style.height = 'auto'; w.style.height = w.scrollHeight + 'px'; };
   w.oninput = () => { state.draft = w.value; grow(); };
   w.value = state.draft; if (w.value) grow();
   clearable(w);
   $('#lst').onclick = $('#lst2').onclick = e => { e.preventDefault(); list(); };
-  $('#sts').onclick = () => stats();
-  $('#rem').onclick = () => setupReminders();
-  $('#more').onclick = () => more();
+  $('#me').onclick = () => account();
+  $('#help').onclick = () => help();
   $('#streak').onclick = () => streak();
-  $('#out').onclick = () => {
-    if (!confirm('Выйти из аккаунта?')) return;
-    // keys came from this account: don't leave them for whoever signs in next
-    localStorage.removeItem('key'); localStorage.removeItem('tts');
-    state.cards = []; state.stats = {}; state.push = {};
-    signOut(auth); // onAuthStateChanged then shows the login screen
-  };
 }

@@ -1,5 +1,4 @@
 // Google APIs: Gemini makes the card text, Cloud Text-to-Speech the recordings.
-import { saveKeys } from './store.js';
 import { sec } from './util.js';
 import { formsText } from './audio.js';
 
@@ -7,15 +6,8 @@ import { formsText } from './audio.js';
 // which just moves on to lite with defaults, then full Flash with 'low' (supported by every Gemini 3 Flash).
 const TRIES = [['gemini-flash-lite-latest', { thinkingLevel: 'minimal' }], ['gemini-flash-lite-latest'], ['gemini-flash-latest', { thinkingLevel: 'low' }]];
 
-// optional keys remember an empty answer, so we don't ask on every word
-export function key(name = 'key', label = 'Gemini API key (aistudio.google.com/apikey)', optional = false) {
-  if (localStorage.getItem(name) === null) {
-    const k = prompt(label)?.trim();
-    if (k || optional) { localStorage.setItem(name, k || ''); saveKeys(); }
-  }
-  return localStorage.getItem(name);
-}
-const ttsKey = () => key('tts', 'Google Text-to-Speech API key (пусто — будет голос iOS)', true);
+// keys are set on the account screen (or come from the shared doc, store.js loadKeys)
+export const key = (n = 'key') => localStorage.getItem(n) || '';
 
 const PROMPT = `Ты делаешь карточки для русскоговорящего, который учит новогреческий.
 На входе слово или фраза на русском или греческом. Верни JSON:
@@ -60,9 +52,9 @@ async function ask(text) {
     }
   }
 }
-export const tts = async text => (await google('https://texttospeech.googleapis.com/v1/text:synthesize', {
+export const tts = async text => { if (!key('tts')) throw new Error('нет ключа'); return (await google('https://texttospeech.googleapis.com/v1/text:synthesize', {
   input: { text }, voice: { languageCode: 'el-GR' }, audioConfig: { audioEncoding: 'MP3' }
-}, ttsKey())).audioContent;
+}, key('tts'))).audioContent; };
 
 // Full card content from a word: Gemini text, then both recordings in parallel.
 export async function build(text, step = () => {}) {

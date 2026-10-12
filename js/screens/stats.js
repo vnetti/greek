@@ -2,7 +2,7 @@ import { $, today, plural } from '../util.js';
 import { state } from '../state.js';
 import { INTERVALS, DIRS, LEARNED_BOX, stage, addedDay, weekly } from '../srs.js';
 import { app, LINES, badge, back, pos } from '../ui.js';
-import { home } from './home.js';
+import { account } from './account.js';
 
 const WEEKS = 10;
 const word = n => plural(n, 'слово', 'слова', 'слов');
@@ -45,4 +45,4 @@ export function stats() {
   wireBack();
 }
 const top = () => `<div class="top">${back()}<h2>Статистика</h2></div>`;
-const wireBack = () => { $('#x').onclick = () => home(); };
+const wireBack = () => { $('#x').onclick = () => account(); };
