@@ -325,7 +325,7 @@ Soft, transit-signage geometry. Blocks round at 20px, controls (buttons, inputs,
 Confident, full-width, pressable.
 - **Shape:** gently rounded (14px), full width by default, 16px 18px padding, 700 17px label.
 - **Primary (reversed):** theme primary fill, on-primary text. One per screen: «Поехали», «Проверить», «Дальше», «Сохранить», «Войти через Google».
-- **Press / Focus:** scales to 0.97 on press over 0.15s with `cubic-bezier(.16,1,.3,1)`; focus-visible draws a 2px primary outline at 2px offset; disabled drops to 0.4 opacity.
+- **Press / Focus:** scales to 0.97 on press over 0.15s with `cubic-bezier(.16,1,.3,1)` (icon buttons and theme swatches 0.92, speaker buttons 0.88); on hover-capable pointers a filled button tints 8% toward its own text colour, a link fades to 0.7; focus-visible draws a 2px primary outline at 2px offset; disabled drops to 0.4 opacity.
 - **Secondary:** inset fill, ink text («Засчитать»).
 - **Verdict pair:** «Не знал» in bad-bg / bad and «Знал» in ok-bg / ok, side by side.
 - **Link:** no fill, primary text, 8px 4px; muted 13px for destructive afterthoughts («Удалить карточку» under a review card).
@@ -358,7 +358,7 @@ Absolute, top-right of the answered card, rotated -8deg, 2px currentColor border
 - **Add-word field:** borderless auto-growing textarea inside its own block, paired with a 44px square add button.
 
 ### Navigation
-- **Menu block:** grouped list of rows inside one block, 14px vertical padding, 500 17px ink, 1px rule dividers, muted value and an 18px chevron on the right; press fades to 0.6.
+- **Menu block:** grouped list of rows inside one block, 14px vertical padding, 500 17px ink, 1px rule dividers, muted value and an 18px chevron on the right; press fades to 0.6 and nudges the chevron 4px right (hover: 2px). Dictionary rows press to inset fill with the emoji shrinking to 0.88.
 - **Account row:** 36px circular avatar (Google photo or initial on inset), name and 13px muted email, «Выйти» link.
 
 ### Streak pill
@@ -381,7 +381,8 @@ Inline SVG only, 24px viewBox drawn at 20px, 2px round stroke, no fill, currentC
 - **Do** rank text by weight (400 / 500 / 700 / 800) inside the 13 / 17 / 34 sizes.
 - **Do** use the single block shadow and the 20 / 14 / 12px radius steps.
 - **Do** leave verdict stamps on the card after answering.
-- **Do** honour `prefers-reduced-motion`: flip, card rise, stamp and train animations switch off.
+- **Do** let a new screen ride in: its top-level blocks slide 12px and fade in over 0.35s, 30ms apart (from the left when going back via #x). Re-rendering the same screen (background refresh, next review card) doesn't replay it.
+- **Do** honour `prefers-reduced-motion`: flip, card rise, stamp, screen entrance and train animations switch off.
 
 ### Don't:
 - **Don't** use M1, M2 or M3 for anything except their directions, and don't let a theme recolour them.

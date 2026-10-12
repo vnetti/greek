@@ -7,6 +7,18 @@ import { say, sayPart, formsText } from './audio.js';
 
 export const app = $('#app');
 
+// Screen transitions: every render replaces app's children, which replays the CSS entrance (#app.go>*).
+// A re-render of the same screen (same first block and title: background refresh, next review card) stays put.
+const screenKey = () => { const f = app.firstElementChild; return f ? f.tagName + f.classList[0] + app.querySelector('h1,h2')?.textContent : ''; };
+let shown = screenKey(), goingBack = false; // the splash is already on screen
+addEventListener('click', e => { goingBack = !!e.target.closest?.('#x'); }, true); // the back button is always #x
+new MutationObserver(() => {
+  const k = screenKey();
+  app.classList.toggle('go', k !== shown);
+  if (k !== shown) app.classList.toggle('back', goingBack);
+  shown = k; goingBack = false;
+}).observe(app, { childList: true });
+
 // Icons: Lucide-style strokes (ISC), drawn inline so they follow the theme colour.
 const ICONS = {
   flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',

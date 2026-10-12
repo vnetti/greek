@@ -38,8 +38,7 @@ h2{font:800 17px/1.2 var(--font);margin:0;flex:1}
 .mut{color:var(--mut)} .small{font-size:13px} .center{text-align:center}
 svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
 button{font:700 17px/1 var(--font);border:0;border-radius:14px;padding:16px 18px;background:var(--primary);color:var(--on-primary);
-  width:100%;cursor:pointer;transition:transform .15s cubic-bezier(.16,1,.3,1),opacity .2s}
-button:active{transform:scale(.97)}
+  width:100%;cursor:pointer}
 button:disabled{opacity:.4;cursor:default}
 button.sec{background:var(--inset);color:var(--ink)}
 button.ok{background:var(--ok-bg);color:var(--ok)} button.bad{background:var(--bad-bg);color:var(--bad)}
@@ -91,7 +90,6 @@ button.link.del{font-size:13px;font-weight:400;color:var(--mut)}
 .mi{display:flex;align-items:center;gap:12px;width:100%;background:none;color:var(--ink);border-radius:0;padding:14px 0;font-weight:500;text-align:left;
   border-bottom:1px solid var(--rule)}
 .mi:last-child{border-bottom:0}
-.mi:active{transform:none;opacity:.6}
 .mi .v{margin-left:auto;color:var(--mut);font-weight:500;display:flex;align-items:center;gap:2px}
 .mi .v svg.i{width:18px;height:18px}
 .acct{display:flex;align-items:center;gap:12px;padding:14px 0}
@@ -137,7 +135,6 @@ button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button
 .item{display:flex;align-items:center;gap:12px;background:none;color:var(--ink);border-radius:0;padding:12px;text-align:left;font-weight:400;border-bottom:1px solid var(--rule)}
 .item:last-child{border-bottom:0}
 .item[hidden]{display:none}
-.item:active{transform:none;background:var(--inset)}
 .item .e{font-size:24px;width:30px;text-align:center;flex:none;display:grid;place-items:center;color:var(--mut)}
 .item .t{flex:1;min-width:0}
 .item b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -183,4 +180,30 @@ button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button
 .help .sched{padding:6px 0 0}
 .stn{position:relative;height:18px;margin:6px 7px 0;font-size:13px;color:var(--mut)}
 .stn span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+/* ---------- motion: press, hover, screen entrance (all .2s-ish on the one ease curve) ---------- */
+button{transition:transform .15s cubic-bezier(.16,1,.3,1),opacity .2s,background-color .2s}
+@media (hover:hover){
+  button:hover:not(:disabled,.link,.mi,.item){background-image:linear-gradient(color-mix(in srgb,currentColor 8%,transparent) 0 0)}
+  button.link:hover{opacity:.7}
+  .mi:hover .v svg.i{transform:translateX(2px)}
+  .item:hover{background-color:color-mix(in srgb,var(--inset) 70%,transparent)}
+}
+button:active{transform:scale(.97)}
+button.icon:active,.sw:active{transform:scale(.92)}
+button.say:active{transform:scale(.88)}
+.mi:active{transform:none;opacity:.6}
+.mi .v svg.i{transition:transform .15s cubic-bezier(.16,1,.3,1)}
+.mi:active .v svg.i{transform:translateX(4px)}
+.item:active{transform:none;background:var(--inset)}
+.item .e{transition:transform .15s cubic-bezier(.16,1,.3,1)}
+.item:active .e{transform:scale(.88)}
+/* a new screen rides in block by block (from the right; from the left when going back); ui.js sets .go only when the screen changes */
+#app.go>*{animation:enter .35s cubic-bezier(.16,1,.3,1) backwards}
+#app.go.back>*{animation-name:enter-back}
+#app.go>:nth-child(2){animation-delay:30ms} #app.go>:nth-child(3){animation-delay:60ms}
+#app.go>:nth-child(4){animation-delay:90ms} #app.go>:nth-child(n+5){animation-delay:120ms}
+@keyframes enter{from{opacity:0;transform:translateX(12px)}} /* ≤16px body gutter: never a horizontal scrollbar */
+@keyframes enter-back{from{opacity:0;transform:translateX(-12px)}}
+@media (prefers-reduced-motion:reduce){#app.go>*,#app.go.back>*{animation:none}}
+
 @media (prefers-reduced-motion:reduce){.flip,.card,.stamp{animation:none}.top .track .train,.top .fill{transition:none}}
