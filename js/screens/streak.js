@@ -41,7 +41,7 @@ function calendar(s, t, n) {
 
 export function streak() {
   const s = state.stats, t = today(), n = streakNow(), f = s.freezes ?? 0, missed = n ? t - s.last - 1 : 0;
-  const goal = MILESTONES.find(m => m > n), from = MILESTONES.findLast(m => m <= n) ?? 0, p = ((n - from) / (goal - from) * 100).toFixed(1) + '%';
+  const goal = MILESTONES.find(m => m > n), p = (n / goal * 100).toFixed(1) + '%'; // the trip runs from day 0, so it matches n/goal
   const status = !n ? 'Серия начнётся с первой карточки.'
     : missed > 0 ? `Пропуск: ${days(missed)}. Позанимаемся сегодня — заморозки спасут серию.`
     : s.last === t ? 'Сегодня уже засчитано.' : 'Сегодня ещё не занимались.';
