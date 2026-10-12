@@ -16,25 +16,32 @@ const CHEERS = {
   100: ['Сто дней подряд!', 'Απίστευτο!', 'Невероятно!'],
   365: ['Год каждый день.', 'Ένας ολόκληρος χρόνος!', 'Целый год!']
 };
+// the cheer's mark is the goal line's terminus station, with the milestone on it
 export const cheer = m => { const [text, gr, ru] = CHEERS[m];
-  return `<section class="block cheer" role="status"><span class="pop">${icon('flame')}</span><div><b>${days(m)} подряд!</b>
+  return `<section class="block cheer" role="status"><span class="pop num" aria-hidden="true">${m}</span><div><b>${days(m)} подряд!</b>
     <div>${text}</div><div class="small mut"><span lang="el">${gr}</span> — ${ru}</div></div></section>`; };
 
-// the last 5 weeks, Monday first; day numbers count from 1970-01-01, a Thursday
-const STATE = { on: 'занимались', frozen: 'заморозка', off: 'пропуск', next: '' };
-function calendar(s, t) {
+// The last 5 weeks as five rows of one line, Monday first, each day a station with its date. Practised and frozen days
+// ride a continuous ember track, a missed day breaks it, today is the ringed station, days ahead are faded.
+// Day numbers count from 1970-01-01, a Thursday.
+const STATE = { on: 'занимались', frozen: 'заморозка', off: 'пропуск', now: 'сегодня', next: '' };
+function calendar(s, t, n) {
   const from = t - (t + 3) % 7 - 28, frozen = new Set(s.frozen);
   const on = d => s.days ? s.days[d] != null : d <= s.last && d > s.last - s.streak; // docs from before history
-  const cell = d => { const k = d > t ? 'next' : on(d) ? 'on' : frozen.has(d) ? 'frozen' : 'off', date = new Date(d * 864e5);
-    return `<span class="d ${k}${d === t ? ' now' : ''}" title="${date.toLocaleDateString('ru', { day: 'numeric', month: 'long', timeZone: 'UTC' })}${STATE[k] ? ': ' + STATE[k] : ''}">${k === 'frozen' ? icon('snow') : date.getUTCDate()}</span>`; };
-  return `<div class="cal num">${['П', 'В', 'С', 'Ч', 'П', 'С', 'В'].map(w => `<span class="w">${w}</span>`).join('')}
+  const kind = d => d > t ? 'next' : on(d) ? 'on' : frozen.has(d) ? 'frozen' : d === t ? 'now' : 'off';
+  const ride = d => d <= t && kind(d) !== 'off' && (kind(d) !== 'now' || n > 0); // today joins the line while the streak lives
+  const cell = d => { const k = kind(d), date = new Date(d * 864e5),
+      seg = (ride(d) && ride(d - 1) ? ' l' : d > t ? ' lf' : '') + (ride(d) && ride(d + 1) ? ' r' : d >= t ? ' rf' : ''),
+      label = date.toLocaleDateString('ru', { day: 'numeric', month: 'long', timeZone: 'UTC' }) + (STATE[k] ? ': ' + STATE[k] : '');
+    return `<span class="day${seg}"><b class="sta ${k}${d === t ? ' here' : ''}" role="img" aria-label="${label}" title="${label}">${k === 'frozen' ? icon('snow') : date.getUTCDate()}</b></span>`; };
+  return `<div class="cal num">${['П', 'В', 'С', 'Ч', 'П', 'С', 'В'].map(w => `<span class="w" aria-hidden="true">${w}</span>`).join('')}
     ${Array.from({ length: 35 }, (_, i) => cell(from + i)).join('')}</div>
-    <div class="legend small mut"><span><i class="d on"></i>занимались</span><span><i class="d frozen">${icon('snow')}</i>заморозка</span><span><i class="d off"></i>пропуск</span></div>`;
+    <div class="legend small mut" aria-hidden="true"><span><b class="sta on"></b>занимались</span><span><b class="sta frozen">${icon('snow')}</b>заморозка</span><span><b class="sta off"></b>пропуск</span><span><b class="sta here"></b>сегодня</span></div>`;
 }
 
 export function streak() {
   const s = state.stats, t = today(), n = streakNow(), f = s.freezes ?? 0, missed = n ? t - s.last - 1 : 0;
-  const goal = MILESTONES.find(m => m > n);
+  const goal = MILESTONES.find(m => m > n), from = MILESTONES.findLast(m => m <= n) ?? 0, p = ((n - from) / (goal - from) * 100).toFixed(1) + '%';
   const status = !n ? 'Серия начнётся с первой карточки.'
     : missed > 0 ? `Пропуск: ${days(missed)}. Позанимаемся сегодня — заморозки спасут серию.`
     : s.last === t ? 'Сегодня уже засчитано.' : 'Сегодня ещё не занимались.';
@@ -42,12 +49,12 @@ export function streak() {
     <section class="block streak-hero"><div class="big${n ? ' on' : ''}">${icon('flame')}<span class="count">${n}</span></div>
       <div><b>${n ? days(n).replace(/^\d+ /, '') + ' подряд' : 'серии пока нет'}</b></div>
       <div class="small mut">${status} Лучшая серия: ${days(s.best ?? 0)}.</div></section>
-    <section class="block freezes"><div class="flakes">${Array.from({ length: FREEZE_MAX }, (_, i) => `<span class="${i < f ? 'have' : ''}">${icon('snow')}</span>`).join('')}</div>
+    <section class="block freezes"><div class="flakes" aria-hidden="true">${Array.from({ length: FREEZE_MAX }, (_, i) => `<b class="sta ${i < f ? 'frozen' : 'spare'}">${icon('snow')}</b>`).join('')}</div>
       <div><b>Заморозки: ${f} из ${FREEZE_MAX}</b><div class="small mut">Пропустишь день — мы потратим заморозку, и серия не прервётся.
         ${f < FREEZE_MAX ? `Следующая — через ${days(FREEZE_EVERY - n % FREEZE_EVERY)} подряд.` : 'Запас полный.'}</div></div></section>
     ${goal ? `<section class="block goal"><div class="row-sb"><b>Цель: ${days(goal)}</b><span class="small mut num">${n}/${goal}</span></div>
-      <div class="bar"><i style="width:${(n / goal * 100).toFixed(1)}%"></i></div>
+      <div class="trip" style="--p:${p}" aria-hidden="true"><b class="sta on"></b><b class="sta here" style="left:${p}"></b><b class="sta end num">${goal}</b></div>
       <div class="small mut">Ещё ${days(goal - n)}.</div></section>` : ''}
-    <section class="block">${calendar(s, t)}</section>`;
+    <section class="block">${calendar(s, t, n)}</section>`;
   $('#x').onclick = () => home();
 }

@@ -256,7 +256,7 @@ A quiet theme-tinted neutral world that hands all its saturation to three transi
 - **Success Green** (ok / ok-bg): the «Верно» stamp and the tinted «Знал» button.
 - **Error Red** (bad / bad-bg): the «Ошибка» stamp, «Не знал», «Удалить карточку».
 - **Amber Warning** (warn / warn-bg): the «Ударение» stamp (correct but stress missing or misplaced).
-- **Ember** (fire / fire-bg): the streak pill while the streak is alive. Nothing else is warm.
+- **Ember** (fire / fire-bg): the streak and only the streak: the pill while it is alive, and the streak line on the streak screen and the milestone cheer. Nothing else is warm.
 
 ### Neutral
 Each theme defines the same six roles, light and dark:
@@ -274,7 +274,7 @@ Each theme defines the same six roles, light and dark:
 
 **The Themes Leave The Lines Alone Rule.** A theme changes ground, block, ink, muted, rule, inset and primary. It never changes the line colours or the state colours.
 
-**The Warm Only When Alive Rule.** The ember tint appears only on the streak pill while the streak is running; a dead streak is an outlined muted pill.
+**The Warm Only When Alive Rule.** Ember belongs to the streak: the pill while the streak is running (a dead streak is an outlined muted pill), and the streak screen's line, where ember marks practised days and the way travelled.
 
 ## Typography
 
@@ -367,7 +367,15 @@ Absolute, top-right of the answered card, rotated -8deg, 2px currentColor border
 - **Account:** 36px circular avatar in a 44px button (Google photo or initial on inset, aria-label «Аккаунт») in the head corner opens the account screen. It opens on the rider's travel pass («проездной»): a block with a 6px theme-primary stripe across its top edge, 56px avatar, name, muted email, and a fare strip below in an inset well, three equal cells split by 1px rules, each a 17px 800 tabular number over a 13px muted label: words in the dictionary, learned (a button in primary that opens Статистика), current streak in days. Then the Статистика row, then sections headed like metro signage: a 28px round pictogram in the line-badge shape but ink-filled with a block-coloured 15px stroke icon (bell, contrast, key, archive; never a line colour), then the 17px title. Sections: Напоминания (iOS-style switch + hour select), Тема (roundels, below), Ключи API (two fields with the eye) — both forms keep a secondary «Сохранить» disabled until something changes; Данные (export/import rows); a full-width «Выйти» in bad tint at the bottom.
 
 ### Streak pill
-13px 700 pill with a 14px flame icon. Dead streak: outlined in currentColor, header-muted. Alive: ember fill (fire-bg) with fire text, no border.
+13px 700 pill with a 14px flame icon. Dead streak: outlined in currentColor, header-muted. Alive: ember fill (fire-bg) with fire text, no border. It opens the streak screen.
+
+### Streak screen: the streak line
+The streak is a fourth line, drawn in ember instead of a metro colour, with the same station vocabulary as the tracks.
+- **Station:** 26px circle, block fill, 3px ember ring, the date in 700 11px ink. Practised: ember fill, date in block colour. Frozen (a spent freeze): ink fill and ring, block-coloured 14px snowflake in place of the date. Missed: 2px dashed muted ring, muted date, off the line. Ahead: 2px rule ring, muted date. Today is the current station: 32px, 4px ring, block halo; once practised it fills, with a 2px block ring inside.
+- **Calendar:** the last five weeks, Monday first, one row per week under 11px muted weekday initials (П В С Ч П С В). A 4px ember track runs between consecutive practised, frozen and (while the streak lives) today's stations and crosses row ends, so a run reads as one line wrapping week to week; a missed day breaks it; days ahead sit on a rule-coloured track. Each station is `role="img"` with the full date and state as its label. Legend: занимались / заморозка / пропуск / сегодня as 16px stations.
+- **Next milestone:** a trip from the last milestone (12px filled station) to the next as a 36px terminus with its number; the way travelled is a 4px ember track up to the ringed current station, the rest a 2px muted line. Header «Цель: N дней» with a muted `n/goal`, then «Ещё N дней».
+- **Freezes:** the two slots are 36px stations on a 2px muted siding: banked = ink fill with a block snowflake (the same token a spent freeze leaves on the calendar), empty = 2px muted ring and muted snowflake.
+- **Milestone cheer (home):** the reached terminus: a 56px ember-filled station with a block ring inside and the milestone number in 800 17px, popping in once (0.7s overshoot; off under reduced motion), beside the congratulation.
 
 ### Theme picker
 Four equal swatch buttons in a row: inset tile, 14px radius, a 34px station roundel in the theme's own primary rimmed 3px with its ground (plus a 1px hairline), carrying the name's first letter in 800 13px on-primary like a line badge's mark, then the 600 13px name. The selected tile gets a 2px primary border.
@@ -387,11 +395,11 @@ Inline SVG only, 24px viewBox drawn at 20px, 2px round stroke, no fill, currentC
 - **Do** use the single block shadow and the 20 / 14 / 12px radius steps.
 - **Do** leave verdict stamps on the card after answering.
 - **Do** let a new screen ride in: its top-level blocks slide 12px and fade in over 0.35s, 30ms apart (from the left when going back via #x). Re-rendering the same screen (background refresh, next review card) doesn't replay it.
-- **Do** honour `prefers-reduced-motion`: flip, card rise, stamp, screen entrance and train animations switch off.
+- **Do** honour `prefers-reduced-motion`: flip, card rise, stamp, screen entrance, train and milestone-cheer animations switch off.
 
 ### Don't:
 - **Don't** use M1, M2 or M3 for anything except their directions, and don't let a theme recolour them.
 - **Don't** add text sizes beyond 13 / 17 / 34, the 72px count and the 11px station numerals.
 - **Don't** put eyebrow or kicker labels above blocks; the today block opens on its count.
-- **Don't** use warm colour anywhere except the live streak pill.
+- **Don't** use warm colour anywhere except the streak (live pill, streak line, milestone cheer).
 - **Don't** add icon fonts or glyph icons; icons are inline stroke SVGs (the Ε and Р line marks are letters, not icons).
