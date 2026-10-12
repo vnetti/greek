@@ -2,7 +2,7 @@ import { $, esc } from '../util.js';
 import { state } from '../state.js';
 import { auth, signOut, save, loadAll, saveKeys, savePush, pushToken, isSupported } from '../store.js';
 import { key } from '../api.js';
-import { app, icon, back, avatar, clearable } from '../ui.js';
+import { app, icon, back, avatar } from '../ui.js';
 import { home } from './home.js';
 import { stats, knownCount } from './stats.js';
 
@@ -35,7 +35,7 @@ export function account(msg = '') {
       <div class="themes">${THEMES.map(([id, name, g, p]) => `<button class="sw" data-t="${id}" aria-pressed="${id === cur}">
         <span class="dot" style="--g:${g};--p:${p}"></span>${name}</button>`).join('')}</div>
       <p class="small mut" style="margin:12px 0 0">Светлая или тёмная — как в настройках телефона. «Ночь» всегда тёмная.</p></section>
-    <form class="block form set" id="keys"><div class="set-h"><h2>Ключи API</h2><button type="button" class="link" id="peek" aria-pressed="false">Показать</button></div>
+    <form class="block form set" id="keys"><h2>Ключи API</h2>
       <label>Gemini — делает карточки<input name="key" class="secret" value="${esc(key())}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
       <label>Google Text-to-Speech — озвучка<input name="tts" class="secret" value="${esc(key('tts'))}" autocomplete="off" spellcheck="false" placeholder="пусто — голос iOS"></label>
       <button class="sec" disabled>Сохранить</button></form>
@@ -47,11 +47,10 @@ export function account(msg = '') {
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#x').onclick = () => home();
   $('#sts').onclick = () => stats();
-  document.querySelectorAll('form.set').forEach(f => { f.oninput = () => { f.querySelector('button').disabled = false; }; });
+  document.querySelectorAll('form.set').forEach(f => { f.oninput = () => { f.querySelector('button.sec').disabled = false; }; });
   $('#rem').elements.on.onchange = e => { $('#rem').elements.hour.disabled = !e.target.checked; };
   $('#rem').onsubmit = e => { e.preventDefault(); saveReminders(e.target.elements.on.checked, +e.target.elements.hour.value); };
-  document.querySelectorAll('#keys input').forEach(clearable);
-  $('#peek').onclick = e => { const on = $('#keys').classList.toggle('reveal'); e.target.textContent = on ? 'Скрыть' : 'Показать'; e.target.setAttribute('aria-pressed', on); };
+  document.querySelectorAll('#keys input').forEach(peekable);
   $('#keys').onsubmit = e => {
     e.preventDefault();
     for (const n of ['key', 'tts']) localStorage.setItem(n, e.target[n].value.trim());
@@ -74,8 +73,18 @@ export function account(msg = '') {
   };
 }
 
+// a key field: dots until the eye in it is pressed
+function peekable(el) {
+  const w = document.createElement('span'), b = document.createElement('button');
+  w.className = 'clr on peek'; b.type = 'button';
+  const set = show => { el.classList.toggle('secret', !show); b.innerHTML = icon(show ? 'eyeOff' : 'eye'); b.setAttribute('aria-label', show ? 'Скрыть ключ' : 'Показать ключ'); };
+  el.replaceWith(w); w.append(el, b); set(false);
+  b.onpointerdown = e => e.preventDefault();
+  b.onclick = () => set(el.classList.contains('secret'));
+}
+
 async function saveReminders(on, hour) {
-  if (!on) { state.push = {}; await savePush(); return account('Напоминания выключены'); }
+  if (!on) { state.push = { hour }; await savePush(); return account('Напоминания выключены'); }
   // iOS exposes web push only to the app opened from the home screen (iOS 16.4+)
   if (!('Notification' in window) || !('PushManager' in window)) return account('Напоминания работают в приложении с экрана «Домой» (iOS 16.4+)');
   if (await Notification.requestPermission() !== 'granted') return account('Уведомления запрещены — разреши их в настройках iOS для Λέξεις');
