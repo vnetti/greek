@@ -1404,7 +1404,7 @@
       },
       {
         "name": "The Warm Only When Alive Rule",
-        "body": "The ember tint appears only on the streak pill while the streak is running; a dead streak is an outlined muted pill.",
+        "body": "Ember belongs to the streak: the pill while the streak is running (a dead streak is an outlined muted pill), and the streak screen's line, where ember marks practised days and the way travelled.",
         "section": "colors"
       },
       {
@@ -1440,7 +1440,7 @@
       "Don't use M1, M2 or M3 for anything except their directions, and don't let a theme recolour them.",
       "Don't add text sizes beyond 13 / 17 / 34, the 72px count and the 11px station numerals.",
       "Don't put eyebrow or kicker labels above blocks; the today block opens on its count.",
-      "Don't use warm colour anywhere except the live streak pill.",
+      "Don't use warm colour anywhere except the streak (live pill, streak line, milestone cheer).",
       "Don't add icon fonts or glyph icons; icons are inline stroke SVGs (the Ε and Р line marks are letters, not icons)."
     ]
   }
