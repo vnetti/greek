@@ -1,11 +1,11 @@
 // Hourly (see .github/workflows/remind.yml): push a reminder to users whose chosen local hour is now,
 // who haven't reviewed today and have cards due. Schedule rules come from the app's js/srs.js.
 // The repo is public, so its logs are too: never log user ids, emails or tokens.
-import { DIRS, dueCount } from '../js/srs.js';
+import { DIRS, dueCount, alive } from '../js/srs.js';
 import { plural } from '../js/util.js';
 
 export function message(n, stats, day) {
-  const streak = stats.last === day - 1 ? stats.streak : 0; // alive, but today not done yet
+  const streak = stats.last < day && alive(stats, day) ? stats.streak : 0; // alive (maybe on freezes), today not done yet
   return plural(n, 'карточка ждёт', 'карточки ждут', 'карточек ждут') + ' повторения'
     + (streak ? ` · 🔥 серия ${plural(streak, 'день', 'дня', 'дней')}, не прерывай` : '');
 }

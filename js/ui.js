@@ -28,6 +28,7 @@ const ICONS = {
   plus: '<path d="M12 5v14M5 12h14"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   ear: '<path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/>',
+  snow: '<path d="M2 12h20M12 2v20m8-6-4-4 4-4M4 8l4 4-4 4m12-12-4 4-4-4m0 16 4-4 4 4"/>',
   speaker: '<path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>'
 };
 export const icon = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
@@ -53,8 +54,8 @@ export const lineTrack = d => { const at = new Set(state.cards.filter(c => !c.pe
 export const wordTrack = (c, d) => { const b = Math.min(c[d].box, INTERVALS.length); return stationTrack(d, i => (i < b ? 'on' : '') + (i === b ? ' here' : '')); };
 
 export function streakChip() {
-  const n = streakNow(), doneToday = state.stats.last === today();
-  return `<span class="streak${n ? ' on' : ''}${doneToday ? ' done' : ''}" title="Лучшая серия: ${state.stats.best ?? 0}">${icon('flame')}${n ? plural(n, 'день', 'дня', 'дней') : 'начни серию'}</span>`;
+  const n = streakNow(), doneToday = state.stats.last === today(), t = n ? plural(n, 'день', 'дня', 'дней') : 'начни серию';
+  return `<button type="button" id="streak" class="streak${n ? ' on' : ''}${doneToday ? ' done' : ''}" aria-label="Серия: ${t}">${icon('flame')}${t}</button>`;
 }
 export const avatar = u => u?.photoURL
   ? `<img class="av" src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`

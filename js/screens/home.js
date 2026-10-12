@@ -1,7 +1,7 @@
 import { $, esc, today, plural } from '../util.js';
 import { state } from '../state.js';
-import { DIRS, queue, newWaiting } from '../srs.js';
-import { auth, signOut, streakNow } from '../store.js';
+import { DIRS, queue, newWaiting, news } from '../srs.js';
+import { auth, signOut, streakNow, markSeen } from '../store.js';
 import { key } from '../api.js';
 import { app, icon, LINES, badge, lineTrack, scale, streakChip, avatar, clearable } from '../ui.js';
 import { next } from './review.js';
@@ -9,14 +9,19 @@ import { add } from './add.js';
 import { list } from './dictionary.js';
 import { more, setupReminders } from './more.js';
 import { stats, knownCount } from './stats.js';
+import { streak, cheer } from './streak.js';
 
 export function home(msg = '') {
   const qq = queue(state.cards, today()), due = qq.length, waiting = newWaiting(state.cards, today()), pend = state.cards.filter(c => c.pending).length;
   const per = d => qq.filter(x => x.dir === d).length;
   const n = streakNow(), doneToday = state.stats.last === today(), u = auth.currentUser;
+  const nw = news(state.stats, today()); // milestone / spent freezes: told once, then marked seen
+  if (nw.milestone || nw.froze) markSeen();
+  if (nw.froze) msg = `Мы потратили ${plural(nw.froze, 'заморозку', 'заморозки', 'заморозок')} на пропуск — серия цела.${msg ? ' ' + msg : ''}`;
   app.innerHTML = `
     <section class="block head"><button class="acct" popovertarget="acct" aria-label="Аккаунт">${avatar(u)}</button><h1>Λέξεις</h1>
       <div class="meta"><a href="#" id="lst2">${plural(state.cards.length, 'слово', 'слова', 'слов')}</a>${streakChip()}${n && !doneToday ? '<span>повтори сегодня</span>' : ''}</div></section>
+    ${nw.milestone ? cheer(nw.milestone) : ''}
     <section class="block today">
       <div class="count">${due}</div>
       <div class="small mut">${due ? `${plural(due, 'карточка', 'карточки', 'карточек').replace(/^\d+ /, '')} на сегодня · около ${Math.max(1, Math.round(due / 3))} мин` : 'всё повторено'}${waiting ? ` · ещё ${waiting} новых ждут` : ''}</div>
@@ -46,6 +51,7 @@ export function home(msg = '') {
   $('#sts').onclick = () => stats();
   $('#rem').onclick = () => setupReminders();
   $('#more').onclick = () => more();
+  $('#streak').onclick = () => streak();
   $('#out').onclick = () => {
     if (!confirm('Выйти из аккаунта?')) return;
     // keys came from this account: don't leave them for whoever signs in next
