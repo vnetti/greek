@@ -51,6 +51,16 @@ export const back = (id = 'x', label = 'Назад', ic = 'back') => `<button cl
 
 export const sayBtn = (id = 'say', cls = '', label = 'Произнести') => `<button type="button" class="say ${cls}" id="${id}" aria-label="${label}">${icon('speaker')}</button>`;
 export const SAY = sayBtn();
+// × inside a text field: shown while it has text; clearing fires the field's input handlers so filters, drafts and heights follow.
+export function clearable(el) {
+  const w = document.createElement('span'), b = document.createElement('button');
+  w.className = 'clr'; b.type = 'button'; b.setAttribute('aria-label', 'Очистить'); b.innerHTML = icon('x');
+  el.replaceWith(w); w.append(el, b);
+  const sync = () => w.classList.toggle('on', !!el.value);
+  el.addEventListener('input', sync); sync();
+  b.onpointerdown = e => e.preventDefault(); // keep focus (and the iOS keyboard) in the field
+  b.onclick = () => { el.value = ''; el.dispatchEvent(new Event('input')); el.focus(); };
+}
 // One card layout everywhere (preview, review answer, dictionary): same scale, same axis.
 export const cardHtml = (c, top = '') => `<article class="block card${top.includes('stamp') ? ' stamped' : ''}">${top}
   <div class="emoji">${esc(c.emoji)}</div>
