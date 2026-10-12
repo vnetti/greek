@@ -8,7 +8,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.origin !== location.origin && url.host !== 'www.gstatic.com') return; // gstatic = Firebase SDK, needed offline
   e.respondWith(
-    fetch(e.request, url.origin === location.origin ? { cache: 'no-cache' } : {})
+    fetch(url.origin === location.origin && e.request.mode !== 'navigate' ? new Request(e.request, { cache: 'no-cache' }) : e.request) // a navigate request can't take init options
       .then(r => { const copy = r.clone(); caches.open('v1').then(c => c.put(e.request, copy)); return r; })
       .catch(() => caches.match(e.request))
   );
