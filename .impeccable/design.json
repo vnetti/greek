@@ -1261,7 +1261,17 @@
       {
         "name": "press",
         "value": "transform .15s; scale(.97)",
-        "purpose": "Button press."
+        "purpose": "Button press (icon/swatch .92, speaker .88; menu rows fade .6 and nudge the chevron)."
+      },
+      {
+        "name": "hover",
+        "value": "@media (hover:hover); 8% currentColor tint",
+        "purpose": "Button hover on pointer devices only."
+      },
+      {
+        "name": "screen-enter",
+        "value": ".35s; from opacity 0 translateX(±12px); 30ms stagger",
+        "purpose": "New screen's blocks ride in; reversed when going back; same-screen re-renders skip it."
       },
       {
         "name": "card-rise",
@@ -1286,7 +1296,7 @@
       {
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
-        "purpose": "Disables flip, rise, stamp and train animations."
+        "purpose": "Disables flip, rise, stamp, screen-enter and train animations."
       }
     ],
     "breakpoints": [
@@ -1424,7 +1434,7 @@
       "Do rank text by weight (400 / 500 / 700 / 800) inside the 13 / 17 / 34 sizes.",
       "Do use the single block shadow and the 20 / 14 / 12px radius steps.",
       "Do leave verdict stamps on the card after answering.",
-      "Do honour `prefers-reduced-motion`: flip, card rise, stamp and train animations switch off."
+      "Do honour `prefers-reduced-motion`: flip, card rise, stamp, screen entrance and train animations switch off."
     ],
     "donts": [
       "Don't use M1, M2 or M3 for anything except their directions, and don't let a theme recolour them.",
