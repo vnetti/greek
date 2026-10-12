@@ -45,3 +45,30 @@ export function nextStats(s, t) {
   const streak = s.last === t - 1 ? s.streak + 1 : 1;
   return { last: t, streak, best: Math.max(s.best ?? 0, streak) };
 }
+
+// Statistics. A word is «выучено» once every line has reached the 7-day station (box ≥ LEARNED_BOX): it has been recalled
+// on all three lines after a 3-day gap, so its next show is a week away. Below that it is «в пути»; never shown yet, «новое».
+export const LEARNED_BOX = 3;
+export const stage = c => c.pending || isNew(c) ? 'new' : DIRS.every(d => c[d].box >= LEARNED_BOX) ? 'known' : 'going';
+export const dayOf = ms => Math.floor((ms - new Date(ms).getTimezoneOffset() * 6e4) / 864e5); // same local day as util.today()
+// day added: the id's base36 Date.now() prefix; an id that doesn't parse to a sane date falls back to the first review
+export function addedDay(c) {
+  const ms = parseInt(c.id.slice(0, 8), 36);
+  return ms > 1.6e12 && ms < 4e12 ? dayOf(ms) : c.introduced;
+}
+// `learned` is stamped in review the first time a word becomes known and kept if it slips back. Words known before the
+// stamp existed get an estimate: on each line, walk back from the due day along on-time reviews to the grade that
+// reached the 7-day station; the word was learned when the last line got there (late reviews make the real day earlier).
+export function learnedDay(c) {
+  if (c.learned != null || stage(c) !== 'known') return c.learned;
+  const iv = k => INTERVALS[Math.min(k, INTERVALS.length - 1)];
+  return Math.max(...DIRS.map(d => { let g = c[d].due - iv(c[d].box - 1); for (let k = c[d].box - 2; k >= LEARNED_BOX - 1; k--) g -= iv(k); return g; }));
+}
+// the last n Monday-based weeks, oldest first: how many words were added and learned in each
+export const weekStart = day => day - (day + 3) % 7; // day 0, 1 Jan 1970, was a Thursday
+export function weekly(cards, day, n) {
+  const w0 = weekStart(day) - 7 * (n - 1), weeks = Array.from({ length: n }, (_, i) => ({ start: w0 + 7 * i, added: 0, learned: 0 }));
+  const put = (d, k) => { const i = Math.floor((d - w0) / 7); if (i >= 0 && i < n) weeks[i][k]++; }; // d null → NaN → skipped
+  cards.forEach(c => { put(addedDay(c), 'added'); put(learnedDay(c), 'learned'); });
+  return weeks;
+}

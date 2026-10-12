@@ -183,4 +183,32 @@ button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button
 .help .sched{padding:6px 0 0}
 .stn{position:relative;height:18px;margin:6px 7px 0;font-size:13px;color:var(--mut)}
 .stn span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+/* ---------- stats: words known, stations per line, weeks ---------- */
+.sx-known,.sx-weeks{--going:color-mix(in srgb,var(--primary) 35%,var(--block));--add:color-mix(in srgb,var(--mut) 35%,var(--block))}
+.sx-bar{display:flex;gap:2px;height:8px;margin:16px 0 10px;border-radius:4px;overflow:hidden}
+.sx-bar i{min-width:0}
+.sx-key{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font-weight:600}
+.sx-key span{display:inline-flex;align-items:center;gap:6px}
+.sx-key i{width:10px;height:10px;border-radius:3px}
+.sx-known .known,.sx-weeks .known{background:var(--primary)} .sx-known .going{background:var(--going)} .sx-known .new{background:var(--rule)} .sx-weeks .add{background:var(--add)}
+.sx-lines{padding:8px 18px 14px}
+.sx-line{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:center;padding:8px 0}
+.sx-line .name{font-size:13px;font-weight:700;margin-bottom:4px}
+.sx-track{position:relative;height:26px;margin:0 13px}
+.sx-track::before{content:"";position:absolute;left:0;right:0;top:11px;height:4px;border-radius:2px;background:var(--lc)}
+.sx-track b{position:absolute;top:0;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:var(--block);border:3px solid var(--lc);
+  display:grid;place-items:center;font:700 11px/1 var(--font);font-variant-numeric:tabular-nums}
+.sx-track b.on{background:var(--lc);color:#fff}
+.sx-days{position:relative;height:14px;margin:0 13px}
+.sx-days span{position:absolute;transform:translateX(-50%);font:600 11px/14px var(--font);color:var(--mut);font-variant-numeric:tabular-nums}
+.sx-days .far{color:var(--ink)}
+.sx-lines p{margin:12px 0 0}
+.sx-pace{font-weight:700}
+.sx-chart{display:flex;gap:6px;align-items:flex-end;height:96px;margin-top:18px;border-bottom:1px solid var(--rule)}
+.sx-chart div{flex:1;height:100%;display:flex;gap:2px;align-items:flex-end}
+.sx-chart span{flex:1;border-radius:3px 3px 0 0}
+.sx-chart .sx-add{background:var(--add)} .sx-chart .sx-got{background:var(--primary)}
+.sx-axis{display:flex;gap:6px;margin:4px 0 14px}
+.sx-axis span{flex:1;font:600 11px/14px var(--font);color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sx-weeks .sx-key{justify-content:flex-start}
 @media (prefers-reduced-motion:reduce){.flip,.card,.stamp{animation:none}.top .track .train,.top .fill{transition:none}}

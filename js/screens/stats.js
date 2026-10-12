@@ -1,0 +1,48 @@
+import { $, today, plural } from '../util.js';
+import { state } from '../state.js';
+import { INTERVALS, DIRS, LEARNED_BOX, stage, addedDay, weekly } from '../srs.js';
+import { app, LINES, badge, back, pos } from '../ui.js';
+import { home } from './home.js';
+
+const WEEKS = 10;
+const word = n => plural(n, 'слово', 'слова', 'слов');
+const date = (day, o) => new Date(day * 864e5).toLocaleDateString('ru', { timeZone: 'UTC', ...o }); // day → its local calendar date
+
+export const knownCount = () => state.cards.filter(c => stage(c) === 'known').length;
+
+// How many words we know, where they sit on each line, and the pace week by week.
+export function stats() {
+  const cards = state.cards, t = today(), n = { known: 0, going: 0, new: 0 };
+  cards.forEach(c => n[stage(c)]++);
+  const total = cards.length, seg = k => `<i class="${k}" style="flex:${n[k]}"></i>`;
+  const known = `<section class="block today sx-known"><div class="count">${n.known}</div>
+    <div class="small mut">${total ? `${word(n.known).replace(/^\d+ /, '')} уже знаешь · из ${total}` : 'Пока пусто — добавь первое слово на главной'}</div>
+    ${total ? `<div class="sx-bar">${seg('known')}${seg('going')}${seg('new')}</div>
+    <div class="sx-key small"><span><i class="known"></i>знаешь ${n.known}</span><span><i class="going"></i>в пути ${n.going}</span><span><i class="new"></i>новые ${n.new}</span></div>` : ''}</section>`;
+  if (!total) { app.innerHTML = top() + known; return wireBack(); }
+
+  // each line's stations with the number of words standing there (depot = not started or just missed)
+  const S = INTERVALS.length;
+  const at = d => { const a = Array(S + 1).fill(0); cards.forEach(c => { if (!c.pending) a[Math.min(c[d].box, S)]++; }); return a; };
+  const lines = `<section class="block sx-lines">${DIRS.map(d => `<div class="sx-line l-${d}">${badge(d)}<div><div class="name">${LINES[d].name}</div>
+      <div class="sx-track">${at(d).map((k, i) => `<b class="${k ? 'on' : ''}" style="left:${pos(i)}">${k || ''}</b>`).join('')}</div></div></div>`).join('')}
+    <div class="sx-line" aria-hidden="true"><span></span><div class="sx-days">${Array.from({ length: S + 1 }, (_, i) =>
+      `<span style="left:${pos(i)}"${i >= LEARNED_BOX ? ' class="far"' : ''}>${i ? INTERVALS[i - 1] : '·'}</span>`).join('')}</div></div>
+    <p class="small mut">Слово выучено, когда на всех трёх линиях оно доехало до станции ${INTERVALS[LEARNED_BOX - 1]} или дальше.</p></section>`;
+
+  // words added and learned per week; pace since the first word
+  const w = weekly(cards, t, WEEKS), max = Math.max(1, ...w.map(x => Math.max(x.added, x.learned)));
+  const first = Math.min(...cards.map(c => addedDay(c) ?? t)), pace = Math.round(total / Math.max(1, (t - first + 1) / 7));
+  const sum = k => w.reduce((s, x) => s + x[k], 0), h = v => `style="height:${v / max * 100}%"`;
+  const chart = `<section class="block sx-weeks">
+    <div class="sx-pace">В среднем ${word(pace)} в неделю</div>
+    <div class="small mut">Первое слово — ${date(first, { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    <div class="sx-chart" role="img" aria-label="По неделям: добавлено ${sum('added')}, выучено ${sum('learned')}">${w.map(x =>
+      `<div><span class="sx-add" ${h(x.added)}></span><span class="sx-got" ${h(x.learned)}></span></div>`).join('')}</div>
+    <div class="sx-axis" aria-hidden="true">${w.map((x, i) => `<span>${(WEEKS - 1 - i) % 3 ? '' : date(x.start, { day: 'numeric', month: 'numeric' })}</span>`).join('')}</div>
+    <div class="sx-key small"><span><i class="add"></i>добавлено ${sum('added')}</span><span><i class="known"></i>выучено ${sum('learned')}</span><span class="mut">за ${WEEKS} недель</span></div></section>`;
+  app.innerHTML = top() + known + lines + chart;
+  wireBack();
+}
+const top = () => `<div class="top">${back()}<h2>Статистика</h2></div>`;
+const wireBack = () => { $('#x').onclick = () => home(); };

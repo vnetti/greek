@@ -8,6 +8,7 @@ import { next } from './review.js';
 import { add } from './add.js';
 import { list } from './dictionary.js';
 import { more, setupReminders } from './more.js';
+import { stats, knownCount } from './stats.js';
 
 export function home(msg = '') {
   const qq = queue(state.cards, today()), due = qq.length, waiting = newWaiting(state.cards, today()), pend = state.cards.filter(c => c.pending).length;
@@ -28,6 +29,7 @@ export function home(msg = '') {
     <div class="msg">${esc(msg)}${pend ? `<div>${icon('clock')}Ждут интернета: ${pend} — доделаем сами</div>` : ''}</div>
     <nav class="block menu">
       <button class="mi" id="lst">Словарь<span class="v num">${state.cards.length}${icon('chev')}</span></button>
+      <button class="mi" id="sts">Статистика<span class="v num">${knownCount()} из ${state.cards.length}${icon('chev')}</span></button>
       <button class="mi" id="rem">Напоминания<span class="v">${state.push.token ? state.push.hour + ':00' : 'выкл'}${icon('chev')}</span></button>
       <button class="mi" id="more">Ещё<span class="v">${icon('chev')}</span></button>
       <div class="acct">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div>
@@ -38,6 +40,7 @@ export function home(msg = '') {
   $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };
   $('#w').oninput = e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; };
   $('#lst').onclick = $('#lst2').onclick = e => { e.preventDefault(); list(); };
+  $('#sts').onclick = () => stats();
   $('#rem').onclick = () => setupReminders();
   $('#more').onclick = () => more();
   $('#out').onclick = () => {
