@@ -35,7 +35,7 @@ export function account(msg = '') {
       <div class="themes">${THEMES.map(([id, name, g, p]) => `<button class="sw" data-t="${id}" aria-pressed="${id === cur}">
         <span class="dot" style="--g:${g};--p:${p}"></span>${name}</button>`).join('')}</div>
       <p class="small mut" style="margin:12px 0 0">Светлая или тёмная — как в настройках телефона. «Ночь» всегда тёмная.</p></section>
-    <form class="block form set" id="keys"><h2>Ключи API</h2>
+    <form class="block form set" id="keys"><div class="set-h"><h2>Ключи API</h2><button type="button" class="link" id="peek" aria-pressed="false">Показать</button></div>
       <label>Gemini — делает карточки<input name="key" class="secret" value="${esc(key())}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
       <label>Google Text-to-Speech — озвучка<input name="tts" class="secret" value="${esc(key('tts'))}" autocomplete="off" spellcheck="false" placeholder="пусто — голос iOS"></label>
       <button class="sec" disabled>Сохранить</button></form>
@@ -51,6 +51,7 @@ export function account(msg = '') {
   $('#rem').elements.on.onchange = e => { $('#rem').elements.hour.disabled = !e.target.checked; };
   $('#rem').onsubmit = e => { e.preventDefault(); saveReminders(e.target.elements.on.checked, +e.target.elements.hour.value); };
   document.querySelectorAll('#keys input').forEach(clearable);
+  $('#peek').onclick = e => { const on = $('#keys').classList.toggle('reveal'); e.target.textContent = on ? 'Скрыть' : 'Показать'; e.target.setAttribute('aria-pressed', on); };
   $('#keys').onsubmit = e => {
     e.preventDefault();
     for (const n of ['key', 'tts']) localStorage.setItem(n, e.target[n].value.trim());
