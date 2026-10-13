@@ -5,7 +5,6 @@ import { save, remove, bumpStreak } from '../store.js';
 import { say } from '../audio.js';
 import { app, LINES, badge, back, sayBtn, SAY, cardHtml, wire, clearable } from '../ui.js';
 import { home } from './home.js';
-import { swipeCard } from '../swipe.js';
 
 // Review progress is a ride along the current card's line; the train glides from where the last card left it.
 const topBar = d => `<div class="top l-${d}">${back('x', 'Закончить', 'x')}
@@ -63,7 +62,6 @@ function back_(it, answer) {
   wire(c);
   $('#y').onclick = () => done(it, true);
   if ($('#n')) $('#n').onclick = () => done(it, false);
-  swipeCard($('.card'), $('#y'), $('#n'));
   $('#del').onclick = () => {
     if (!confirm(`Удалить «${c.gr}»?`)) return;
     state.cards = state.cards.filter(x => x !== c);
