@@ -26,7 +26,7 @@ async function google(url, body, k = key()) {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
     signal: AbortSignal.timeout(12000)
   });
-  const j = await r.json();
+  const j = await r.json().catch(() => ({}));
   if (!r.ok) throw Object.assign(new Error(j.error?.message || r.status), { status: r.status });
   return j;
 }
@@ -43,10 +43,14 @@ async function ask(text) {
       const j = await google(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
         { contents: [{ parts: [{ text: PROMPT + text }] }], generationConfig: { ...config, thinkingConfig } });
       ask.took = `Gemini ${sec(t0)} (${model.replace('gemini-', '').replace('-latest', '')}${i ? ', попытка ' + (i + 1) : ''})`;
-      return JSON.parse(j.candidates[0].content.parts[0].text);
+      // text parts only (no thoughts), without a ```json fence; anything unreadable is a model error, not «no network»
+      const out = j.candidates?.[0], txt = (out?.content?.parts ?? []).filter(p => !p.thought).map(p => p.text ?? '').join('')
+        .replace(/^\s*```(?:json)?|```\s*$/g, '').trim();
+      try { return JSON.parse(txt); }
+      catch { throw Object.assign(new Error(`Gemini ответил не JSON (${out?.finishReason || txt.slice(0, 60) || 'пусто'})`), { status: 502 }); }
     } catch (e) {
-      // overload/bad param → next model; a slow first model gets one chance on lite; real offline fails fast to the queue
-      const retryable = e.status ? [400, 429, 500, 503].includes(e.status) : e.name === 'TimeoutError' && i === 0;
+      // overload/bad param/unreadable answer/too slow → next model; real offline (fetch itself failed) goes to the queue
+      const retryable = e.status ? [400, 429, 500, 502, 503].includes(e.status) : e.name === 'TimeoutError';
       if (i === TRIES.length - 1 || !retryable) throw e;
       await new Promise(r => setTimeout(r, 800 * i));
     }

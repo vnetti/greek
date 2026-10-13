@@ -15,7 +15,7 @@ export function list() {
     <input id="s" type="search" placeholder="Поиск по-гречески или по-русски" aria-label="Поиск" autocomplete="off">
     <div class="block list" style="margin-top:12px">${!rows.length ? '<p class="mut center" style="padding:24px 12px">Пока пусто — добавь первое слово на главной</p>' : rows.map(c => { const k = searchKeys(c); return `<button class="item" data-id="${esc(c.id)}" data-p="${esc(k.p)}" data-f="${esc(k.f)}">
       <span class="e">${c.pending ? icon('clock') : esc(c.emoji)}</span>
-      <span class="t"><b lang="el">${esc(c.gr || c.text)}</b><small>${esc(c.pending ? 'ждёт интернета' : c.ru)}</small></span>
+      <span class="t"><b lang="el">${esc(c.gr || c.text)}</b><small>${esc(c.pending ? (c.err ? 'не получилось: ' + c.err : 'ждёт интернета') : c.ru)}</small></span>
       ${level(c)}</button>`; }).join('') + '<p class="mut center" id="none" hidden style="padding:24px 12px">Ничего не нашли</p>'}</div>`;
   $('#x').onclick = () => home();
   const s = $('#s');

@@ -49,8 +49,8 @@ export async function processPending() {
   if (busy || !navigator.onLine) return;
   busy = true;
   for (const c of state.cards.filter(c => c.pending)) {
-    try { Object.assign(c, (await build(c.text)).c, { pending: false }); save(c); }
-    catch (e) { if (!e.status) break; } // offline again: stop, the 'online' event retries
+    try { Object.assign(c, (await build(c.text)).c, { pending: false }); delete c.err; save(c); }
+    catch (e) { if (!e.status) break; c.err = e.message; save(c); } // offline again: stop, the 'online' event retries; a real error is shown in the dictionary
   }
   busy = false;
   if ($('#w') && !$('#w').value) home(); // refresh counters unless the user is typing
