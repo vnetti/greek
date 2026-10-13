@@ -1,10 +1,11 @@
 import { $, esc, today } from '../util.js';
 import { state } from '../state.js';
-import { check, grade, learnedDay } from '../srs.js';
+import { check, pickNext, grade, learnedDay } from '../srs.js';
 import { save, remove, bumpStreak } from '../store.js';
 import { say } from '../audio.js';
 import { app, LINES, badge, back, sayBtn, SAY, cardHtml, wire, clearable } from '../ui.js';
 import { home } from './home.js';
+import { swipeCard } from '../swipe.js';
 
 // Review progress is a ride along the current card's line; the train glides from where the last card left it.
 const topBar = d => `<div class="top l-${d}">${back('x', 'Закончить', 'x')}
@@ -20,8 +21,9 @@ function ride() { // called after q.shift(): the card on screen counts as not ye
 }
 
 export function next() {
-  const it = state.q.shift();
+  const it = state.q.length && pickNext(state.q, state.recent);
   if (!it) return home('Готово на сегодня. До завтра!');
+  state.recent = [...state.recent.slice(-2), it.c];
   const { c, dir } = it;
   const answer = `<form id="f" class="answer" style="margin-top:12px"><input id="a" lang="el" autocomplete="off" autocorrect="off" autocapitalize="off"
     spellcheck="false" placeholder="По-гречески" aria-label="Ответ по-гречески"><button style="margin-top:12px">Проверить</button></form>`;
@@ -61,6 +63,7 @@ function back_(it, answer) {
   wire(c);
   $('#y').onclick = () => done(it, true);
   if ($('#n')) $('#n').onclick = () => done(it, false);
+  swipeCard($('.card'), $('#y'), $('#n'));
   $('#del').onclick = () => {
     if (!confirm(`Удалить «${c.gr}»?`)) return;
     state.cards = state.cards.filter(x => x !== c);

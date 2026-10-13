@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { check, grade, schedule, draft, queue, newWaiting, newRoom, entryDay, nextStats, NEW_PER_DAY,
+import { check, pickNext, grade, schedule, draft, queue, newWaiting, newRoom, entryDay, nextStats, NEW_PER_DAY,
   stage, learnedDay, addedDay, weekly, weekStart, dayOf,
   alive, news } from '../js/srs.js';
 
@@ -92,4 +92,15 @@ test('news: milestone on the day it is reached', () => {
   for (let t = 1; t <= 3; t++) s = nextStats(s, t);
   assert.deepEqual(news(s, 3), { milestone: 3, froze: 0 });
   assert.deepEqual(news(nextStats(s, 4), 4), { milestone: 0, froze: 0 });
+});
+
+test('pickNext: a word does not come back right after itself', () => {
+  const a = { id: 'a' }, b = { id: 'b' }, c = { id: 'c' }, d = { id: 'd' };
+  let q = [{ c: a, dir: 'ru2gr' }, { c: b, dir: 'gr2ru' }];
+  assert.equal(pickNext(q, [a]).c, b); // a's other line waits
+  q = [{ c: a }, { c: b }, { c: c }, { c: d }];
+  assert.equal(pickNext(q, [b, c, a]).c, d); // kept clear of the last three
+  q = [{ c: a }, { c: b }];
+  assert.equal(pickNext(q, [b, c, a]).c, b); // only recent words left: at least not the same one again
+  assert.equal(pickNext([{ c: a }], [a]).c, a); // nothing else left
 });

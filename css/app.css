@@ -26,7 +26,7 @@
 
 /* ---------- base: three sizes (13 / 17 / 34) ranked by weight; the count numeral is the one exception ---------- */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:var(--ground)}
+html{background:var(--ground);overflow-x:clip} /* a card swiped off or a screen dragged aside never adds a horizontal scrollbar */
 body{margin:0;background:var(--ground);color:var(--ink);font:400 17px/1.45 var(--font);caret-color:var(--primary);
   padding:max(16px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));min-height:100dvh;-webkit-font-smoothing:antialiased}
 ::selection{background:color-mix(in srgb,var(--primary) 22%,transparent)}
@@ -268,6 +268,13 @@ button.say:active{transform:scale(.88)}
 .swipe{position:fixed;inset:0;z-index:20;overflow:hidden;background:var(--ground);padding:max(16px,env(safe-area-inset-top)) 16px 0;
   box-shadow:-10px 0 30px rgba(0,0,0,.18);will-change:transform;touch-action:none}
 .swipe.settle,#app.settle{transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s}
+/* swipe a review card (swipe.js swipeCard): the answer's word shows on the side it's heading to, like the verdict stamp */
+.card{touch-action:pan-y}
+.card.settle{transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.swipe-tag{position:absolute;top:16px;font:800 13px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;padding:7px 10px;
+  border:2px solid currentColor;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .1s}
+.swipe-tag.r{left:14px;transform:rotate(-8deg)} .swipe-tag.l{right:14px;transform:rotate(8deg)}
+.swipe-tag.yes{color:var(--ok)} .swipe-tag.no{color:var(--bad)}
 @media (prefers-reduced-motion:reduce){#app.go::before{display:none}#app.go>*{animation-name:fade}}
 /* ---------- stats: words known, stations per line, weeks ---------- */
 .sx-known,.sx-weeks{--going:color-mix(in srgb,var(--primary) 35%,var(--block));--add:color-mix(in srgb,var(--mut) 35%,var(--block))}

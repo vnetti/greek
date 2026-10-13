@@ -37,7 +37,7 @@ export function home(msg = '') {
       <button class="mi" id="lst">Словарь<span class="v num">${state.cards.length}${icon('chev')}</span></button>
       <button class="mi" id="help">Как это работает<span class="v">${icon('chev')}</span></button>
     </nav>`;
-  $('#rev').onclick = () => { state.q = queue(state.cards, today()); state.total = state.q.length; state.trainAt = 0; next(); };
+  $('#rev').onclick = () => { state.q = queue(state.cards, today()); state.total = state.q.length; state.recent = []; state.trainAt = 0; next(); };
   $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (!w) return; if (!key()) return account('Сначала вставь ключ Gemini — без него не сделать карточку', 'keys'); add(w); };
   $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };
   const w = $('#w'), grow = () => { w.style.height = 'auto'; w.style.height = w.scrollHeight + 'px'; };

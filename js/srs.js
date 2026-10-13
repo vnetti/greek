@@ -36,6 +36,12 @@ export function queue(cards, day) {
   for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
+// Next item to show: the first whose word wasn't among the last `gap` shown, so a word's other lines (or its retry after a miss)
+// don't come right after it; with too few words left, at least not the same word twice in a row.
+export function pickNext(q, recent, gap = 3) {
+  for (const n of [gap, 1]) { const i = q.findIndex(x => !recent.slice(-n).includes(x.c)); if (i >= 0) return q.splice(i, 1)[0]; }
+  return q.shift();
+}
 // Reminder sender (scripts/remind.mjs): cards due on `day` straight from Firestore docs, same rules as the app's queue.
 export const dueCount = (cards, day) => queue(cards.map(withListen), day).length;
 
