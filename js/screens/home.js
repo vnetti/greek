@@ -30,7 +30,7 @@ export function home(msg = '') {
         <div class="n${per(d) ? '' : ' zero'}">${per(d)}</div></div>`).join('')}${scale()}</div>
       <button id="rev" ${due ? '' : 'disabled'}>${due ? 'Поехали' : 'До завтра'}</button>
     </section>
-    <form id="add" class="block add"><textarea id="w" rows="1" placeholder="Новое слово или список" aria-label="Новое слово" autocomplete="off"></textarea>
+    <form id="add" class="block add"><textarea id="w" lang="el" rows="1" placeholder="Новое слово или список" aria-label="Новое слово" autocomplete="off"></textarea>
       <button aria-label="Добавить">${icon('plus')}</button></form>
     <div class="msg">${esc(msg)}${pend ? `<div>${icon('clock')}Ждут интернета: ${pend} — доделаем сами</div>` : ''}</div>
     <nav class="block menu">

@@ -80,8 +80,12 @@ export function clearable(el) {
   el.replaceWith(w); w.append(el, b);
   const sync = () => w.classList.toggle('on', !!el.value);
   el.addEventListener('input', sync); sync();
-  b.onpointerdown = e => e.preventDefault(); // keep focus (and the iOS keyboard) in the field
-  b.onclick = () => { el.value = ''; el.dispatchEvent(new Event('input')); el.focus(); };
+  const clear = () => { el.value = ''; el.dispatchEvent(new Event('input')); el.focus(); };
+  // clear on touch-down: iOS blurs the field before the click, the × hides with it and the tap is lost.
+  // touchstart's preventDefault keeps focus (and the keyboard) in the field and swallows that click.
+  b.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+  b.onpointerdown = e => { e.preventDefault(); clear(); };
+  b.onclick = e => { if (!e.detail) clear(); }; // keyboard Enter/Space
 }
 // One card layout everywhere (preview, review answer, dictionary): same scale, same axis.
 export const cardHtml = (c, top = '') => `<article class="block card${top.includes('stamp') ? ' stamped' : ''}">${top}
