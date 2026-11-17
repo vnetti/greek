@@ -134,6 +134,8 @@ input[role=switch]:focus-visible{outline:2px solid var(--primary);outline-offset
 
 /* ---------- screens with a top bar ---------- */
 .top{display:flex;align-items:center;gap:12px;margin-bottom:12px;min-height:44px}
+.top select{margin-left:auto;min-height:44px;padding:8px 10px;border:1px solid var(--rule);border-radius:10px;background:var(--block);color:var(--ink);font:500 16px var(--font)} /* 16px: iOS zooms smaller fields */
+.top select:focus-visible{border-color:var(--primary);outline:none}
 .top .dir{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;white-space:nowrap}
 .top .track{flex:1;margin:0 4px}
 .top .track .train{position:absolute;top:0;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--lc);border:3px solid var(--ground);
