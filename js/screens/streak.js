@@ -39,7 +39,7 @@ function calendar(s, t, n) {
     <div class="legend small mut" aria-hidden="true"><span><b class="sta on"></b>занимались</span><span><b class="sta frozen">${icon('snow')}</b>заморозка</span><span><b class="sta off"></b>пропуск</span><span><b class="sta here"></b>сегодня</span></div>`;
 }
 
-export function streak() {
+export function streak(from = home) {
   const s = state.stats, t = today(), n = streakNow(), f = s.freezes ?? 0, missed = n ? t - s.last - 1 : 0;
   const goal = MILESTONES.find(m => m > n), p = (n / goal * 100).toFixed(1) + '%'; // the trip runs from day 0, so it matches n/goal
   const status = !n ? 'Серия начнётся с первой карточки.'
@@ -56,5 +56,5 @@ export function streak() {
       <div class="trip" style="--p:${p}" aria-hidden="true"><b class="sta on"></b><b class="sta here" style="left:${p}"></b><b class="sta end num">${goal}</b></div>
       <div class="small mut">Ещё ${days(goal - n)}.</div></section>` : ''}
     <section class="block">${calendar(s, t, n)}</section>`;
-  $('#x').onclick = () => home();
+  $('#x').onclick = () => from();
 }

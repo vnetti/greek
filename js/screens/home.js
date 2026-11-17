@@ -44,7 +44,7 @@ export function home(msg = '') {
   const w = $('#w'), grow = () => { w.style.height = 'auto'; w.style.height = w.scrollHeight + 'px'; };
   w.oninput = () => { state.draft = w.value; grow(); };
   w.value = state.draft; if (w.value) grow();
-  $('#lst').onclick = $('#lst2').onclick = e => { e.preventDefault(); list(); };
+  $('#lst').onclick = $('#lst2').onclick = e => { e.preventDefault(); list(home); };
   $('#me').onclick = () => account();
   $('#help').onclick = () => help();
   $('#streak').onclick = () => streak();
@@ -53,6 +53,6 @@ export function home(msg = '') {
     await processPending();
     if (!$('#w')) return; // the user moved on (review, a new card…): don't pull them back
     if ($('#w').value) { e.target.disabled = false; e.target.textContent = 'Перезапустить все сейчас'; return; } // typing: keep the keyboard
-    home(navigator.onLine ? '' : 'Нет интернета — доделаем, когда появится');
+    if (!navigator.onLine) home('Нет интернета — доделаем, когда появится'); // online: the run already redrew home with its news
   };
 }

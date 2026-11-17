@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { matcher, searchKeys } from '../js/search.js';
+import { matcher, searchKeys, findCard } from '../js/search.js';
 
 const finds = (q, c) => matcher(q)(searchKeys(c));
 const sea = { gr: 'η θάλασσα', ru: 'море', tr: 'и ТХА-ла-са' }, morning = { gr: 'η καλημέρα', ru: 'доброе утро', tr: 'ка-ли-МЭ-ра' };
@@ -19,4 +19,19 @@ test('sound, transcription, accents, case, article, layout slips, typos', () => 
 
 test('negatives', () => {
   all(['vfkfccf', 'telefono', 'kipos', 'спасибо'], sea, false);
+});
+
+test('findCard: same typed text or same Greek word, saved beats pending', () => {
+  const house = { id: 'h', gr: 'το σπίτι', ru: 'дом, жилище', text: 'House' }, ov = { id: 'o', ...oven };
+  const d = { id: 'd', pending: true, text: 'σαλάτα' }, dupe = { id: 'p', pending: true, text: 'σπίτι' }, cards = [dupe, house, ov, d, sea];
+  for (const q of ['το σπίτι', 'σπίτι', 'ΣΠΙΤΙ', 'σπιτι', 'house', ' HOUSE ']) assert.equal(findCard(cards, q), house, q);
+  assert.equal(findCard(cards, 'φούρνος'), ov);
+  assert.equal(findCard(cards, 'σαλάτα'), d);
+  assert.equal(findCard(cards, 'θάλασσα'), sea); // card without text (made before it was kept)
+  // translations don't block (homonyms), nor partial words, nor an accent in another place
+  for (const q of ['жилище', 'печь', 'пек', 'σπι', '', ' ', 'φουρνός']) assert.equal(findCard(cards, q), undefined, q);
+  const when = { id: 'w', gr: 'ποτέ', ru: 'никогда' }, where = { id: 'x', gr: 'που', ru: 'что, который' };
+  assert.equal(findCard([when, where], 'πότε'), undefined);
+  assert.equal(findCard([when, where], 'πού'), undefined);
+  assert.equal(findCard([when], 'ποτε'), when); // no accents typed: loose
 });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { check, pickNext, grade, schedule, draft, queue, newWaiting, newRoom, entryDay, nextStats, NEW_PER_DAY,
-  stage, learnedDay, addedDay, weekly, weekStart, dayOf,
+  stage, learnedDay, addedDay, addedAt, weekly, weekStart, dayOf,
   alive, news } from '../js/srs.js';
 
 const day = 1000;
@@ -55,6 +55,10 @@ test('stats: stage, learned day, added day, weekly buckets', () => {
   const ms = Date.UTC(2026, 0, 15, 12);
   assert.equal(addedDay({ id: ms.toString(36) + 'abc' }), dayOf(ms));
   assert.equal(addedDay({ id: 'a1', introduced: 42 }), 42);
+  assert.equal(addedDay({ id: 'a1' }), undefined);
+  assert.equal(addedAt({ id: ms.toString(36) + 'abc' }), ms);
+  assert.equal(addedAt({ id: 'a1', introduced: 42 }), 42 * 864e5);
+  assert.equal(addedAt({ id: 'a1' }), 0);
   // weeks start on Monday: 12 Oct 2026 is one
   const mon = dayOf(Date.UTC(2026, 9, 12, 12));
   assert.equal(weekStart(mon), mon); assert.equal(weekStart(mon + 6), mon); assert.equal(weekStart(mon + 7), mon + 7);

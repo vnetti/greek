@@ -1,6 +1,8 @@
 // Forgiving dictionary search. plain(): case, accents, ς, article and punctuation don't matter.
 // phon(): one loose Latin sound key shared by Greek, Cyrillic transcription and Latin, so «таласса», «thalasa» and «θάλασσα» collide.
 // relayout(): the query as if typed with another of the three keyboard layouts active (same key positions).
+import { check } from './srs.js';
+
 const KB = ["qwertyuiop[]asdfghjkl;'zxcvbnm,.", 'йцукенгшщзхъфывапролджэячсмитьбю', ";ςερτυθιοπ[]ασδφγηξκλ΄'ζχψωβνμ,."];
 const relayout = q => KB.flatMap((a, i) => KB.filter((_, j) => j !== i).map(b => [...q].map(ch => a.includes(ch) ? b[a.indexOf(ch)] : ch).join('')));
 const plain = s => (s || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/ς/g, 'σ').trim()
@@ -16,6 +18,16 @@ const phon = (p, front) => SOUND.reduce((s, [re, to]) => s.replace(re, to), [...
 export const searchKeys = c => {
   const g = plain(c.gr || c.text), t = plain(c.tr);
   return { p: [g, plain(c.ru), t].join('|'), f: [...new Set([phon(g), phon(g, true), phon(t)])].join('|') };
+};
+// «already have it?»: the same typed text (c.text: what was typed for the card) or the same Greek word. Accents count when
+// typed (πότε ≠ ποτέ), an unaccented query matches loosely. Not by ru variants: «время» would block ο χρόνος behind ο καιρός.
+// ponytail: the article is ignored, so the phrase «το ξέρω» matches ξέρω; fine until it bites. Saved beats pending.
+const typed = s => (s || '').toLowerCase().normalize('NFC').replace(/\s+/g, ' ').trim();
+export const findCard = (cards, text) => {
+  const q = typed(text); if (!q) return;
+  const acc = /\p{M}/u.test(q.normalize('NFD')), hits = cards.filter(c => typed(c.text) === q ||
+    !!c.gr && (r => r === 'ok' || !acc && r === 'accent')(check(q, c.gr)));
+  return hits.find(c => !c.pending) || hits[0];
 };
 // approximate substring (Sellers): q occurs somewhere in k with at most one typo
 const near = (q, k) => {

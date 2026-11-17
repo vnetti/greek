@@ -17,8 +17,9 @@ export const ai = () => AI[localStorage.getItem('ai')] ? localStorage.getItem('a
 export const key = (n = AI[ai()][1]) => localStorage.getItem(n) || '';
 
 const PROMPT = `Ты делаешь карточки для русскоговорящего, который учит новогреческий.
-На входе слово или фраза на русском или греческом. Верни JSON:
+На входе слово или фраза на русском, греческом, английском или другом языке. Верни JSON:
 gr — греческий вариант (существительные с артиклем ο/η/το, глаголы в 1 л. ед. ч. настоящего времени, фразы как есть);
+если вход не греческий, gr — греческий ПЕРЕВОД его смысла, а не греческое слово, похожее на него написанием или звучанием;
 ru — короткий русский перевод (1–3 варианта через запятую);
 tr — произношение gr русскими буквами, слоги через дефис, ударный слог ЗАГЛАВНЫМИ (пример: и ка-ли-МЭ-ра);
 ex — короткий простой пример на греческом с этим словом;
@@ -97,8 +98,30 @@ export const tts = async text => { if (!key('tts')) throw new Error('нет кл
   input: { text }, voice: { languageCode: 'el-GR' }, audioConfig: { audioEncoding: 'MP3' }
 }, key('tts'))).audioContent; };
 
+// Same word again soon (cancelled preview, retyped) → the card from the Cache API instead of another AI call. sw.js caches only same-origin fetches under 'v1', so 'cards' is ours.
+const TTL = 5 * 6e4; // 5 minutes
+const cacheKey = text => new URL('card-cache?q=' + encodeURIComponent(text.trim().toLowerCase().normalize('NFC').replace(/\s+/g, ' ')), location.href).href;
+// any failure (no `caches` outside a secure context, quota) just skips the cache, never the card
+// ponytail: no pruning — expired entries are deleted on lookup and the cache is small; sweep cache.keys() if it grows
+async function cached(text) {
+  try {
+    const cache = await caches.open('cards'), k = cacheKey(text), r = await cache.match(k);
+    if (!r) return;
+    const { at, c } = await r.json();
+    if (Date.now() - at < TTL) return c;
+    await cache.delete(k);
+  } catch {}
+}
+// serialized before the first await, so the caller's later edits to c don't leak in
+const keep = async (text, c) => { const v = JSON.stringify({ at: Date.now(), c }); try { await (await caches.open('cards')).put(cacheKey(text), new Response(v)); } catch {} };
+
+// «Отмена» on a preview: a bad card shouldn't come back from the cache
+export const forget = text => globalThis.caches?.open('cards').then(c => c.delete(cacheKey(text))).catch(() => {});
+
 // Full card content from a word: AI text, then both recordings in parallel.
 export async function build(text, step = () => {}) {
+  const hit = await cached(text);
+  if (hit) return { c: hit, note: 'Из кеша' };
   step('Переводим…');
   const c = await ask(text);
   step('Записываем произношение…');
@@ -106,5 +129,6 @@ export async function build(text, step = () => {}) {
   const [a, ea, fa] = await Promise.allSettled([tts(c.gr), tts(c.ex), formsText(c) && tts(formsText(c))]);
   c.audio = a.value; c.exAudio = ea.value; c.formsAudio = fa.value || undefined; // undefined: iOS voice plays instead
   const timing = `${ask.took} · озвучка ${sec(t0)}`; // shown under the preview to see where time goes
+  if (c.gr) keep(text, c); // not awaited
   return { c, note: a.reason ? `Озвучка голосом iOS (Cloud TTS: ${a.reason.message}) · ${timing}` : timing };
 }

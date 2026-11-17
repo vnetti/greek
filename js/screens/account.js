@@ -5,6 +5,8 @@ import { key, ai, AI } from '../api.js';
 import { app, icon, back, avatar, sign } from '../ui.js';
 import { home } from './home.js';
 import { stats, knownCount } from './stats.js';
+import { list } from './dictionary.js';
+import { streak } from './streak.js';
 
 // Colour theme is a per-device preference; light/dark still follows the system (Ночь is always dark).
 const THEMES = [['graphite', 'Графит', '#ECEEF1', '#1C1F24', '#FFF'], ['aegean', 'Эгейский', '#D9E5F2', '#0E4C92', '#FFF'],
@@ -26,9 +28,9 @@ export function account(msg = '', at = '') { // at: the section the message belo
   const hours = Array.from({ length: 24 }, (_, h) => `<option value="${h}"${h === (state.push.hour ?? 9) ? ' selected' : ''}>${h}:00</option>`).join('');
   app.innerHTML = `<div class="top">${back()}<h2>Аккаунт</h2></div>
     <section class="block pass"><div class="me">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div></div>
-      <div class="fare"><div><b class="num">${nw}</b>${word(nw, 'слово', 'слова', 'слов')}</div>
+      <div class="fare"><button type="button" id="wds"><b class="num">${nw}</b>${word(nw, 'слово', 'слова', 'слов')}</button>
         <button type="button" id="sts2"><b class="num">${nk}</b>выучено</button>
-        <div><b class="num">${ns}</b>${word(ns, 'день', 'дня', 'дней')} подряд</div></div></section>
+        <button type="button" id="stk"><b class="num">${ns}</b>${word(ns, 'день', 'дня', 'дней')} подряд</button></div></section>
     <nav class="block menu"><button class="mi" id="sts">Статистика<span class="v">${icon('chev')}</span></button></nav>
     <form class="block form set" id="rem">${sign('bell', 'Напоминания')}
       <label class="sw-row">Напоминать каждый день<input type="checkbox" role="switch" name="on"${on ? ' checked' : ''}></label>
@@ -54,6 +56,7 @@ export function account(msg = '', at = '') { // at: the section the message belo
     <input type="file" id="file" accept=".json,application/json" hidden>`;
   $('#x').onclick = () => home();
   $('#sts').onclick = $('#sts2').onclick = () => stats();
+  $('#wds').onclick = () => list(account); $('#stk').onclick = () => streak(account);
   document.querySelectorAll('form.set').forEach(f => { f.oninput = () => { f.querySelector('button.sec').disabled = false; }; });
   $('#rem').elements.on.onchange = e => { $('#rem').elements.hour.disabled = !e.target.checked; };
   $('#rem').onsubmit = e => { e.preventDefault(); saveReminders(e.target.elements.on.checked, +e.target.elements.hour.value); };
