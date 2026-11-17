@@ -14,10 +14,26 @@ let lastAdded = 0;
 export const stamp = () => (lastAdded = Math.max(Date.now(), lastAdded + 1));
 export const draft = (text, day) => ({ id: newId(), added: stamp(), text, pending: true, ...schedule(day) });
 
-const base = s => s.toLowerCase().normalize('NFC').replace(/ς/g, 'σ').replace(/[.,!?;·«»"]/g, '')
-  .trim().replace(/\s+/g, ' ').replace(/^(ο|η|το|οι|τα|ο\/η)\s+/, '');
-const loose = s => base(s).normalize('NFD').replace(/\p{M}/gu, '');
-export const check = (answer, gr) => base(answer) === base(gr) ? 'ok' : loose(answer) === loose(gr) ? 'accent' : 'bad';
+// Answer checking. Prefs (Аккаунт → «Проверка ответов»): accent/article each 'ignore' | 'warn' (stamp, still correct) | 'strict' (wrong);
+// omit: the article may be left out. CHECK = defaults = the original rules; the dictionary dedupe (search.js) always uses them.
+export const CHECK = { accent: 'warn', article: 'ignore', omit: true };
+const split = s => { // normalized { art, word }: the leading article is split off, not dropped, so it can be checked
+  const t = s.toLowerCase().normalize('NFC').replace(/ς/g, 'σ').replace(/[.,!?;·«»"]/g, '').trim().replace(/\s+/g, ' ');
+  const m = t.match(/^([οη] ?\/ ?[οη]|[οό]|[ηή]|τ[οό]|ο[ιί]|τ[αά])\s+/); // a stray accent or «η / ο» is still the article
+  const art = m ? loose(m[1]).replace(/ /g, '').replace('η/ο', 'ο/η') : '';
+  return { art, word: m ? t.slice(m[0].length) : t };
+};
+const loose = s => s.normalize('NFD').replace(/\p{M}/gu, '');
+// 'ok' | 'bad' | soft verdicts that count as correct: 'accent' | 'article' | 'both'. A strict issue anywhere → 'bad'.
+export function check(answer, gr, p = CHECK) {
+  const a = split(answer), g = split(gr);
+  if (loose(a.word) !== loose(g.word)) return 'bad';
+  const acc = a.word === g.word ? 'ignore' : p.accent;
+  // only the card's article is checked; «ο/η» accepts either one alone
+  const art = !g.art || (a.art ? [g.art, ...g.art.split('/')].includes(a.art) : p.omit) ? 'ignore' : p.article;
+  if (acc === 'strict' || art === 'strict') return 'bad';
+  return acc === 'warn' ? art === 'warn' ? 'both' : 'accent' : art === 'warn' ? 'article' : 'ok';
+}
 export function grade(d, ok, day) {
   if (ok) { d.due = day + INTERVALS[Math.min(d.box, INTERVALS.length - 1)]; d.box++; }
   else { d.box = 0; d.due = day + 1; }

@@ -5,7 +5,7 @@ import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, get
 import { getMessaging, getToken, isSupported } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js';
 import { state } from './state.js';
 import { today } from './util.js';
-import { nextStats, alive, withListen } from './srs.js';
+import { nextStats, alive, withListen, CHECK } from './srs.js';
 
 export { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, isSupported };
 
@@ -28,12 +28,14 @@ export const save = c => setDoc(doc(cardsRef(), c.id), c).catch(e => alert('Не
 export const remove = id => deleteDoc(doc(cardsRef(), id));
 navigator.storage?.persist?.();
 
-// --- streak & reminders: users/{uid}/meta/{stats,push}. Reminders are sent by .github/workflows/remind.yml
+// --- streak, reminders & answer-check prefs: users/{uid}/meta/{stats,push,prefs}. Reminders are sent by .github/workflows/remind.yml
 const VAPID = 'BPeo583swFMcfOAu3KAgjPdnX5xCs5ZiNtI6qKrCzf9oWztiFTHpE9z3_1zVi58MDE0jnWBcUQb2OAkAF-QFlC4'; // public half
 const metaRef = n => doc(fs, 'users', auth.currentUser.uid, 'meta', n);
 export const savePush = () => setDoc(metaRef('push'), state.push);
+export const savePrefs = () => auth.currentUser && setDoc(metaRef('prefs'), state.prefs, { merge: true }).catch(() => {}); // not awaited: offline it waits for the network; merge: a device that booted offline (prefs {}) doesn't wipe the rest
+export const prefs = () => ({ ...CHECK, ...state.prefs }); // effective answer-check rules
 export async function loadMeta() {
-  [state.stats, state.push] = await Promise.all(['stats', 'push'].map(n => getDoc(metaRef(n)).then(d => d.data() ?? {}).catch(() => ({}))));
+  [state.stats, state.push, state.prefs] = await Promise.all(['stats', 'push', 'prefs'].map(n => getDoc(metaRef(n)).then(d => d.data() ?? {}).catch(() => ({}))));
   if (state.push.token && globalThis.Notification?.permission === 'granted') pushToken().then(t => { // tokens rotate: keep ours current
     if (t !== state.push.token) { state.push.token = t; savePush(); }
   }).catch(() => {});

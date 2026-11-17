@@ -1,6 +1,6 @@
 import { $, esc, plural } from '../util.js';
 import { state } from '../state.js';
-import { auth, signOut, save, loadAll, saveKeys, savePush, pushToken, isSupported, streakNow } from '../store.js';
+import { auth, signOut, save, loadAll, saveKeys, savePush, savePrefs, prefs, pushToken, isSupported, streakNow } from '../store.js';
 import { key, ai, AI } from '../api.js';
 import { app, icon, back, avatar, sign } from '../ui.js';
 import { home } from './home.js';
@@ -19,12 +19,14 @@ function setTheme(t) {
   syncThemeColor();
 }
 
-// Account = everything about you: stats, settings, your data, sign-out. Theme applies at once;
+// Account = everything about you: stats, settings, your data, sign-out. Theme and answer checking apply at once;
 // reminders and keys are forms whose «Сохранить» wakes up only after a change and sends it to the server.
 export function account(msg = '', at = '') { // at: the section the message belongs under ('rem' | 'keys' | 'data')
   const u = auth.currentUser, cur = document.documentElement.dataset.theme, on = !!state.push.token;
   const nw = state.cards.length, nk = knownCount(), ns = streakNow(), word = (n, ...f) => plural(n, ...f).replace(/^\d+ /, '');
   const note = s => msg && at === s ? `<div class="msg" role="status">${esc(msg)}</div>` : '';
+  const chk = prefs(), modes = v => [['ignore', 'Не проверять'], ['warn', 'Предупреждать'], ['strict', 'Считать ошибкой']]
+    .map(([id, name]) => `<option value="${id}"${id === v ? ' selected' : ''}>${name}</option>`).join('');
   const hours = Array.from({ length: 24 }, (_, h) => `<option value="${h}"${h === (state.push.hour ?? 9) ? ' selected' : ''}>${h}:00</option>`).join('');
   app.innerHTML = `<div class="top">${back()}<h2>Аккаунт</h2></div>
     <section class="block pass"><div class="me">${avatar(u)}<div class="who">${esc(u?.displayName || 'Аккаунт')}<small>${esc(u?.email)}</small></div></div>
@@ -41,6 +43,11 @@ export function account(msg = '', at = '') { // at: the section the message belo
       <div class="themes">${THEMES.map(([id, name, g, p, o]) => `<button class="sw" data-t="${id}" aria-pressed="${id === cur}">
         <span class="dot" aria-hidden="true" style="--g:${g};--p:${p};--o:${o}">${name[0]}</span>${name}</button>`).join('')}</div>
       <p class="small mut" style="margin:12px 0 0">Светлая или тёмная — как в настройках телефона. «Ночь» всегда тёмная.</p></section>
+    <section class="block form set" id="chk">${sign('spell', 'Проверка ответов')}
+      <label>Ударение<select name="accent">${modes(chk.accent)}</select></label>
+      <label>Артикль<select name="article">${modes(chk.article)}</select></label>
+      <label class="sw-row"${chk.article === 'ignore' ? ' hidden' : ''}>Артикль можно не писать<input type="checkbox" role="switch" name="omit"${chk.omit ? ' checked' : ''}></label>
+      <p class="small mut">Предупреждение — штамп, но ответ засчитан. Ошибка — можно нажать «Засчитать».</p></section>
     <form class="block form set" id="keys">${sign('key', 'Ключи API')}
       <label>Карточки делает<select name="ai">${Object.entries(AI).map(([id, [name]]) => `<option value="${id}"${id === ai() ? ' selected' : ''}>${name}</option>`).join('')}</select></label>
       <label data-ai="gemini">Ключ Gemini<input name="key" class="secret" value="${esc(key('key'))}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
@@ -60,6 +67,11 @@ export function account(msg = '', at = '') { // at: the section the message belo
   document.querySelectorAll('form.set').forEach(f => { f.oninput = () => { f.querySelector('button.sec').disabled = false; }; });
   $('#rem').elements.on.onchange = e => { $('#rem').elements.hour.disabled = !e.target.checked; };
   $('#rem').onsubmit = e => { e.preventDefault(); saveReminders(e.target.elements.on.checked, +e.target.elements.hour.value); };
+  // a section, not a form.set: applies at once like the theme, no «Сохранить»
+  $('#chk').onchange = ({ target: t }) => {
+    state.prefs = { ...state.prefs, [t.name]: t.type === 'checkbox' ? t.checked : t.value }; savePrefs();
+    $('#chk [name=omit]').parentElement.hidden = prefs().article === 'ignore';
+  };
   document.querySelectorAll('#keys input').forEach(peekable);
   // only the chosen service's key field shows; the other keeps its key for switching back
   const pick = () => document.querySelectorAll('#keys [data-ai]').forEach(l => { l.hidden = l.dataset.ai !== $('#keys').elements.ai.value; });
@@ -86,7 +98,7 @@ export function account(msg = '', at = '') { // at: the section the message belo
     if (!confirm('Выйти из аккаунта?')) return;
     // keys came from this account: don't leave them for whoever signs in next
     ['key', 'okey', 'ai', 'tts', 'ownKeys'].forEach(n => localStorage.removeItem(n));
-    state.cards = []; state.stats = {}; state.push = {}; state.draft = state.search = ''; state.news = null;
+    state.cards = []; state.stats = {}; state.push = {}; state.prefs = {}; state.draft = state.search = ''; state.news = null;
     signOut(auth); // onAuthStateChanged then shows the login screen
   };
 }

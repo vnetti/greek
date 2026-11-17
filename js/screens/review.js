@@ -1,7 +1,7 @@
 import { $, esc, today } from '../util.js';
 import { state } from '../state.js';
 import { check, pickNext, grade, learnedDay } from '../srs.js';
-import { save, remove, bumpStreak } from '../store.js';
+import { save, remove, bumpStreak, prefs } from '../store.js';
 import { say } from '../audio.js';
 import { app, LINES, badge, back, sayBtn, SAY, cardHtml, wire, clearable } from '../ui.js';
 import { home } from './home.js';
@@ -47,9 +47,9 @@ function back_(it, answer) {
   const c = it.c;
   let top = '', buttons = '<button class="bad" id="n">Не знал</button><button class="ok" id="y">Знал</button>';
   if (answer !== null) {
-    const r = check(answer, c.gr);
-    // the verdict stamps onto the card and stays, like a validated ticket
-    top = `<span class="stamp ${r === 'accent' ? 'warn' : r}">${r === 'ok' ? 'Верно' : r === 'accent' ? 'Ударение' : 'Ошибка'}</span>`
+    const r = check(answer, c.gr, prefs()), soft = { accent: 'Ударение', article: 'Артикль', both: 'Ударение и артикль' }[r];
+    // the verdict stamps onto the card and stays, like a validated ticket; soft verdicts count as correct
+    top = `<span class="stamp ${soft ? 'warn' : r}">${soft ?? (r === 'ok' ? 'Верно' : 'Ошибка')}</span>`
       + (r === 'ok' ? '' : `<div class="yours">Ты написал: «<span lang="el">${esc(answer)}</span>»</div>`);
     buttons = r === 'bad' ? '<button class="sec" id="y">Засчитать</button><button id="n">Дальше</button>'
       : '<button id="y">Дальше</button>';

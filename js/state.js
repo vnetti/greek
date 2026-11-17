@@ -2,6 +2,7 @@
 export const state = {
   cards: [],
   stats: {}, push: {}, // users/{uid}/meta/{stats,push}
+  prefs: {}, // users/{uid}/meta/prefs: answer-check settings set by the user; missing ones fall back to srs.js CHECK
   q: [], total: 0, recent: [], // review queue, cards in the current session (progress line), words just shown
   trainAt: 0, // where the progress train last stopped, in %
   draft: '', search: '', // home «Новое слово» text and dictionary query, kept across screens until reload

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { check, pickNext, grade, schedule, draft, queue, newWaiting, newRoom, entryDay, nextStats, NEW_PER_DAY,
+import { check, CHECK, pickNext, grade, schedule, draft, queue, newWaiting, newRoom, entryDay, nextStats, NEW_PER_DAY,
   stage, learnedDay, addedDay, addedAt, weekly, weekStart, dayOf,
   alive, news } from '../js/srs.js';
 
@@ -11,6 +11,31 @@ test('answer check: article, case, ς, accents', () => {
   assert.equal(check(' Καλημερα ', 'η καλημέρα'), 'accent');
   assert.equal(check('καλησπέρα', 'η καλημέρα'), 'bad');
   assert.equal(check('ο δρόμοσ', 'ο δρόμος'), 'ok');
+  assert.equal(check('η δρόμος', 'ο δρόμος'), 'ok'); // defaults ignore the article
+});
+
+test('answer check prefs: accent and article modes', () => {
+  const P = o => ({ ...CHECK, ...o });
+  assert.equal(check('καλημερα', 'η καλημέρα', P({ accent: 'ignore' })), 'ok');
+  assert.equal(check('καλημερα', 'η καλημέρα', P({ accent: 'strict' })), 'bad');
+  const w = P({ article: 'warn' });
+  assert.equal(check('η δρόμος', 'ο δρόμος', w), 'article');
+  assert.equal(check('δρόμος', 'ο δρόμος', w), 'ok'); // omit allowed
+  assert.equal(check('δρόμος', 'ο δρόμος', P({ article: 'warn', omit: false })), 'article');
+  assert.equal(check('ο δρόμος', 'ο δρόμος', P({ article: 'strict', omit: false })), 'ok');
+  assert.equal(check('η δρόμος', 'ο δρόμος', P({ article: 'strict' })), 'bad');
+  for (const a of ['ο', 'η', 'ο/η']) assert.equal(check(a + ' φίλος', 'ο/η φίλος', w), 'ok');
+  assert.equal(check('το φίλος', 'ο/η φίλος', w), 'article');
+  assert.equal(check('το καλά', 'καλά', P({ article: 'strict', omit: false })), 'ok'); // card without article: never checked
+  assert.equal(check('η δρομος', 'ο δρόμος', w), 'both');
+  assert.equal(check('η δρομος', 'ο δρόμος', P({ accent: 'strict', article: 'warn' })), 'bad');
+  assert.equal(check('δρόμος', 'ο δρόμος', P({ omit: false })), 'ok'); // omit means nothing while the article is ignored
+  assert.equal(check('Η δρόμος', 'ο δρόμος', w), 'article');
+  assert.equal(check('ή δρόμος', 'ο δρόμος'), 'ok'); // stray accent on the article: still the article
+  assert.equal(check('τό σπίτι', 'το σπίτι', P({ article: 'strict', omit: false })), 'ok');
+  assert.equal(check('η / ο φίλος', 'ο/η φίλος', w), 'ok');
+  assert.equal(check('οικογένεια', 'η οικογένεια', P({ article: 'strict', omit: false })), 'bad'); // «οι…» is not split off
+  assert.equal(check('η καλησπέρα', 'η καλημέρα', P({ accent: 'ignore' })), 'bad'); // a different word is wrong whatever the prefs
 });
 
 test('grading moves along the stations, a miss goes back to the depot', () => {
