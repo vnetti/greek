@@ -9,7 +9,10 @@ export const withListen = c => ({ ...c, listen: c.listen ?? { box: 0, due: c.ru2
 
 export const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2); // time-ordered prefix
 export const schedule = day => ({ gr2ru: { box: 0, due: day }, ru2gr: { box: 0, due: day + 1 }, listen: { box: 0, due: day + 2 } });
-export const draft = (text, day) => ({ id: newId(), text, pending: true, ...schedule(day) });
+// added: ms the card was made (not shown, for sorting/stats); strictly increasing, so a batch keeps its typed order
+let lastAdded = 0;
+export const stamp = () => (lastAdded = Math.max(Date.now(), lastAdded + 1));
+export const draft = (text, day) => ({ id: newId(), added: stamp(), text, pending: true, ...schedule(day) });
 
 const base = s => s.toLowerCase().normalize('NFC').replace(/ς/g, 'σ').replace(/[.,!?;·«»"]/g, '')
   .trim().replace(/\s+/g, ' ').replace(/^(ο|η|το|οι|τα|ο\/η)\s+/, '');
@@ -74,8 +77,9 @@ export function news(s, t) {
 export const LEARNED_BOX = 3;
 export const stage = c => c.pending || isNew(c) ? 'new' : DIRS.every(d => c[d].box >= LEARNED_BOX) ? 'known' : 'going';
 export const dayOf = ms => Math.floor((ms - new Date(ms).getTimezoneOffset() * 6e4) / 864e5); // same local day as util.today()
-// added: the id's base36 Date.now() prefix; an id that doesn't parse to a sane date falls back to the first review
-const idMs = c => { const ms = parseInt(c.id.slice(0, 8), 36); return ms > 1.6e12 && ms < 4e12 ? ms : 0; };
+// added: the card's `added`; cards from before it — the id's base36 Date.now() prefix; an id that doesn't parse to a sane date
+// falls back to the first review
+const idMs = c => c.added || (ms => ms > 1.6e12 && ms < 4e12 ? ms : 0)(parseInt(c.id.slice(0, 8), 36));
 export const addedAt = c => idMs(c) || (c.introduced ?? 0) * 864e5; // ms, 0 when unknown
 export const addedDay = c => idMs(c) ? dayOf(idMs(c)) : c.introduced;
 // `learned` is stamped in review the first time a word becomes known and kept if it slips back. Words known before the

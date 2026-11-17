@@ -1,6 +1,6 @@
 import { $, esc, today, plural } from '../util.js';
 import { state } from '../state.js';
-import { newId, schedule, draft } from '../srs.js';
+import { newId, stamp, schedule, draft } from '../srs.js';
 import { save, remove } from '../store.js';
 import { findCard } from '../search.js';
 import { build, forget } from '../api.js';
@@ -36,7 +36,7 @@ export async function add(raw, force) {
     const { c, note } = await build(text, s => { if ($('#step')) $('#step').textContent = s; });
     const dup = findCard(state.cards, c.gr); // typed in English or a synonym of a word we have
     const keep = () => {
-      Object.assign(c, { id: newId(), text, ...schedule(today()) }); // text: what was typed, so typing it again finds this card
+      Object.assign(c, { id: newId(), added: stamp(), text, ...schedule(today()) }); // text: what was typed, so typing it again finds this card
       state.draft = '';
       save(c);
       state.cards.push(c);

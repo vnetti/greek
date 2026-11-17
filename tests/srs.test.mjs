@@ -59,6 +59,9 @@ test('stats: stage, learned day, added day, weekly buckets', () => {
   assert.equal(addedAt({ id: ms.toString(36) + 'abc' }), ms);
   assert.equal(addedAt({ id: 'a1', introduced: 42 }), 42 * 864e5);
   assert.equal(addedAt({ id: 'a1' }), 0);
+  assert.equal(addedAt({ id: ms.toString(36) + 'abc', added: 5e12 }), 5e12); // the field wins over the id
+  const [d1, d2] = [draft('a', 0), draft('b', 0)];
+  assert.ok(d2.added > d1.added); // same millisecond still keeps typed order
   // weeks start on Monday: 12 Oct 2026 is one
   const mon = dayOf(Date.UTC(2026, 9, 12, 12));
   assert.equal(weekStart(mon), mon); assert.equal(weekStart(mon + 6), mon); assert.equal(weekStart(mon + 7), mon + 7);
