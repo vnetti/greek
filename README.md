@@ -52,3 +52,7 @@
 - **Ключи API** лежат в Firestore-документе `shared/keys`; читать его могут только адреса из списка в правилах Firestore, писать — только владелец. Остальные вводят свои ключи: они остаются на этом устройстве (флаг `ownKeys` в localStorage), и `loadKeys` их не перезаписывает.
 - **Напоминания.** Push через Firebase Cloud Messaging. Каждый час GitHub Action `.github/workflows/remind.yml` запускает `scripts/remind.mjs`; нужен секрет репозитория `FIREBASE_SA` (JSON сервисного аккаунта).
 - **Тесты.** `npm test` (нужен только node 22+, зависимостей нет): `tests/` — расписание, проверка ответа и поиск; `scripts/remind.test.mjs` — напоминания. `scripts/remind.mjs` берёт правила расписания из `js/srs.js`.
+
+## Планы
+
+- **Другие ИИ-провайдеры для карточек** — Claude (Anthropic), DeepSeek и т. п. Сейчас есть Gemini и OpenAI. Новый провайдер — это запись в `AI`, лесенка моделей и функция запроса рядом с `gemini()` / `openai()` в `js/api.js`, плюс ключ в `KEYS` (`js/store.js`) и поле в форме ключей (`js/screens/account.js`). Перед добавлением проверить, что API отвечает браузеру с CORS (и на ошибках тоже — у OpenAI ошибки POST без CORS, см. проверку через `/v1/models`).
