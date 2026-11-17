@@ -186,6 +186,7 @@ button.say.big{width:104px;height:104px;margin:0;background:var(--inset)} button
 .st .name{font-size:13px;font-weight:700;margin-bottom:4px}
 .st .when{font-size:13px;font-weight:700;white-space:nowrap;text-align:right}
 .form label{display:block;font-size:13px;font-weight:700;color:var(--mut);margin-bottom:14px;text-align:left}
+.form label[hidden]{display:none}
 .form input{margin-top:6px;font-weight:500}
 
 /* ---------- more: theme picker ---------- */

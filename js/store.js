@@ -79,13 +79,15 @@ export async function migrate() {
 // Others get a permission error here and simply type their own keys. Mirrored to localStorage for sync access.
 // ownKeys: set while keys saved on this device aren't on the server (non-owner, or not synced yet), so loadKeys keeps them.
 const keysRef = () => doc(fs, 'shared', 'keys');
-export const saveKeys = () => setDoc(keysRef(), { key: localStorage.getItem('key'), tts: localStorage.getItem('tts') })
+const KEYS = ['key', 'tts', 'okey', 'ai']; // Gemini, TTS, OpenAI key, which of the two makes cards
+// merge, empty skipped: a device on old code or an empty field never wipes a key other devices use
+export const saveKeys = () => setDoc(keysRef(), Object.fromEntries(KEYS.map(n => [n, localStorage.getItem(n)]).filter(([, v]) => v)), { merge: true })
   .then(() => (localStorage.removeItem('ownKeys'), true), () => false); // resolves true once the server has them
 export async function loadKeys() {
   let d;
   try { d = await getDoc(keysRef()); } catch { return; } // offline or not on the allowlist: keep what's here
   const k = d.data();
-  if (!k) { if (localStorage.getItem('key')) saveKeys(); return; } // no doc yet: the first device with a Gemini key uploads it (not awaited: boot waits on us)
+  if (!k) { if (localStorage.getItem('key') || localStorage.getItem('okey')) saveKeys(); return; } // no doc yet: the first device with a key uploads it (not awaited: boot waits on us)
   if (localStorage.getItem('ownKeys')) return;
-  for (const n of ['key', 'tts']) if (k[n] != null) localStorage.setItem(n, k[n]);
+  for (const n of KEYS) if (k[n] != null) localStorage.setItem(n, k[n]);
 }

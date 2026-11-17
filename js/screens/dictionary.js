@@ -7,6 +7,7 @@ import { say } from '../audio.js';
 import { searchKeys, matcher } from '../search.js';
 import { app, icon, LINES, badge, wordTrack, scale, back, SAY, cardHtml, wire, level, clearable } from '../ui.js';
 import { home } from './home.js';
+import { processPending } from './add.js';
 
 export function list() {
   const sortKey = c => (c.gr || c.text).replace(/^(ο|η|το|οι|τα)\s+/, '');
@@ -29,12 +30,30 @@ export function list() {
   clearable(s);
   document.querySelectorAll('.item').forEach(el => el.onclick = () => {
     const c = state.cards.find(c => c.id === el.dataset.id);
-    if (!c.pending) return view(c);
-    if (!confirm(`«${c.text}» ещё не готово. Убрать из очереди?`)) return;
+    c.pending ? waiting(c) : view(c);
+  });
+}
+
+// A word still without its card: why, retry it now or drop it.
+function waiting(c, msg = '') {
+  app.innerHTML = `<div class="top">${back()}<h2>Не доделано</h2></div>
+    <section class="block"><b lang="el">${esc(c.text)}</b><p class="small mut" style="margin:6px 0 0">${esc(c.err ? 'Не получилось: ' + c.err : 'Ждёт интернета')}</p></section>
+    <div class="msg">${esc(msg)}</div>
+    <button id="redo" style="margin-top:12px">Перезапустить</button>
+    <button class="bad" id="del" style="margin-top:12px">Убрать из очереди</button>`;
+  $('#x').onclick = () => list();
+  $('#redo').onclick = async e => {
+    const b = e.target; b.disabled = true; b.textContent = 'Делаем…';
+    await processPending(c); // a run already going is awaited first
+    if (!b.isConnected) return; // the user left this screen meanwhile
+    c.pending ? waiting(c, navigator.onLine ? '' : 'Нет интернета') : view(c);
+  };
+  $('#del').onclick = () => {
+    if (!confirm(`Убрать «${c.text}» из очереди?`)) return;
     state.cards = state.cards.filter(x => x !== c);
     remove(c.id);
     list();
-  });
+  };
 }
 
 // Read-only card from the dictionary: where the word is on each line and when it comes up next; editing is one tap away.

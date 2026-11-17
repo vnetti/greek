@@ -1,7 +1,7 @@
 import { $, esc, plural } from '../util.js';
 import { state } from '../state.js';
 import { auth, signOut, save, loadAll, saveKeys, savePush, pushToken, isSupported, streakNow } from '../store.js';
-import { key } from '../api.js';
+import { key, ai, AI } from '../api.js';
 import { app, icon, back, avatar, sign } from '../ui.js';
 import { home } from './home.js';
 import { stats, knownCount } from './stats.js';
@@ -40,8 +40,11 @@ export function account(msg = '', at = '') { // at: the section the message belo
         <span class="dot" aria-hidden="true" style="--g:${g};--p:${p};--o:${o}">${name[0]}</span>${name}</button>`).join('')}</div>
       <p class="small mut" style="margin:12px 0 0">Светлая или тёмная — как в настройках телефона. «Ночь» всегда тёмная.</p></section>
     <form class="block form set" id="keys">${sign('key', 'Ключи API')}
-      <label>Gemini — делает карточки<input name="key" class="secret" value="${esc(key())}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
+      <label>Карточки делает<select name="ai">${Object.entries(AI).map(([id, [name]]) => `<option value="${id}"${id === ai() ? ' selected' : ''}>${name}</option>`).join('')}</select></label>
+      <label data-ai="gemini">Ключ Gemini<input name="key" class="secret" value="${esc(key('key'))}" autocomplete="off" spellcheck="false" placeholder="aistudio.google.com/apikey"></label>
+      <label data-ai="openai">Ключ OpenAI<input name="okey" class="secret" value="${esc(key('okey'))}" autocomplete="off" spellcheck="false" placeholder="platform.openai.com/api-keys"></label>
       <label>Google Text-to-Speech — озвучка<input name="tts" class="secret" value="${esc(key('tts'))}" autocomplete="off" spellcheck="false" placeholder="пусто — голос iOS"></label>
+      <p class="small mut">Gemini — бесплатно на aistudio.google.com/apikey. OpenAI — platform.openai.com/api-keys, работает только с пополненным балансом. Озвучка — отдельный ключ Google Cloud с Text-to-Speech API, нужен и с OpenAI; без него говорит голос iOS.</p>
       <button class="sec" disabled>Сохранить</button></form>${note('keys')}
     <nav class="block menu data">${sign('archive', 'Данные')}
       <button class="mi" id="exp">Экспорт словаря<span class="v">${icon('chev')}</span></button>
@@ -55,11 +58,16 @@ export function account(msg = '', at = '') { // at: the section the message belo
   $('#rem').elements.on.onchange = e => { $('#rem').elements.hour.disabled = !e.target.checked; };
   $('#rem').onsubmit = e => { e.preventDefault(); saveReminders(e.target.elements.on.checked, +e.target.elements.hour.value); };
   document.querySelectorAll('#keys input').forEach(peekable);
+  // only the chosen service's key field shows; the other keeps its key for switching back
+  const pick = () => document.querySelectorAll('#keys [data-ai]').forEach(l => { l.hidden = l.dataset.ai !== $('#keys').elements.ai.value; });
+  $('#keys').elements.ai.onchange = pick; pick();
   $('#keys').onsubmit = e => {
     e.preventDefault();
-    const k = e.target.key.value.trim();
-    if (!k) return account('Ключ Gemini не может быть пустым', 'keys'); // an empty one would wipe the shared key for everyone
-    localStorage.setItem('key', k); localStorage.setItem('tts', e.target.tts.value.trim()); localStorage.setItem('ownKeys', '1');
+    const f = e.target.elements, p = f.ai.value, [name, n] = AI[p];
+    // an empty card key would wipe the shared one for everyone
+    if (!f[n].value.trim()) return account(`Ключ ${name} не может быть пустым`, 'keys');
+    for (const x of ['key', 'okey', 'tts']) localStorage.setItem(x, f[x].value.trim());
+    localStorage.setItem('ai', p); localStorage.setItem('ownKeys', '1');
     account('Ключи сохранены', 'keys');
     // not awaited: offline the write waits for the network; a rejection means we aren't the owner
     saveKeys().then(ok => { if (!ok && $('#keys')) account('Ключи сохранены только на этом устройстве', 'keys'); });
@@ -74,7 +82,7 @@ export function account(msg = '', at = '') { // at: the section the message belo
   $('#out').onclick = () => {
     if (!confirm('Выйти из аккаунта?')) return;
     // keys came from this account: don't leave them for whoever signs in next
-    ['key', 'tts', 'ownKeys'].forEach(n => localStorage.removeItem(n));
+    ['key', 'okey', 'ai', 'tts', 'ownKeys'].forEach(n => localStorage.removeItem(n));
     state.cards = []; state.stats = {}; state.push = {}; state.draft = state.search = ''; state.news = null;
     signOut(auth); // onAuthStateChanged then shows the login screen
   };

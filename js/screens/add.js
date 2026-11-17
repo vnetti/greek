@@ -14,7 +14,7 @@ const making = text => `<div class="splash"><div class="flip">
 
 export async function add(raw) {
   const words = raw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
-  const park = list => { state.draft = ''; list.forEach(w => { const d = draft(w, today()); state.cards.push(d); save(d); }); };
+  const park = (list, err) => { state.draft = ''; list.forEach(w => { const d = draft(w, today()); if (err) d.err = err; state.cards.push(d); save(d); }); };
   if (words.length > 1) { // batch: no preview, fill in the background
     park(words);
     home(`Готовим ${plural(words.length, 'карточку', 'карточки', 'карточек')}…`);
@@ -38,20 +38,31 @@ export async function add(raw) {
     };
   } catch (e) {
     if (e.status) return home('Ошибка: ' + e.message);
-    park([text]); // no network: keep the word, finish it later
-    home(`Нет связи — «${text}» доделаем, когда появится интернет`);
+    park([text], e.noAnswer && e.message); // no network or no answer: keep the word, finish it later
+    home(e.noAnswer ? `${e.message} — «${text}» отложили, перезапусти позже` : `Нет связи — «${text}» доделаем, когда появится интернет`);
   }
 }
 
 // Words added without network (or several at once) wait here as drafts and get filled in the background.
-let busy = false;
-export async function processPending() {
-  if (busy || !navigator.onLine) return;
-  busy = true;
-  for (const c of state.cards.filter(c => c.pending)) {
-    try { Object.assign(c, (await build(c.text)).c, { pending: false }); delete c.err; save(c); }
-    catch (e) { if (!e.status) break; c.err = e.message; save(c); } // offline again: stop, the 'online' event retries; a real error is shown in the dictionary
-  }
-  busy = false;
-  if ($('#w') && !$('#w').value) home(); // refresh counters unless the user is typing
+// One run at a time: a call during a run (the 'online' event, a retry button, a batch add) waits for it, then gets its own run.
+// only = just that card.
+let run = null;
+export function processPending(only) {
+  if (run) return run.then(() => processPending(only));
+  if (!navigator.onLine) return Promise.resolve(); // nothing to do, and no redraw that would wipe the screen's message
+  return run = (async () => {
+    for (const c of state.cards.filter(c => c.pending && (!only || c === only))) {
+      // removed from the queue (or signed out) while its build ran: don't write it back
+      try { const r = await build(c.text); if (!state.cards.includes(c)) continue; Object.assign(c, r.c, { pending: false }); delete c.err; save(c); }
+      catch (e) {
+        if (!state.cards.includes(c)) continue;
+        if (e.status || e.noAnswer) c.err = e.message; else delete c.err; // shown in the dictionary and on home
+        save(c);
+        if (!e.status) break; // offline or the AI is silent: the rest would fail the same way
+      }
+    }
+  })().finally(() => {
+    run = null;
+    if ($('#w') && !$('#w').value) home(); // refresh counters unless the user is typing
+  });
 }

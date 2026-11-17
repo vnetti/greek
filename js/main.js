@@ -9,7 +9,7 @@ import { processPending } from './screens/add.js';
 import './swipe.js';
 import { syncThemeColor } from './screens/account.js';
 
-addEventListener('online', processPending);
+addEventListener('online', () => processPending()); // not the event as `only`
 // back from the background: another device may have practised meanwhile (and the day may have turned)
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && auth.currentUser) refreshStats().then(() => { if ($('#w') && !$('#w').value) home(); }, () => {});

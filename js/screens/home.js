@@ -2,17 +2,17 @@ import { $, esc, today, plural } from '../util.js';
 import { state } from '../state.js';
 import { DIRS, queue, newWaiting, news } from '../srs.js';
 import { auth, streakNow, markSeen } from '../store.js';
-import { key } from '../api.js';
+import { key, ai, AI } from '../api.js';
 import { app, icon, LINES, badge, lineTrack, scale, streakChip, avatar } from '../ui.js';
 import { next } from './review.js';
-import { add } from './add.js';
+import { add, processPending } from './add.js';
 import { list } from './dictionary.js';
 import { account } from './account.js';
 import { help } from './help.js';
 import { streak, cheer } from './streak.js';
 
 export function home(msg = '') {
-  const qq = queue(state.cards, today()), due = qq.length, waiting = newWaiting(state.cards, today()), pend = state.cards.filter(c => c.pending).length;
+  const qq = queue(state.cards, today()), due = qq.length, waiting = newWaiting(state.cards, today()), pend = state.cards.filter(c => c.pending);
   const per = d => qq.filter(x => x.dir === d).length;
   const n = streakNow(), doneToday = state.stats.last === today(), u = auth.currentUser;
   let nw = news(state.stats, today()); // milestone / spent freezes: marked seen once, kept on screen until reload or tomorrow
@@ -32,13 +32,14 @@ export function home(msg = '') {
     </section>
     <form id="add" class="block add"><textarea id="w" lang="el" rows="1" placeholder="Новое слово или список" aria-label="Новое слово" autocomplete="off"></textarea>
       <button aria-label="Добавить">${icon('plus')}</button></form>
-    <div class="msg">${esc(msg)}${pend ? `<div>${icon('clock')}Ждут интернета: ${pend} — доделаем сами</div>` : ''}</div>
+    <div class="msg">${esc(msg)}${pend.length ? `<div>${icon('clock')}Не доделаны: ${pend.length} — ${esc(pend.find(c => c.err)?.err || 'ждут интернета')}</div>
+      <button class="sec" id="redo" style="margin-top:8px">Перезапустить все сейчас</button>` : ''}</div>
     <nav class="block menu">
       <button class="mi" id="lst">Словарь<span class="v num">${state.cards.length}${icon('chev')}</span></button>
       <button class="mi" id="help">Как это работает<span class="v">${icon('chev')}</span></button>
     </nav>`;
   $('#rev').onclick = () => { state.q = queue(state.cards, today()); state.total = state.q.length; state.recent = []; state.trainAt = 0; next(); };
-  $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (!w) return; if (!key()) return account('Сначала вставь ключ Gemini — без него не сделать карточку', 'keys'); add(w); };
+  $('#add').onsubmit = e => { e.preventDefault(); const w = $('#w').value.trim(); if (!w) return; if (!key()) return account(`Сначала вставь ключ ${AI[ai()][0]} — без него не сделать карточку`, 'keys'); add(w); };
   $('#w').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#add').requestSubmit(); } };
   const w = $('#w'), grow = () => { w.style.height = 'auto'; w.style.height = w.scrollHeight + 'px'; };
   w.oninput = () => { state.draft = w.value; grow(); };
@@ -47,4 +48,10 @@ export function home(msg = '') {
   $('#me').onclick = () => account();
   $('#help').onclick = () => help();
   $('#streak').onclick = () => streak();
+  if ($('#redo')) $('#redo').onclick = async e => {
+    e.target.disabled = true; e.target.textContent = 'Делаем…';
+    await processPending();
+    if (!$('#w')) return; // the user moved on (review, a new card…): don't pull them back
+    home(navigator.onLine ? '' : 'Нет интернета — доделаем, когда появится');
+  };
 }
