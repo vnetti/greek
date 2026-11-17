@@ -46,6 +46,7 @@ function waiting(c, msg = '') {
     const b = e.target; b.disabled = true; b.textContent = 'Делаем…';
     await processPending(c); // a run already going is awaited first
     if (!b.isConnected) return; // the user left this screen meanwhile
+    c = state.cards.find(x => x.id === c.id) || c; // an import may have swapped the object
     c.pending ? waiting(c, navigator.onLine ? '' : 'Нет интернета') : view(c);
   };
   $('#del').onclick = () => {

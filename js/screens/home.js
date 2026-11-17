@@ -52,6 +52,7 @@ export function home(msg = '') {
     e.target.disabled = true; e.target.textContent = 'Делаем…';
     await processPending();
     if (!$('#w')) return; // the user moved on (review, a new card…): don't pull them back
+    if ($('#w').value) { e.target.disabled = false; e.target.textContent = 'Перезапустить все сейчас'; return; } // typing: keep the keyboard
     home(navigator.onLine ? '' : 'Нет интернета — доделаем, когда появится');
   };
 }

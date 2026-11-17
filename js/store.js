@@ -1,7 +1,7 @@
 // Firebase: the only module that imports the SDK. Others get auth helpers re-exported from here.
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, getDocs, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import { initializeFirestore, persistentLocalCache, collection, doc, getDoc, getDocs, setDoc, deleteDoc, deleteField } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getMessaging, getToken, isSupported } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js';
 import { state } from './state.js';
 import { today } from './util.js';
@@ -80,8 +80,8 @@ export async function migrate() {
 // ownKeys: set while keys saved on this device aren't on the server (non-owner, or not synced yet), so loadKeys keeps them.
 const keysRef = () => doc(fs, 'shared', 'keys');
 const KEYS = ['key', 'tts', 'okey', 'ai']; // Gemini, TTS, OpenAI key, which of the two makes cards
-// merge, empty skipped: a device on old code or an empty field never wipes a key other devices use
-export const saveKeys = () => setDoc(keysRef(), Object.fromEntries(KEYS.map(n => [n, localStorage.getItem(n)]).filter(([, v]) => v)), { merge: true })
+// merge: fields this code doesn't know survive; a field emptied in the form is removed (else loadKeys would bring it back)
+export const saveKeys = () => setDoc(keysRef(), Object.fromEntries(KEYS.map(n => [n, localStorage.getItem(n) || deleteField()])), { merge: true })
   .then(() => (localStorage.removeItem('ownKeys'), true), () => false); // resolves true once the server has them
 export async function loadKeys() {
   let d;

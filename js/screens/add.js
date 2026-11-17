@@ -44,18 +44,19 @@ export async function add(raw) {
 }
 
 // Words added without network (or several at once) wait here as drafts and get filled in the background.
-// One run at a time: a call during a run (the 'online' event, a retry button, a batch add) waits for it, then gets its own run.
-// only = just that card.
-let run = null;
+// One run at a time: a call during a run (the 'online' event, a retry button, a batch add) waits for it, then gets a run of
+// its own; all-words calls share one such follow-up, so taps and events don't stack up. only = just that card.
+let run = null, again = null;
 export function processPending(only) {
-  if (run) return run.then(() => processPending(only));
+  if (run) return only ? run.then(() => processPending(only)) : (again ||= run.then(() => (again = null, processPending())));
   if (!navigator.onLine) return Promise.resolve(); // nothing to do, and no redraw that would wipe the screen's message
   return run = (async () => {
-    for (const c of state.cards.filter(c => c.pending && (!only || c === only))) {
-      // removed from the queue (or signed out) while its build ran: don't write it back
-      try { const r = await build(c.text); if (!state.cards.includes(c)) continue; Object.assign(c, r.c, { pending: false }); delete c.err; save(c); }
+    for (const { id, text } of state.cards.filter(c => c.pending && (!only || c.id === only.id))) {
+      // by id: an import or re-sign-in swaps the card objects mid-run; gone (removed, signed out) → don't write it back
+      const cur = () => state.cards.find(c => c.id === id && c.pending);
+      try { const r = await build(text), c = cur(); if (!c) continue; Object.assign(c, r.c, { pending: false }); delete c.err; save(c); }
       catch (e) {
-        if (!state.cards.includes(c)) continue;
+        const c = cur(); if (!c) continue;
         if (e.status || e.noAnswer) c.err = e.message; else delete c.err; // shown in the dictionary and on home
         save(c);
         if (!e.status) break; // offline or the AI is silent: the rest would fail the same way
