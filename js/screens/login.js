@@ -8,5 +8,8 @@ export function login(msg = '') {
     <p>Греческие слова на каждый день</p><button id="in">Войти через Google</button><p class="small">${esc(msg)}</p></div>`;
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' }); // let a different account sign in after logout
-  $('#in').onclick = () => signInWithPopup(auth, provider).catch(e => login('Ошибка входа: ' + e.message));
+  // In-app browsers (Telegram, Instagram…) kill the Google popup → it surfaces as popup-closed/blocked
+  $('#in').onclick = () => signInWithPopup(auth, provider).catch(e => login(/popup/.test(e.code)
+    ? 'Окно входа закрылось. Если ссылка открыта внутри Telegram, Instagram и т.п. — откройте её в Safari или Chrome (меню ⋯ → «Открыть в браузере»).'
+    : 'Ошибка входа: ' + e.message));
 }
