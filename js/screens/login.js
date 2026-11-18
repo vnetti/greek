@@ -10,6 +10,6 @@ export function login(msg = '') {
   provider.setCustomParameters({ prompt: 'select_account' }); // let a different account sign in after logout
   // In-app browsers (Telegram, Instagram…) kill the Google popup → it surfaces as popup-closed/blocked
   $('#in').onclick = () => signInWithPopup(auth, provider).catch(e => login(/popup/.test(e.code)
-    ? 'Окно входа закрылось. Если ссылка открыта внутри Telegram, Instagram и т.п. — откройте её в Safari или Chrome (меню ⋯ → «Открыть в браузере»).'
+    ? 'The sign-in window closed. If you opened this link inside Telegram, Instagram or another app, open it in Safari or Chrome instead (⋯ menu → "Open in browser").'
     : 'Ошибка входа: ' + e.message));
 }
